@@ -41,15 +41,15 @@ impl AppConfig {
 
     /// Resolves the default device hostname
     pub fn default_device_name() -> String {
-        if let Ok(hostname) = std::env::var("COMPUTERNAME") {
-            if !hostname.trim().is_empty() {
-                return hostname;
-            }
+        if let Ok(hostname) = std::env::var("COMPUTERNAME")
+            && !hostname.trim().is_empty()
+        {
+            return hostname;
         }
-        if let Ok(hostname) = std::env::var("HOSTNAME") {
-            if !hostname.trim().is_empty() {
-                return hostname;
-            }
+        if let Ok(hostname) = std::env::var("HOSTNAME")
+            && !hostname.trim().is_empty()
+        {
+            return hostname;
         }
         "AirDrop-Bridge-PC".to_string()
     }

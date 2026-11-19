@@ -8,6 +8,7 @@ use axum::{
 };
 use serde_json::json;
 
+#[allow(clippy::result_large_err)]
 pub async fn auth_middleware(
     State(state): State<AppState>,
     req: Request<Body>,
