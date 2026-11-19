@@ -1,0 +1,28 @@
+# Rust target directory
+/target/
+
+# Cargo lockfile (for libraries; for executables we often keep it, but can be generated)
+# We will track Cargo.lock for reproducible releases
+
+# Environment and sensitive local config
+.env
+*.local
+config.json
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Build artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+*.pdb
+*.part
+*.old.exe
+*.new.exe
