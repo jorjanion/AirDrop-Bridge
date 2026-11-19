@@ -55,8 +55,8 @@ impl AutostartManager {
         use std::ffi::OsStr;
         use std::os::windows::ffi::OsStrExt;
         use windows_sys::Win32::System::Registry::{
-            HKEY_CURRENT_USER, KEY_SET_VALUE, REG_SZ, RegCloseKey, RegDeleteValueW,
-            RegOpenKeyExW, RegSetValueExW,
+            HKEY_CURRENT_USER, KEY_SET_VALUE, REG_SZ, RegCloseKey, RegDeleteValueW, RegOpenKeyExW,
+            RegSetValueExW,
         };
 
         let subkey: Vec<u16> = OsStr::new("Software\\Microsoft\\Windows\\CurrentVersion\\Run")
@@ -70,7 +70,14 @@ impl AutostartManager {
 
         unsafe {
             let mut hkey = std::ptr::null_mut();
-            if RegOpenKeyExW(HKEY_CURRENT_USER, subkey.as_ptr(), 0, KEY_SET_VALUE, &mut hkey) != 0 {
+            if RegOpenKeyExW(
+                HKEY_CURRENT_USER,
+                subkey.as_ptr(),
+                0,
+                KEY_SET_VALUE,
+                &mut hkey,
+            ) != 0
+            {
                 return Err("Failed to open Windows registry Run key".to_string());
             }
 

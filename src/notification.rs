@@ -48,9 +48,7 @@ impl NotificationManager {
         #[cfg(windows)]
         {
             let arg = format!("/select,{}", path.display());
-            let _ = std::process::Command::new("explorer")
-                .arg(arg)
-                .spawn();
+            let _ = std::process::Command::new("explorer").arg(arg).spawn();
         }
         #[cfg(not(windows))]
         {
@@ -192,6 +190,13 @@ $notifier.Show($toast)"#,
     };
 
     let _ = std::process::Command::new("powershell")
-        .args(["-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden", "-Command", &script])
+        .args([
+            "-NoProfile",
+            "-NonInteractive",
+            "-WindowStyle",
+            "Hidden",
+            "-Command",
+            &script,
+        ])
         .output();
 }

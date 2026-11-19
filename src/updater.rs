@@ -1,0 +1,254 @@
+use crate::notification::NotificationManager;
+use semver::Version;
+use serde::Deserialize;
+use std::path::Path;
+use tracing::{error, info, warn};
+
+const REPO_OWNER: &str = "jorjanion";
+const REPO_NAME: &str = "airdrop-bridge";
+const USER_AGENT: &str = "AirDropBridge-Updater/0.1.0";
+
+#[derive(Debug, Deserialize)]
+pub struct GitHubRelease {
+    pub tag_name: String,
+    pub name: Option<String>,
+    pub html_url: String,
+    pub body: Option<String>,
+    pub assets: Vec<GitHubAsset>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GitHubAsset {
+    pub name: String,
+    pub browser_download_url: String,
+    pub size: u64,
+}
+
+pub struct AutoUpdater;
+
+impl AutoUpdater {
+    /// Compares two version strings (handles optional 'v' prefix)
+    pub fn is_newer(current: &str, remote: &str) -> bool {
+        let clean_cur = current.trim_start_matches('v');
+        let clean_rem = remote.trim_start_matches('v');
+
+        match (Version::parse(clean_cur), Version::parse(clean_rem)) {
+            (Ok(cur), Ok(rem)) => rem > cur,
+            _ => false,
+        }
+    }
+
+    /// Cleans up any leftover .old.exe or .part files from previous updates
+    pub fn cleanup_old_binaries() {
+        if let Ok(exe_path) = std::env::current_exe()
+            && let Some(parent) = exe_path.parent()
+        {
+            let old_bin = parent.join(format!(
+                "{}.old.exe",
+                exe_path
+                    .file_stem()
+                    .and_then(|s| s.to_str())
+                    .unwrap_or("airdrop-bridge")
+            ));
+            if old_bin.exists() {
+                let _ = std::fs::remove_file(old_bin);
+                info!("Cleaned up old binary file from previous update");
+            }
+        }
+    }
+
+    /// Queries the latest GitHub release
+    pub async fn fetch_latest_release() -> Result<GitHubRelease, String> {
+        let url = format!(
+            "https://api.github.com/repos/{}/{}/releases/latest",
+            REPO_OWNER, REPO_NAME
+        );
+
+        let client = reqwest::Client::builder()
+            .user_agent(USER_AGENT)
+            .timeout(std::time::Duration::from_secs(10))
+            .build()
+            .map_err(|e| format!("Failed to build HTTP client: {}", e))?;
+
+        let resp = client
+            .get(&url)
+            .send()
+            .await
+            .map_err(|e| format!("Failed to connect to GitHub Releases API: {}", e))?;
+
+        if !resp.status().is_success() {
+            return Err(format!(
+                "GitHub Releases API returned status: {}",
+                resp.status()
+            ));
+        }
+
+        let release = resp
+            .json::<GitHubRelease>()
+            .await
+            .map_err(|e| format!("Failed to parse release response: {}", e))?;
+
+        Ok(release)
+    }
+
+    /// Checks for updates and performs hot-swap replacement if a newer version exists
+    pub async fn check_and_update(notify_if_latest: bool) {
+        info!("Checking for updates on GitHub...");
+        let current_version = env!("CARGO_PKG_VERSION");
+
+        let release = match Self::fetch_latest_release().await {
+            Ok(r) => r,
+            Err(e) => {
+                warn!("Update check failed: {}", e);
+                if notify_if_latest {
+                    NotificationManager::notify_clipboard(
+                        "update",
+                        "No se pudo comprobar actualizaciones (sin conexión)",
+                    );
+                }
+                return;
+            }
+        };
+
+        if !Self::is_newer(current_version, &release.tag_name) {
+            info!("AirDrop Bridge is up to date (version {})", current_version);
+            if notify_if_latest {
+                NotificationManager::notify_clipboard(
+                    "update",
+                    &format!("AirDrop Bridge ya está actualizado ({})", current_version),
+                );
+            }
+            return;
+        }
+
+        info!(
+            "Newer version found: {} (current: {})",
+            release.tag_name, current_version
+        );
+
+        // Find matching binary asset for current OS
+        #[cfg(windows)]
+        let target_asset = release
+            .assets
+            .iter()
+            .find(|a| a.name.ends_with(".exe") || a.name.contains("windows"));
+
+        #[cfg(not(windows))]
+        let target_asset = release
+            .assets
+            .iter()
+            .find(|a| a.name.contains("linux") || !a.name.contains("windows"));
+
+        if let Some(asset) = target_asset {
+            info!("Found downloadable asset: {}", asset.name);
+            match Self::download_and_apply(&asset.browser_download_url).await {
+                Ok(_) => {
+                    let msg = format!(
+                        "AirDrop Bridge se ha actualizado a {}. Reinicia para aplicar.",
+                        release.tag_name
+                    );
+                    NotificationManager::notify_clipboard("update", &msg);
+                }
+                Err(e) => {
+                    error!("Failed to apply update: {}", e);
+                }
+            }
+        }
+    }
+
+    /// Downloads and replaces the executable in-place
+    async fn download_and_apply(download_url: &str) -> Result<(), String> {
+        let current_exe = std::env::current_exe()
+            .map_err(|e| format!("Failed to get current executable path: {}", e))?;
+        let parent_dir = current_exe
+            .parent()
+            .ok_or_else(|| "Failed to get exe directory".to_string())?;
+
+        let client = reqwest::Client::builder()
+            .user_agent(USER_AGENT)
+            .build()
+            .map_err(|e| e.to_string())?;
+
+        let resp = client
+            .get(download_url)
+            .send()
+            .await
+            .map_err(|e| format!("Failed to download update payload: {}", e))?;
+
+        let bytes = resp
+            .bytes()
+            .await
+            .map_err(|e| format!("Failed to read update stream: {}", e))?;
+
+        let new_exe_temp = parent_dir.join("airdrop-bridge.new.exe");
+        std::fs::write(&new_exe_temp, &bytes)
+            .map_err(|e| format!("Failed to write downloaded update file: {}", e))?;
+
+        // Perform safe in-place replacement
+        Self::swap_executables(&current_exe, &new_exe_temp)
+    }
+
+    /// Swaps current running executable with the new one
+    fn swap_executables(current: &Path, new: &Path) -> Result<(), String> {
+        #[cfg(windows)]
+        {
+            let old_exe = current.with_extension("old.exe");
+            if old_exe.exists() {
+                let _ = std::fs::remove_file(&old_exe);
+            }
+
+            // In Windows, a running exe can be renamed
+            std::fs::rename(current, &old_exe)
+                .map_err(|e| format!("Failed to rename running exe to .old.exe: {}", e))?;
+
+            // Rename new exe to the active exe name
+            if let Err(e) = std::fs::rename(new, current) {
+                // Rollback on failure
+                let _ = std::fs::rename(&old_exe, current);
+                return Err(format!("Failed to install new exe, rolled back: {}", e));
+            }
+
+            info!("Executable hot-swap completed successfully!");
+            Ok(())
+        }
+
+        #[cfg(not(windows))]
+        {
+            std::fs::rename(new, current)
+                .map_err(|e| format!("Failed to replace binary: {}", e))?;
+            info!("Binary replacement completed successfully!");
+            Ok(())
+        }
+    }
+
+    /// Spawns periodic background update check loop
+    pub fn spawn_background_checker() {
+        tokio::spawn(async {
+            // Wait 10 seconds after boot
+            tokio::time::sleep(std::time::Duration::from_secs(10)).await;
+            Self::check_and_update(false).await;
+
+            // Check every 12 hours
+            let mut interval = tokio::time::interval(std::time::Duration::from_secs(12 * 3600));
+            loop {
+                interval.tick().await;
+                Self::check_and_update(false).await;
+            }
+        });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_version_comparison() {
+        assert!(AutoUpdater::is_newer("0.1.0", "0.2.0"));
+        assert!(AutoUpdater::is_newer("v0.1.0", "v0.1.1"));
+        assert!(AutoUpdater::is_newer("0.1.0", "v1.0.0"));
+        assert!(!AutoUpdater::is_newer("0.2.0", "0.1.0"));
+        assert!(!AutoUpdater::is_newer("1.0.0", "1.0.0"));
+        assert!(!AutoUpdater::is_newer("v1.0.0", "1.0.0"));
+    }
+}

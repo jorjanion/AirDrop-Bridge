@@ -16,7 +16,8 @@ pub struct ClipboardImageResult {
 impl ClipboardManager {
     /// Copies plain text or URL to the system clipboard
     pub fn set_text(text: &str) -> Result<(), String> {
-        let mut clipboard = Clipboard::new().map_err(|e| format!("Failed to access clipboard: {}", e))?;
+        let mut clipboard =
+            Clipboard::new().map_err(|e| format!("Failed to access clipboard: {}", e))?;
         clipboard
             .set_text(text)
             .map_err(|e| format!("Failed to set clipboard text: {}", e))?;
@@ -26,7 +27,8 @@ impl ClipboardManager {
 
     /// Reads plain text or URL from the system clipboard
     pub fn get_text() -> Result<Option<String>, String> {
-        let mut clipboard = Clipboard::new().map_err(|e| format!("Failed to access clipboard: {}", e))?;
+        let mut clipboard =
+            Clipboard::new().map_err(|e| format!("Failed to access clipboard: {}", e))?;
         match clipboard.get_text() {
             Ok(text) => Ok(Some(text)),
             Err(arboard::Error::ContentNotAvailable) => Ok(None),
@@ -47,7 +49,8 @@ impl ClipboardManager {
             bytes: Cow::Owned(rgba.into_raw()),
         };
 
-        let mut clipboard = Clipboard::new().map_err(|e| format!("Failed to access clipboard: {}", e))?;
+        let mut clipboard =
+            Clipboard::new().map_err(|e| format!("Failed to access clipboard: {}", e))?;
         clipboard
             .set_image(image_data)
             .map_err(|e| format!("Failed to set clipboard image: {}", e))?;
@@ -64,18 +67,17 @@ impl ClipboardManager {
             b64_str
         };
 
-        let decoded = base64::Engine::decode(
-            &base64::engine::general_purpose::STANDARD,
-            clean_b64.trim(),
-        )
-        .map_err(|e| format!("Failed to decode base64 image: {}", e))?;
+        let decoded =
+            base64::Engine::decode(&base64::engine::general_purpose::STANDARD, clean_b64.trim())
+                .map_err(|e| format!("Failed to decode base64 image: {}", e))?;
 
         Self::set_image_from_bytes(&decoded)
     }
 
     /// Reads an image from the system clipboard and converts it to PNG Base64
     pub fn get_image() -> Result<Option<ClipboardImageResult>, String> {
-        let mut clipboard = Clipboard::new().map_err(|e| format!("Failed to access clipboard: {}", e))?;
+        let mut clipboard =
+            Clipboard::new().map_err(|e| format!("Failed to access clipboard: {}", e))?;
         match clipboard.get_image() {
             Ok(img_data) => {
                 let rgba_image = image::RgbaImage::from_raw(
@@ -93,10 +95,8 @@ impl ClipboardManager {
                     .write_to(&mut cursor, ImageFormat::Png)
                     .map_err(|e| format!("Failed to encode image to PNG: {}", e))?;
 
-                let b64 = base64::Engine::encode(
-                    &base64::engine::general_purpose::STANDARD,
-                    &png_bytes,
-                );
+                let b64 =
+                    base64::Engine::encode(&base64::engine::general_purpose::STANDARD, &png_bytes);
 
                 Ok(Some(ClipboardImageResult {
                     width: img_data.width,
