@@ -26,7 +26,10 @@ impl QrManager {
         let code = QrCode::new(content.as_bytes())
             .map_err(|e| format!("Failed to generate QR code: {}", e))?;
 
-        let image = code.render::<Luma<u8>>().max_dimensions(width_px, width_px).build();
+        let image = code
+            .render::<Luma<u8>>()
+            .max_dimensions(width_px, width_px)
+            .build();
 
         let mut png_bytes = Vec::new();
         let mut cursor = Cursor::new(&mut png_bytes);

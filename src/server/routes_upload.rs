@@ -46,10 +46,7 @@ pub async fn upload_handler(
             })),
         )
     })? {
-        let raw_filename = field
-            .file_name()
-            .unwrap_or("received_file")
-            .to_string();
+        let raw_filename = field.file_name().unwrap_or("received_file").to_string();
 
         let safe_name = sanitize_filename::sanitize(&raw_filename);
         let safe_name = if safe_name.trim().is_empty() {

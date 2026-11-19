@@ -32,7 +32,10 @@ pub async fn set_clipboard_handler(
                 })?;
 
                 let summary = if payload.content.chars().count() > 50 {
-                    format!("{}...", payload.content.chars().take(47).collect::<String>())
+                    format!(
+                        "{}...",
+                        payload.content.chars().take(47).collect::<String>()
+                    )
                 } else {
                     payload.content.clone()
                 };
@@ -178,7 +181,10 @@ mod tests {
         // Verify ServerEvent was broadcast
         let event = rx.try_recv().unwrap();
         match event {
-            ServerEvent::ClipboardReceived { content_type, summary } => {
+            ServerEvent::ClipboardReceived {
+                content_type,
+                summary,
+            } => {
                 assert_eq!(content_type, "text");
                 assert!(summary.contains("Hello from iOS"));
             }

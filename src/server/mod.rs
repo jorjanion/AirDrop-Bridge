@@ -67,7 +67,10 @@ pub fn create_router(state: AppState) -> Router {
             post(routes_clipboard::set_clipboard_handler)
                 .get(routes_clipboard::get_clipboard_handler),
         )
-        .layer(from_fn_with_state(state.clone(), middleware::auth_middleware));
+        .layer(from_fn_with_state(
+            state.clone(),
+            middleware::auth_middleware,
+        ));
 
     Router::new()
         .merge(public_routes)

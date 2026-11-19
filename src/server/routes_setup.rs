@@ -30,7 +30,10 @@ pub async fn setup_page_handler(
     let local_ip_str = local_ip()
         .map(|ip| ip.to_string())
         .unwrap_or_else(|_| "127.0.0.1".to_string());
-    let mdns_host = format!("{}.local", conf.device_name.to_lowercase().replace(' ', "-"));
+    let mdns_host = format!(
+        "{}.local",
+        conf.device_name.to_lowercase().replace(' ', "-")
+    );
 
     let shortcut_config = json!({
         "token": conf.token,
@@ -227,7 +230,11 @@ pub async fn setup_page_handler(
         mdns_host = mdns_host,
         local_ip_str = local_ip_str,
         port = conf.port,
-        auth_status = if is_authorized { "Autenticado ✓" } else { "Pendiente" },
+        auth_status = if is_authorized {
+            "Autenticado ✓"
+        } else {
+            "Pendiente"
+        },
         shortcut_deep_link = shortcut_deep_link
     );
 
@@ -258,10 +265,8 @@ pub async fn qr_image_handler(State(state): State<AppState>) -> Result<Response,
         .unwrap_or_else(|_| "127.0.0.1".to_string());
 
     let url = QrManager::pairing_url(&local_ip_str, conf.port, &conf.token);
-    let png_bytes = QrManager::render_png(&url, 300).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let png_bytes =
+        QrManager::render_png(&url, 300).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    Ok((
-        [(header::CONTENT_TYPE, "image/png")],
-        png_bytes,
-    ).into_response())
+    Ok(([(header::CONTENT_TYPE, "image/png")], png_bytes).into_response())
 }
