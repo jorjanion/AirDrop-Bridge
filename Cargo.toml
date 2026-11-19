@@ -1,0 +1,48 @@
+[package]
+name = "airdrop-bridge"
+version = "0.1.0"
+edition = "2024"
+authors = ["Jorge <jorge.paris.f@gmail.com>"]
+description = "Ultra-lightweight, native, secure AirDrop bridge for Windows and Linux"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/jorjanion/airdrop-bridge"
+
+[dependencies]
+tokio = { version = "1.43", features = ["rt-multi-thread", "macros", "fs", "io-util", "sync", "time"] }
+axum = { version = "0.8", features = ["multipart"] }
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.9"
+hex = "0.4"
+arboard = "3.4"
+mdns-sd = "0.13"
+local-ip-address = "0.6"
+qrcode = "0.14"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+semver = "1.0"
+directories = "6.0"
+sanitize-filename = "0.6"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_Media_Audio",
+    "Win32_System_Registry",
+    "Win32_System_Com",
+    "Win32_UI_Shell"
+] }
+
+[target.'cfg(not(windows))'.dependencies]
+notify-rust = "4.11"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
