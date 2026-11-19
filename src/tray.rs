@@ -1,8 +1,12 @@
+#[cfg(windows)]
 use crate::autostart::AutostartManager;
 use crate::config::AppConfig;
 use std::sync::Arc;
 use tokio::sync::{RwLock, mpsc};
+#[cfg(windows)]
 use tracing::error;
+#[cfg(not(windows))]
+use tracing::info;
 
 pub enum TrayCommand {
     PairDevice,

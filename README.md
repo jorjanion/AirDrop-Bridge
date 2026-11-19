@@ -1,169 +1,135 @@
-# 🌉 AirDrop Bridge
+# AirDrop Bridge
 
-[![CI](https://github.com/jorjanion/airdrop-bridge/actions/workflows/ci.yml/badge.svg)](https://github.com/jorjanion/airdrop-bridge/actions/workflows/ci.yml)
-[![Release](https://github.com/jorjanion/airdrop-bridge/actions/workflows/release.yml/badge.svg)](https://github.com/jorjanion/airdrop-bridge/actions/workflows/release.yml)
-[![License](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-brightgreen.svg)]()
-[![Rust](https://img.shields.io/badge/Rust-2024%20Edition-orange.svg)](https://www.rust-lang.org/)
+AirDrop Bridge is a lightweight local network daemon that allows Apple devices (iPhone and iPad using iOS Shortcuts) to send and receive files, photos, and clipboard contents to and from Windows and Linux computers.
 
-**AirDrop Bridge** es una alternativa ultraligera, nativa, segura y de código abierto para transferir archivos, fotos, vídeos 4K y portapapeles bidireccional entre dispositivos Apple (**iPhone**, **iPad** vía **Apple Shortcuts**) y ordenadores con **Windows 10/11** y **Linux**.
+It requires no third-party mobile apps, no account creation, and no cloud relay. It runs as a background process with a system tray menu, using mDNS for discovery and streaming uploads directly to disk.
 
-Cero configuración manual de IPs, cero servicios en la nube, arranque instantáneo y una huella de memoria minúscula.
+## Overview
 
----
+AirDrop Bridge acts as a local HTTP receiver that integrates directly with iOS Shortcuts through the native iOS Share Sheet, Action Button, or Back Tap.
 
-## ⚡ Características Principales
+Key characteristics:
+* Idle memory footprint under 15 MB RAM (typically around 8 to 14 MB).
+* Negligible CPU usage when idle.
+* O(1) memory disk streaming for uploads. Large video files and photo libraries are written directly to disk in chunks rather than buffered in RAM.
+* Dual-address discovery: Advertises via mDNS (_dropbridge._tcp.local) while also providing local IP fallback for Wi-Fi networks with multicast isolation.
+* Local Bearer token authorization to block unauthorized requests on public or shared Wi-Fi networks.
+* Native system tray icon with dark and light theme support.
+* Windows interactive toast notifications with options to open the received file or containing folder.
+* Native audio chime on file arrival.
+* In-place background updater backed by GitHub Releases.
 
-* 🪶 **Consumo Ultraligero:** `< 15 MB` de RAM en reposo (típico `6-9 MB`), `0.0%` de uso de CPU.
-* 🚀 **Streaming Directo a Disco $O(1)$:** Transfiere archivos y vídeos 4K de cualquier tamaño (5 GB, 20 GB+) sin acumularlos en memoria RAM.
-* 🔍 **Descubrimiento Zero-Config:** mDNS / DNS-SD (`_dropbridge._tcp.local`) con respaldo automático de IP local si el router bloquea multicast.
-* 📲 **Emparejamiento por Código QR:** Escanea el QR generado en pantalla con la app Cámara de iOS para configurar el Atajo en 1 solo toque.
-* 📋 **Portapapeles Bidireccional:** Inyecta y lee texto, enlaces e imágenes RGBA entre iOS y Windows/Linux al instante.
-* 🔔 **Integración Nativa con el SO:** Notificaciones interactivas Toast de Windows con botones para abrir el archivo o la carpeta, acompañadas de sonido sutil del sistema.
-* 🛡️ **Seguridad Criptográfica:** Token `Bearer` aleatorio de 256 bits para proteger tu PC en redes Wi-Fi compartidas (oficinas, cafeterías, universidades).
-* 🔄 **Auto-Update Integrado:** Comprobación periódica contra GitHub Releases y reemplazo en caliente (*hot-swap*) del ejecutable sin interrumpir tu trabajo.
+## Architecture
 
----
-
-## 🏗️ Arquitectura del Sistema
+The mobile client is an Apple Shortcut that runs inside iOS. When invoked from the Share Sheet or Action Button, it determines whether the input is a file or clipboard data, resolves the computer address, and sends an authenticated HTTP request to the desktop daemon.
 
 ```
-┌─────────────────────────────────┐
-│     iPhone / iPad (iOS 15+)     │
-│  Apple Shortcut (Share Sheet /  │
-│    Action Button / Back Tap)    │
-└────────────────┬────────────────┘
-                 │
-                 │ HTTP Streaming + Bearer Token
-                 │ (Resolución mDNS / IP LAN)
-                 ▼
-┌─────────────────────────────────────────────────────────────┐
-│             AirDrop Bridge Daemon (Rust / Axum)             │
-│                                                             │
-│  ┌───────────────────────┐       ┌───────────────────────┐  │
-│  │  mDNS Responder       │       │  Bearer Token Auth    │  │
-│  │  _dropbridge._tcp     │       │  Middleware (256-bit) │  │
-│  └───────────────────────┘       └───────────┬───────────┘  │
-│                                              ▼              │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │  HTTP Endpoints:                                      │  │
-│  │    GET  /api/v1/ping        (Latencia <10 ms)         │  │
-│  │    POST /api/v1/upload      (Streaming O(1) a disco)  │  │
-│  │    POST /api/v1/clipboard   (Inyección en SO)         │  │
-│  │    GET  /api/v1/clipboard   (Lectura hacia iOS)       │  │
-│  │    GET  /setup              (Portal de emparejamiento)│  │
-│  └───────────────────────────┬───────────────────────────┘  │
-│                              │                              │
-│  ┌───────────────────────────┼───────────────────────────┐  │
-│  │  Integración Nativa:      │                           │  │
-│  │    • System Tray & Menú   ▼                           │  │
-│  │    • Windows Toast Notifications & Sonido             │  │
-│  │    • Auto-Update (GitHub Releases Hot-Swap)           │  │
-│  │    • Inicio automático con Windows (Registry Run)     │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
++---------------------------------+
+| iPhone / iPad (Apple Shortcut)  |
++---------------------------------+
+               |
+               | HTTP Streaming + Bearer Token
+               v
++---------------------------------+
+| AirDrop Bridge Daemon (Rust)    |
+|   - Axum HTTP Server            |
+|   - mDNS Responder (DNS-SD)     |
+|   - Chunk Streamer to Disk      |
+|   - Native Clipboard (arboard)  |
+|   - Windows Toast Notifications |
+|   - System Tray Context Menu    |
+|   - Self-Updater Engine         |
++---------------------------------+
 ```
 
----
+## Quick Start
 
-## 🚀 Inicio Rápido
+### Installation
 
-### 1. Descarga e Instalación (Windows / Linux)
-Descarga el binario precompilado más reciente desde [GitHub Releases](https://github.com/jorjanion/airdrop-bridge/releases/latest) o compílalo desde el código fuente:
+Download the precompiled binary from GitHub Releases:
+* Windows: Extract airdrop-bridge.exe from the release archive and run it.
+* Linux: Extract the binary and run it in your terminal or background service.
 
-```powershell
+To build from source:
+```bash
 git clone https://github.com/jorjanion/airdrop-bridge.git
 cd airdrop-bridge
 cargo build --release
 ```
-El ejecutable compilado se encontrará en `target/release/airdrop-bridge.exe`.
+The compiled binary will be located at target/release/airdrop-bridge.exe (or target/release/airdrop-bridge on Linux).
 
-### 2. Emparejar con tu iPhone / iPad
-1. Ejecuta `airdrop-bridge.exe`. La aplicación se iniciará minimizada en la bandeja del sistema (System Tray junto al reloj).
-2. Haz clic derecho en el icono de la bandeja y selecciona **📱 Emparejar dispositivo (QR)...**.
-3. Abre la app **Cámara** en tu iPhone y escanea el código QR que aparece en pantalla.
-4. En la página web de bienvenida:
-   * Pulsa **1. Descargar Atajo de iOS**.
-   * Pulsa **2. Conectar y Configurar este PC**.
-5. ¡Listo! Ya puedes compartir fotos, vídeos, archivos o el portapapeles desde el menú Compartir de iOS seleccionando **AirDrop Bridge**.
+### Pairing with iOS
 
----
+1. Run the AirDrop Bridge binary. It starts in your system tray.
+2. Right-click the tray icon and select "Pair new device (QR)".
+3. Open the Camera app on your iPhone or iPad and scan the QR code.
+4. Safari opens a local setup page served by the daemon.
+5. Tap "Install Shortcut" to add the shortcut to your device.
+6. Tap "Configure" to save the local token and connection settings into the shortcut.
 
-## 📡 Referencia de la API Local
+Once configured, select AirDrop Bridge from the iOS Share Sheet whenever you share photos, videos, or documents.
 
-Todos los endpoints protegidos requieren la cabecera `Authorization: Bearer <token>`.
+## API Reference
 
-### 1. Verificación de Conexión (`GET /api/v1/ping`)
-* **Público (no requiere token)**
-```bash
-curl http://localhost:53317/api/v1/ping
-```
-Respuesta:
+All protected endpoints require the HTTP header:
+`Authorization: Bearer <token>`
+
+### GET /api/v1/ping
+Connectivity and health check. Does not require authentication.
+* Response: JSON with status, device name, and version.
+
+### POST /api/v1/upload
+Streams multipart file payloads directly to the downloads directory (Downloads/AirDropBridge).
+* Payload: multipart/form-data.
+* Behavior: Incoming data is written to a temporary .part file and renamed upon completion to avoid partial transfers.
+
+### POST /api/v1/clipboard
+Sets the host system clipboard.
+* Content-Type: application/json
+* Body format:
 ```json
 {
-  "app": "AirDropBridge",
-  "device_name": "PC-Jorge",
-  "status": "ok",
-  "version": "0.1.0"
+  "type": "text",
+  "content": "Copied string"
+}
+```
+For images, type is set to "image" with base64-encoded image data.
+
+### GET /api/v1/clipboard
+Retrieves the current host clipboard content.
+* Response format:
+```json
+{
+  "status": "success",
+  "type": "text",
+  "content": "Clipboard text content"
 }
 ```
 
-### 2. Subida de Archivos en Streaming (`POST /api/v1/upload`)
-* Escribe los fragmentos directamente a disco (`Descargas/AirDropBridge`) con consumo constante de RAM:
-```bash
-curl -X POST http://localhost:53317/api/v1/upload \
-  -H "Authorization: Bearer <token>" \
-  -F "file=@foto.jpg"
+### GET /setup
+Local onboarding portal served directly by the daemon to pair new iOS devices via Safari.
+
+## Configuration
+
+Settings are saved in the user configuration directory:
+* Windows: %APPDATA%\AirDropBridge\config.json
+* Linux: ~/.config/AirDropBridge/config.json
+
+Example configuration:
+```json
+{
+  "device_name": "Desktop-PC",
+  "port": 53317,
+  "token": "d8f94a...",
+  "download_dir": "C:\\Users\\user\\Downloads\\AirDropBridge",
+  "auto_update": true,
+  "autostart": false
+}
 ```
 
-### 3. Inyectar Portapapeles (`POST /api/v1/clipboard`)
-* Inyecta texto o imágenes en el portapapeles de Windows/Linux:
-```bash
-curl -X POST http://localhost:53317/api/v1/clipboard \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"type": "text", "content": "Texto copiado desde el iPhone"}'
-```
+## License
 
-### 4. Leer Portapapeles del PC (`GET /api/v1/clipboard`)
-* Devuelve el contenido actual del portapapeles hacia iOS:
-```bash
-curl http://localhost:53317/api/v1/clipboard \
-  -H "Authorization: Bearer <token>"
-```
-
----
-
-## 🛠️ Desarrollo y Pruebas
-
-Para ejecutar el formateador, linteo y suite de pruebas unitarias e integración:
-
-```powershell
-# Comprobar formato estándar
-cargo fmt --check
-
-# Linteo estricto con Clippy (sin advertencias)
-cargo clippy -- -D warnings
-
-# Batería de pruebas automatizadas
-cargo test
-```
-
----
-
-## 📦 Pipeline de Releases (GitHub Actions)
-
-El proyecto cuenta con un workflow en `.github/workflows/release.yml` que se dispara automáticamente al empujar una etiqueta de versión Git:
-
-```powershell
-git tag -a v0.1.0 -m "Release v0.1.0"
-git push origin v0.1.0
-```
-
-GitHub Actions compilará automáticamente los binarios optimizados con LTO (`.zip` para Windows, `.tar.gz` para Linux), generará sus sumas de verificación `SHA-256` y publicará la release oficial en GitHub.
-
----
-
-## 📄 Licencia
-
-Distribuido bajo la licencia **MIT** o **Apache-2.0** a tu elección.
+Licensed under either of:
+* Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+* MIT license (http://opensource.org/licenses/MIT)
+at your option.

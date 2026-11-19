@@ -1,4 +1,6 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
+#[cfg(windows)]
+use std::path::PathBuf;
 use tracing::info;
 
 pub struct NotificationManager;
@@ -77,7 +79,7 @@ impl NotificationManager {
     }
 
     /// Displays an interactive native Toast notification when a file is received
-    pub fn notify_file_received(filename: &str, path: &Path, size_bytes: u64) {
+    pub fn notify_file_received(filename: &str, _path: &Path, size_bytes: u64) {
         Self::play_chime();
 
         let human_size = format_size(size_bytes);
@@ -88,7 +90,7 @@ impl NotificationManager {
 
         #[cfg(windows)]
         {
-            let path_clone = path.to_path_buf();
+            let path_clone = _path.to_path_buf();
             let title_clone = title.to_string();
             let msg_clone = message.clone();
 
