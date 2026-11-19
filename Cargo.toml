@@ -26,6 +26,7 @@ qrcode = "0.14"
 image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
 semver = "1.0"
+urlencoding = "2.1"
 directories = "6.0"
 sanitize-filename = "0.6"
 
