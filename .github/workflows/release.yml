@@ -57,6 +57,7 @@ jobs:
       - name: Package Linux Artifact
         if: runner.os == 'Linux'
         run: |
+          cp README.md "target/${{ matrix.target }}/release/"
           tar -czf "${{ matrix.package_name }}" -C "target/${{ matrix.target }}/release" "${{ matrix.artifact_name }}" README.md
           sha256sum "${{ matrix.package_name }}" > "${{ matrix.package_name }}.sha256"
 
