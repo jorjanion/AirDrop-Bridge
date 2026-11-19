@@ -1,0 +1,88 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build Release - ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: airdrop-bridge.exe
+            package_name: airdrop-bridge-windows-x64.zip
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: airdrop-bridge
+            package_name: airdrop-bridge-linux-x64.tar.gz
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libx11-dev libxtst-dev libxinerama-dev libxcursor-dev libdbus-1-dev
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Package Windows Artifact
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $binPath = "target/${{ matrix.target }}/release/${{ matrix.artifact_name }}"
+          Compress-Archive -Path $binPath, "README.md" -DestinationPath "${{ matrix.package_name }}"
+          Get-FileHash -Algorithm SHA256 "${{ matrix.package_name }}" | Out-File "${{ matrix.package_name }}.sha256"
+
+      - name: Package Linux Artifact
+        if: runner.os == 'Linux'
+        run: |
+          tar -czf "${{ matrix.package_name }}" -C "target/${{ matrix.target }}/release" "${{ matrix.artifact_name }}" README.md
+          sha256sum "${{ matrix.package_name }}" > "${{ matrix.package_name }}.sha256"
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ matrix.target }}
+          path: |
+            ${{ matrix.package_name }}
+            ${{ matrix.package_name }}.sha256
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all packages
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: ./dist
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./dist/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
