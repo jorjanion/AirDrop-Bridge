@@ -22,7 +22,7 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             artifact_name: airdrop-bridge.exe
-            package_name: airdrop-bridge-windows-x64.zip
+            package_name: airdrop-bridge-windows-x64.exe
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             artifact_name: airdrop-bridge
@@ -46,28 +46,22 @@ jobs:
       - name: Build release binary
         run: cargo build --release --target ${{ matrix.target }}
 
-      - name: Package Windows Artifact
+      - name: Package Windows Binary (.exe)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $binPath = "target/${{ matrix.target }}/release/${{ matrix.artifact_name }}"
-          Compress-Archive -Path $binPath, "README.md" -DestinationPath "${{ matrix.package_name }}"
-          Get-FileHash -Algorithm SHA256 "${{ matrix.package_name }}" | Out-File "${{ matrix.package_name }}.sha256"
+          Copy-Item "target/${{ matrix.target }}/release/${{ matrix.artifact_name }}" -Destination "${{ matrix.package_name }}"
 
-      - name: Package Linux Artifact
+      - name: Package Linux Binary (.tar.gz)
         if: runner.os == 'Linux'
         run: |
-          cp README.md "target/${{ matrix.target }}/release/"
-          tar -czf "${{ matrix.package_name }}" -C "target/${{ matrix.target }}/release" "${{ matrix.artifact_name }}" README.md
-          sha256sum "${{ matrix.package_name }}" > "${{ matrix.package_name }}.sha256"
+          tar -czf "${{ matrix.package_name }}" -C "target/${{ matrix.target }}/release" "${{ matrix.artifact_name }}"
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: package-${{ matrix.target }}
-          path: |
-            ${{ matrix.package_name }}
-            ${{ matrix.package_name }}.sha256
+          path: ${{ matrix.package_name }}
 
   publish:
     name: Publish GitHub Release

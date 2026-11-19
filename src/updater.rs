@@ -126,12 +126,24 @@ impl AutoUpdater {
             release.tag_name, current_version
         );
 
-        // Find matching binary asset for current OS
-        #[cfg(windows)]
+        // Find matching binary asset for current OS and architecture
+        #[cfg(all(windows, target_arch = "x86_64"))]
         let target_asset = release
             .assets
             .iter()
-            .find(|a| a.name.ends_with(".exe") || a.name.contains("windows"));
+            .find(|a| {
+                a.name.ends_with(".exe") && (a.name.contains("x64") || a.name.contains("x86_64"))
+            })
+            .or_else(|| release.assets.iter().find(|a| a.name.ends_with(".exe")));
+
+        #[cfg(all(windows, target_arch = "aarch64"))]
+        let target_asset = release
+            .assets
+            .iter()
+            .find(|a| {
+                a.name.ends_with(".exe") && (a.name.contains("arm64") || a.name.contains("aarch64"))
+            })
+            .or_else(|| release.assets.iter().find(|a| a.name.ends_with(".exe")));
 
         #[cfg(not(windows))]
         let target_asset = release

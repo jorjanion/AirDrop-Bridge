@@ -47,8 +47,8 @@ The mobile client is an Apple Shortcut that runs inside iOS. When invoked from t
 ### Installation
 
 Download the precompiled binary from GitHub Releases:
-* Windows: Extract airdrop-bridge.exe from the release archive and run it.
-* Linux: Extract the binary and run it in your terminal or background service.
+* Windows: Download airdrop-bridge-windows-x64.exe and run it directly.
+* Linux: Download airdrop-bridge-linux-x64.tar.gz and run the binary.
 
 To build from source:
 ```bash
