@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AirDropBridgeShortcutConfig",
+  "description": "Configuration dictionary for Apple Shortcuts client",
+  "type": "object",
+  "properties": {
+    "device_name": {
+      "type": "string",
+      "description": "Friendly name of the destination computer"
+    },
+    "host": {
+      "type": "string",
+      "description": "mDNS hostname (e.g. my-pc.local)"
+    },
+    "ip": {
+      "type": "string",
+      "description": "Fallback LAN IP address (e.g. 192.168.1.100)"
+    },
+    "port": {
+      "type": "integer",
+      "default": 53317
+    },
+    "token": {
+      "type": "string",
+      "description": "256-bit hexadecimal Bearer authentication token"
+    }
+  },
+  "required": ["host", "ip", "port", "token"]
+}
