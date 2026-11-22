@@ -72,22 +72,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         }
     });
 
-    // Spawn ServerEvent consumer (Notifications)
+    // Spawn ServerEvent consumer (Notifications & Automation)
+    let config_events = state.config.clone();
     tokio::spawn(async move {
         while let Ok(event) = event_rx.recv().await {
+            let conf = config_events.read().await;
             match event {
                 ServerEvent::FileReceived {
                     filename,
                     path,
                     size_bytes,
                 } => {
-                    NotificationManager::notify_file_received(&filename, &path, size_bytes);
+                    if conf.play_sound {
+                        NotificationManager::play_chime();
+                    }
+                    if conf.notifications_enabled {
+                        NotificationManager::notify_file_received(&filename, &path, size_bytes);
+                    }
+                    if conf.open_folder_on_receive {
+                        NotificationManager::open_directory(&conf.download_dir);
+                    }
                 }
                 ServerEvent::ClipboardReceived {
                     content_type,
                     summary,
                 } => {
-                    NotificationManager::notify_clipboard(&content_type, &summary);
+                    if conf.play_sound {
+                        NotificationManager::play_chime();
+                    }
+                    if conf.notifications_enabled {
+                        NotificationManager::notify_clipboard(&content_type, &summary);
+                    }
                 }
             }
         }

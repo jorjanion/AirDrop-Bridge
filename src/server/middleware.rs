@@ -74,6 +74,10 @@ mod tests {
             auto_update: false,
             autostart: false,
             shortcut_url: None,
+            notifications_enabled: true,
+            play_sound: true,
+            open_folder_on_receive: false,
+            clipboard_sync: true,
         };
         let (state, _rx) = AppState::new(config);
         let router = create_router(state);
@@ -98,6 +102,10 @@ mod tests {
             auto_update: false,
             autostart: false,
             shortcut_url: None,
+            notifications_enabled: true,
+            play_sound: true,
+            open_folder_on_receive: false,
+            clipboard_sync: true,
         };
         let (state, _rx) = AppState::new(config);
         let router = create_router(state);

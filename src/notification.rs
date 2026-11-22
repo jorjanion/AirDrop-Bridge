@@ -80,8 +80,6 @@ impl NotificationManager {
 
     /// Displays an interactive native Toast notification when a file is received
     pub fn notify_file_received(filename: &str, _path: &Path, size_bytes: u64) {
-        Self::play_chime();
-
         let human_size = format_size(size_bytes);
         let title = "AirDrop Bridge - Archivo recibido";
         let message = format!("{} ({})", filename, human_size);
@@ -111,8 +109,6 @@ impl NotificationManager {
 
     /// Displays a notification when text or image is copied to the clipboard
     pub fn notify_clipboard(_content_type: &str, summary: &str) {
-        Self::play_chime();
-
         let title = "AirDrop Bridge - Portapapeles";
         let message = format!("Copiado al portapapeles: {}", summary);
 

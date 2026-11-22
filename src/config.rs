@@ -9,6 +9,14 @@ const ORGANIZATION: &str = "jorjanion";
 const APPLICATION: &str = "AirDropBridge";
 pub const DEFAULT_PORT: u16 = 53317;
 
+fn default_true() -> bool {
+    true
+}
+
+fn default_false() -> bool {
+    false
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub device_name: String,
@@ -19,6 +27,14 @@ pub struct AppConfig {
     pub autostart: bool,
     #[serde(default)]
     pub shortcut_url: Option<String>,
+    #[serde(default = "default_true")]
+    pub notifications_enabled: bool,
+    #[serde(default = "default_true")]
+    pub play_sound: bool,
+    #[serde(default = "default_false")]
+    pub open_folder_on_receive: bool,
+    #[serde(default = "default_true")]
+    pub clipboard_sync: bool,
 }
 
 impl AppConfig {
@@ -82,6 +98,10 @@ impl AppConfig {
                 auto_update: true,
                 autostart: false,
                 shortcut_url: None,
+                notifications_enabled: true,
+                play_sound: true,
+                open_folder_on_receive: false,
+                clipboard_sync: true,
             };
 
             config.save_to_path(&path)?;
@@ -98,6 +118,10 @@ impl AppConfig {
             auto_update: true,
             autostart: false,
             shortcut_url: None,
+            notifications_enabled: true,
+            play_sound: true,
+            open_folder_on_receive: false,
+            clipboard_sync: true,
         };
         fallback.ensure_directories()?;
         Ok(fallback)
@@ -152,6 +176,10 @@ mod tests {
             auto_update: true,
             autostart: false,
             shortcut_url: Some("https://www.icloud.com/shortcuts/87c14547b1de4195b903ce1d18495c2f".to_string()),
+            notifications_enabled: true,
+            play_sound: true,
+            open_folder_on_receive: false,
+            clipboard_sync: true,
         };
 
         let serialized = serde_json::to_string(&config).unwrap();
@@ -160,5 +188,9 @@ mod tests {
         assert_eq!(config.port, deserialized.port);
         assert_eq!(config.token, deserialized.token);
         assert_eq!(config.shortcut_url, deserialized.shortcut_url);
+        assert_eq!(config.notifications_enabled, deserialized.notifications_enabled);
+        assert_eq!(config.play_sound, deserialized.play_sound);
+        assert_eq!(config.open_folder_on_receive, deserialized.open_folder_on_receive);
+        assert_eq!(config.clipboard_sync, deserialized.clipboard_sync);
     }
 }

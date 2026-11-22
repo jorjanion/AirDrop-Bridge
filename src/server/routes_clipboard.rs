@@ -20,6 +20,18 @@ pub async fn set_clipboard_handler(
     headers: HeaderMap,
     body: Result<Json<ClipboardPayload>, axum::extract::rejection::JsonRejection>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
+    let conf = state.config.read().await;
+    if !conf.clipboard_sync {
+        return Err((
+            StatusCode::FORBIDDEN,
+            Json(json!({
+                "error": "ClipboardSyncDisabled",
+                "message": "Sincronizacion de portapapeles desactivada en los ajustes"
+            })),
+        ));
+    }
+    drop(conf);
+
     // If sent as JSON
     if let Ok(Json(payload)) = body {
         match payload.payload_type.as_str() {
@@ -97,8 +109,20 @@ pub async fn set_clipboard_handler(
 }
 
 pub async fn get_clipboard_handler(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
 ) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
+    let conf = state.config.read().await;
+    if !conf.clipboard_sync {
+        return Err((
+            StatusCode::FORBIDDEN,
+            Json(json!({
+                "error": "ClipboardSyncDisabled",
+                "message": "Sincronizacion de portapapeles desactivada en los ajustes"
+            })),
+        ));
+    }
+    drop(conf);
+
     // Check image first
     match ClipboardManager::get_image() {
         Ok(Some(img)) => {
@@ -158,6 +182,10 @@ mod tests {
             auto_update: false,
             autostart: false,
             shortcut_url: None,
+            notifications_enabled: true,
+            play_sound: true,
+            open_folder_on_receive: false,
+            clipboard_sync: true,
         };
         let (state, mut rx) = AppState::new(config);
         let router = create_router(state);

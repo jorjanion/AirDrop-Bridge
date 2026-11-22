@@ -3,7 +3,7 @@ use crate::clipboard::ClipboardManager;
 use crate::config::AppConfig;
 use crate::notification::NotificationManager;
 use crate::ui::win_ui;
-use muda::{CheckMenuItem, Menu, MenuEvent, MenuItem, PredefinedMenuItem};
+use muda::{CheckMenuItem, Menu, MenuEvent, MenuItem, PredefinedMenuItem, Submenu};
 use std::sync::Arc;
 use tokio::sync::{RwLock, mpsc};
 use tracing::{error, info};
@@ -57,6 +57,11 @@ fn run_tray_loop(
     let conf = config.blocking_read();
     let port = conf.port;
     let is_autostart = AutostartManager::is_enabled();
+    let is_notif = conf.notifications_enabled;
+    let is_sound = conf.play_sound;
+    let is_open_folder = conf.open_folder_on_receive;
+    let is_clipboard = conf.clipboard_sync;
+    let is_auto_update = conf.auto_update;
     drop(conf);
 
     // Build context menu with muda
@@ -72,7 +77,27 @@ fn run_tray_loop(
     let web_item = MenuItem::new("🌐 Abrir en navegador", true, None);
     let sep2 = PredefinedMenuItem::separator();
 
-    let autostart_item = CheckMenuItem::new("⚙️ Iniciar con Windows", true, is_autostart, None);
+    // Settings submenu
+    let settings_submenu = Submenu::new("⚙️ Ajustes", true);
+    let autostart_item = CheckMenuItem::new("Iniciar con Windows", true, is_autostart, None);
+    let notif_item = CheckMenuItem::new("Notificaciones del sistema", true, is_notif, None);
+    let sound_item = CheckMenuItem::new("Sonido al recibir", true, is_sound, None);
+    let open_folder_item =
+        CheckMenuItem::new("Abrir carpeta al recibir", true, is_open_folder, None);
+    let clipboard_item =
+        CheckMenuItem::new("Sincronizar portapapeles", true, is_clipboard, None);
+    let auto_update_item =
+        CheckMenuItem::new("Actualizaciones automáticas", true, is_auto_update, None);
+
+    settings_submenu.append_items(&[
+        &autostart_item,
+        &notif_item,
+        &sound_item,
+        &open_folder_item,
+        &clipboard_item,
+        &auto_update_item,
+    ])?;
+
     let update_item = MenuItem::new("🔄 Buscar actualizaciones...", true, None);
     let sep3 = PredefinedMenuItem::separator();
 
@@ -82,7 +107,14 @@ fn run_tray_loop(
     let dl_id = dl_item.id().clone();
     let token_id = token_item.id().clone();
     let web_id = web_item.id().clone();
+
     let autostart_id = autostart_item.id().clone();
+    let notif_id = notif_item.id().clone();
+    let sound_id = sound_item.id().clone();
+    let open_folder_id = open_folder_item.id().clone();
+    let clipboard_id = clipboard_item.id().clone();
+    let auto_update_id = auto_update_item.id().clone();
+
     let update_id = update_item.id().clone();
     let exit_id = exit_item.id().clone();
 
@@ -94,7 +126,7 @@ fn run_tray_loop(
         &token_item,
         &web_item,
         &sep2,
-        &autostart_item,
+        &settings_submenu,
         &update_item,
         &sep3,
         &exit_item,
@@ -153,7 +185,41 @@ fn run_tray_loop(
             } else if event.id == web_id {
                 let _ = cmd_tx.blocking_send(TrayCommand::PairDevice);
             } else if event.id == autostart_id {
-                let _ = cmd_tx.blocking_send(TrayCommand::ToggleAutostart);
+                let is_enabled = AutostartManager::is_enabled();
+                let new_state = !is_enabled;
+                if let Err(e) = AutostartManager::set_enabled(new_state) {
+                    error!("Failed to toggle autostart: {}", e);
+                } else {
+                    autostart_item.set_checked(new_state);
+                    let mut conf = config.blocking_write();
+                    conf.autostart = new_state;
+                    let _ = conf.save();
+                }
+            } else if event.id == notif_id {
+                let mut conf = config.blocking_write();
+                conf.notifications_enabled = !conf.notifications_enabled;
+                notif_item.set_checked(conf.notifications_enabled);
+                let _ = conf.save();
+            } else if event.id == sound_id {
+                let mut conf = config.blocking_write();
+                conf.play_sound = !conf.play_sound;
+                sound_item.set_checked(conf.play_sound);
+                let _ = conf.save();
+            } else if event.id == open_folder_id {
+                let mut conf = config.blocking_write();
+                conf.open_folder_on_receive = !conf.open_folder_on_receive;
+                open_folder_item.set_checked(conf.open_folder_on_receive);
+                let _ = conf.save();
+            } else if event.id == clipboard_id {
+                let mut conf = config.blocking_write();
+                conf.clipboard_sync = !conf.clipboard_sync;
+                clipboard_item.set_checked(conf.clipboard_sync);
+                let _ = conf.save();
+            } else if event.id == auto_update_id {
+                let mut conf = config.blocking_write();
+                conf.auto_update = !conf.auto_update;
+                auto_update_item.set_checked(conf.auto_update);
+                let _ = conf.save();
             } else if event.id == update_id {
                 let _ = cmd_tx.blocking_send(TrayCommand::CheckUpdate);
             } else if event.id == exit_id {
