@@ -112,9 +112,32 @@ fn run_tray_loop(
     let menu_channel = MenuEvent::receiver();
     let tray_channel = TrayIconEvent::receiver();
 
-    loop {
+    'tray_loop: loop {
+        #[cfg(windows)]
+        unsafe {
+            use windows_sys::Win32::UI::WindowsAndMessaging::{
+                DispatchMessageW, MSG, MsgWaitForMultipleObjectsEx, PM_REMOVE, PeekMessageW,
+                QS_ALLINPUT, TranslateMessage, WM_QUIT,
+            };
+
+            let mut msg: MSG = std::mem::zeroed();
+            while PeekMessageW(&mut msg, std::ptr::null_mut(), 0, 0, PM_REMOVE) != 0 {
+                if msg.message == WM_QUIT {
+                    break 'tray_loop;
+                }
+                TranslateMessage(&msg);
+                DispatchMessageW(&msg);
+            }
+
+            // Wait for messages with low latency and 0% CPU consumption
+            MsgWaitForMultipleObjectsEx(0, std::ptr::null(), 20, QS_ALLINPUT, 0);
+        }
+
+        #[cfg(not(windows))]
+        std::thread::sleep(std::time::Duration::from_millis(20));
+
         // Handle menu clicks
-        if let Ok(event) = menu_channel.try_recv() {
+        while let Ok(event) = menu_channel.try_recv() {
             if event.id == open_id {
                 win_ui::show_window();
             } else if event.id == dl_id {
@@ -136,20 +159,26 @@ fn run_tray_loop(
             } else if event.id == exit_id {
                 win_ui::close_window();
                 let _ = cmd_tx.blocking_send(TrayCommand::Exit);
-                break;
+                break 'tray_loop;
             }
         }
 
         // Handle left click on tray icon -> show UI window!
-        if let Ok(TrayIconEvent::Click {
-            button: MouseButton::Left,
-            ..
-        }) = tray_channel.try_recv()
-        {
-            win_ui::show_window();
+        while let Ok(event) = tray_channel.try_recv() {
+            match event {
+                TrayIconEvent::Click {
+                    button: MouseButton::Left,
+                    ..
+                }
+                | TrayIconEvent::DoubleClick {
+                    button: MouseButton::Left,
+                    ..
+                } => {
+                    win_ui::show_window();
+                }
+                _ => {}
+            }
         }
-
-        std::thread::sleep(std::time::Duration::from_millis(50));
     }
 
     Ok(())

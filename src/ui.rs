@@ -23,8 +23,8 @@ pub mod win_ui {
         DispatchMessageW, GetClientRect, GetMessageW, GetSystemMetrics, HMENU, ICON_BIG,
         ICON_SMALL, IDI_APPLICATION, IMAGE_ICON, LR_DEFAULTCOLOR, LoadIconW, LoadImageW, MSG,
         PostQuitMessage, RegisterClassExW, SM_CXICON, SM_CXSMICON, SM_CYICON, SM_CYSMICON,
-        SW_HIDE, SW_SHOWNORMAL, SendMessageW, SetForegroundWindow, ShowWindow, TranslateMessage,
-        WM_CLOSE, WM_COMMAND, WM_CREATE, WM_DESTROY, WM_PAINT, WM_SETFONT, WM_SETICON,
+        SW_HIDE, SW_RESTORE, SW_SHOW, SW_SHOWNORMAL, SendMessageW, SetForegroundWindow, ShowWindow,
+        TranslateMessage, WM_CLOSE, WM_COMMAND, WM_CREATE, WM_DESTROY, WM_PAINT, WM_SETFONT, WM_SETICON,
         WNDCLASSEXW, WS_CHILD, WS_MINIMIZEBOX, WS_OVERLAPPED, WS_SYSMENU, WS_VISIBLE,
     };
 
@@ -57,7 +57,8 @@ pub mod win_ui {
         let hwnd = WINDOW_HWND.load(Ordering::SeqCst) as HWND;
         if !hwnd.is_null() {
             unsafe {
-                ShowWindow(hwnd, SW_SHOWNORMAL);
+                ShowWindow(hwnd, SW_SHOW);
+                ShowWindow(hwnd, SW_RESTORE);
                 SetForegroundWindow(hwnd);
             }
         }
