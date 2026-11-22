@@ -103,8 +103,8 @@ When running AirDrop Bridge for the first time, Windows Defender SmartScreen may
 Commercial code-signing certificates from Microsoft partners cost hundreds of dollars every year. Because AirDrop Bridge is an independent, non-commercial open-source project, we do not purchase costly enterprise certificates. Windows temporarily shows this warning on newer executable downloads until enough users have run them.
 
 ### How to proceed:
-1. Click on **"More info"** (*"Más información"*).
-2. Click **"Run anyway"** (*"Ejecutar de todas formas"*).
+1. Click on **"More info"**.
+2. Click **"Run anyway"**.
 
 The full application source code is 100% open, transparent, and auditable right here in this repository. You can also build it directly from source with Cargo if you prefer!
 
