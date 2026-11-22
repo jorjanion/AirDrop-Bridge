@@ -10,6 +10,9 @@ use local_ip_address::local_ip;
 use serde::Deserialize;
 use serde_json::{Value, json};
 
+pub const DEFAULT_SHORTCUT_ICLOUD_URL: &str =
+    "https://www.icloud.com/shortcuts/406580108b4e44a48674eb1087bcc9c6";
+
 #[derive(Deserialize)]
 pub struct SetupQuery {
     pub token: Option<String>,
@@ -58,7 +61,7 @@ pub async fn setup_page_handler(
         "token": conf.token,
         "host": mdns_host,
         "ip": local_ip_str,
-        "port": conf.port,
+        "port": conf.port.to_string(),
         "device_name": conf.device_name
     });
 
@@ -68,6 +71,11 @@ pub async fn setup_page_handler(
         "shortcuts://run-shortcut?name=AirDrop%20Bridge&input=text&text={}",
         encoded_config
     );
+
+    let shortcut_install_url = conf
+        .shortcut_url
+        .as_deref()
+        .unwrap_or(DEFAULT_SHORTCUT_ICLOUD_URL);
 
     let html = format!(
         r#"<!DOCTYPE html>
@@ -261,7 +269,7 @@ pub async fn setup_page_handler(
             <div class="info-row"><span class="info-label">{label_security}</span> <span class="info-val">{auth_status}</span></div>
         </div>
 
-        <a href="/shortcut/AirDrop_Bridge.shortcut" class="btn btn-primary" download="AirDrop Bridge.shortcut">
+        <a href="{shortcut_install_url}" class="btn btn-primary" target="_blank" rel="noopener">
             {btn_install}
         </a>
 
@@ -300,6 +308,7 @@ pub async fn setup_page_handler(
         } else {
             strings.setup_pending
         },
+        shortcut_install_url = shortcut_install_url,
         btn_install = strings.setup_btn_install,
         shortcut_deep_link = shortcut_deep_link,
         btn_connect = strings.setup_btn_connect,

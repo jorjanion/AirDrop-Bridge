@@ -2,6 +2,9 @@
 
 Este directorio contiene la especificación y guía de integración del **Atajo oficial de iOS / iPadOS** para conectar directamente con el daemon de AirDrop Bridge.
 
+### 📥 Enlace oficial de instalación (iCloud):
+👉 **[Instalar Atajo AirDrop Bridge en iPhone / iPad](https://www.icloud.com/shortcuts/406580108b4e44a48674eb1087bcc9c6)**
+
 ## 📱 Modos de Uso en iOS / iPadOS
 
 1. **Menú Compartir (Share Sheet):**

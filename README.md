@@ -64,8 +64,8 @@ The compiled binary will be located at target/release/airdrop-bridge.exe (or tar
 2. Right-click the tray icon and select "Pair new device (QR)".
 3. Open the Camera app on your iPhone or iPad and scan the QR code.
 4. Safari opens a local setup page served by the daemon.
-5. Tap "Install Shortcut" to add the shortcut to your device.
-6. Tap "Configure" to save the local token and connection settings into the shortcut.
+5. Tap "Install Shortcut" (or install directly via the [Official iCloud Shortcut](https://www.icloud.com/shortcuts/406580108b4e44a48674eb1087bcc9c6)) to add the shortcut to your device.
+6. Tap "Configure" to save the local token and connection settings into the shortcut automatically.
 
 Once configured, select AirDrop Bridge from the iOS Share Sheet whenever you share photos, videos, or documents.
 
