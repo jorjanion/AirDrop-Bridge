@@ -71,7 +71,7 @@ fn run_tray_loop(
     // Build context menu with muda
     let menu = Menu::new();
 
-    let header_title = format!("AirDrop Bridge (:{})", port);
+    let header_title = format!("AirDrop Bridge v{} (:{})", env!("CARGO_PKG_VERSION"), port);
     let header_item = MenuItem::new(header_title, false, None);
     let sep1 = PredefinedMenuItem::separator();
 

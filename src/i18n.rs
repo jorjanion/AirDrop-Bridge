@@ -75,6 +75,7 @@ pub struct Translations {
     pub update_silent_done_fmt: &'static str,
 
     // Web Setup
+    pub setup_version: &'static str,
     pub setup_online_badge: &'static str,
     pub setup_connection_with: &'static str,
     pub setup_host_mdns: &'static str,
@@ -128,6 +129,7 @@ pub const EN_TRANSLATIONS: Translations = Translations {
     update_latest_prefix: "AirDrop Bridge is up to date",
     update_silent_done_fmt: "AirDrop Bridge was silently updated to {}. Changes will apply on next launch.",
 
+    setup_version: "Version:",
     setup_online_badge: "Online",
     setup_connection_with: "Connection with",
     setup_host_mdns: "mDNS Host:",
@@ -181,6 +183,7 @@ pub const ES_TRANSLATIONS: Translations = Translations {
     update_latest_prefix: "AirDrop Bridge ya está actualizado",
     update_silent_done_fmt: "AirDrop Bridge se ha actualizado silenciosamente a {}. Se aplicará en el próximo inicio.",
 
+    setup_version: "Versión:",
     setup_online_badge: "En línea",
     setup_connection_with: "Conexión con",
     setup_host_mdns: "Host mDNS:",

@@ -249,12 +249,13 @@ pub async fn setup_page_handler(
             <a href="?lang=es{token_param}" class="lang-link" style="color: {es_color}; font-weight: {es_weight};">Español</a>
         </div>
         <div class="header">
-            <div class="badge"><div class="dot"></div> {badge_text}</div>
+            <div class="badge"><div class="dot"></div> {badge_text} &bull; v{app_version}</div>
             <h1>AirDrop Bridge</h1>
             <p class="subtitle">{connection_prefix} <strong>{device_name}</strong></p>
         </div>
 
         <div class="info-box">
+            <div class="info-row"><span class="info-label">{label_version}</span> <span class="info-val">v{app_version}</span></div>
             <div class="info-row"><span class="info-label">{label_mdns}</span> <span class="info-val">{mdns_host}</span></div>
             <div class="info-row"><span class="info-label">{label_lan}</span> <span class="info-val">{local_ip_str}:{port}</span></div>
             <div class="info-row"><span class="info-label">{label_security}</span> <span class="info-val">{auth_status}</span></div>
@@ -284,6 +285,8 @@ pub async fn setup_page_handler(
         es_color = es_color,
         es_weight = es_weight,
         badge_text = strings.setup_online_badge,
+        app_version = env!("CARGO_PKG_VERSION"),
+        label_version = strings.setup_version,
         connection_prefix = strings.setup_connection_with,
         device_name = conf.device_name,
         label_mdns = strings.setup_host_mdns,

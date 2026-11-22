@@ -148,7 +148,8 @@ pub mod win_ui {
             .encode_wide()
             .chain(std::iter::once(0))
             .collect();
-        let window_title: Vec<u16> = OsStr::new("AirDrop Bridge")
+        let title_with_ver = format!("AirDrop Bridge v{}", env!("CARGO_PKG_VERSION"));
+        let window_title: Vec<u16> = OsStr::new(&title_with_ver)
             .encode_wide()
             .chain(std::iter::once(0))
             .collect();
@@ -500,7 +501,8 @@ pub mod win_ui {
                     let strings = crate::i18n::t(lang);
 
                     SetTextColor(hdc, 0x00f8fafc); // White
-                    let title_text = OsStr::new(strings.ui_title)
+                    let title_text_str = format!("{} v{}", strings.ui_title, env!("CARGO_PKG_VERSION"));
+                    let title_text = OsStr::new(&title_text_str)
                         .encode_wide()
                         .collect::<Vec<_>>();
                     TextOutW(hdc, 40, 24, title_text.as_ptr(), title_text.len() as i32);
@@ -594,12 +596,18 @@ pub mod win_ui {
                         );
                     }
 
+                    // Version badge directly under QR code container
+                    let ver_text = format!("v{}", env!("CARGO_PKG_VERSION"));
+                    let ver_wide = OsStr::new(&ver_text).encode_wide().collect::<Vec<_>>();
+                    SetTextColor(hdc, 0x0081b910); // Emerald Green
+                    TextOutW(hdc, (rect.right - 40) / 2, 415, ver_wide.as_ptr(), ver_wide.len() as i32);
+
                     // Instructions footer
                     let hint = OsStr::new(strings.ui_footer_hint)
                         .encode_wide()
                         .collect::<Vec<_>>();
                     SetTextColor(hdc, 0x00b8a394);
-                    TextOutW(hdc, 60, 420, hint.as_ptr(), hint.len() as i32);
+                    TextOutW(hdc, 40, 436, hint.as_ptr(), hint.len() as i32);
 
                     SelectObject(hdc, old_font);
                     DeleteObject(font_title as _);
