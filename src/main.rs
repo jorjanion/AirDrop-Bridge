@@ -109,9 +109,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     });
 
     // Start auto-updater background checker
-    if config.auto_update {
-        AutoUpdater::spawn_background_checker();
-    }
+    AutoUpdater::spawn_background_checker(state.config.clone());
 
     let config_arc = state.config.clone();
 

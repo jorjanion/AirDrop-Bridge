@@ -1,7 +1,10 @@
+use crate::config::AppConfig;
 use crate::notification::NotificationManager;
 use semver::Version;
 use serde::Deserialize;
 use std::path::Path;
+use std::sync::Arc;
+use tokio::sync::RwLock;
 use tracing::{error, info, warn};
 
 const REPO_OWNER: &str = "jorjanion";
@@ -57,38 +60,83 @@ impl AutoUpdater {
         }
     }
 
-    /// Queries the latest GitHub release
+    /// Queries the latest GitHub release via GitHub API, with fallback to gh CLI
     pub async fn fetch_latest_release() -> Result<GitHubRelease, String> {
         let url = format!(
             "https://api.github.com/repos/{}/{}/releases/latest",
             REPO_OWNER, REPO_NAME
         );
 
-        let client = reqwest::Client::builder()
+        let client_res = reqwest::Client::builder()
             .user_agent(USER_AGENT)
             .timeout(std::time::Duration::from_secs(10))
-            .build()
-            .map_err(|e| format!("Failed to build HTTP client: {}", e))?;
+            .build();
 
-        let resp = client
-            .get(&url)
-            .send()
-            .await
-            .map_err(|e| format!("Failed to connect to GitHub Releases API: {}", e))?;
-
-        if !resp.status().is_success() {
-            return Err(format!(
-                "GitHub Releases API returned status: {}",
-                resp.status()
-            ));
+        if let Ok(client) = client_res {
+            if let Ok(resp) = client.get(&url).send().await {
+                if resp.status().is_success() {
+                    if let Ok(release) = resp.json::<GitHubRelease>().await {
+                        return Ok(release);
+                    }
+                }
+            }
         }
 
-        let release = resp
-            .json::<GitHubRelease>()
-            .await
-            .map_err(|e| format!("Failed to parse release response: {}", e))?;
+        // Fallback: query via gh CLI if installed
+        Self::fetch_latest_release_via_gh_cli().await
+    }
 
-        Ok(release)
+    /// Queries the latest GitHub release using the local GitHub CLI (gh)
+    pub async fn fetch_latest_release_via_gh_cli() -> Result<GitHubRelease, String> {
+        let repo_arg = format!("{}/{}", REPO_OWNER, REPO_NAME);
+        let output = tokio::task::spawn_blocking(move || {
+            std::process::Command::new("gh")
+                .args(["release", "view", "--repo", &repo_arg, "--json", "tagName,name,assets,url"])
+                .output()
+        })
+        .await
+        .map_err(|e| format!("gh task join error: {}", e))?
+        .map_err(|e| format!("Failed to execute gh CLI: {}", e))?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(format!("gh CLI returned error: {}", stderr.trim()));
+        }
+
+        #[derive(Deserialize)]
+        struct GhCliRelease {
+            #[serde(rename = "tagName")]
+            tag_name: String,
+            name: Option<String>,
+            url: Option<String>,
+            assets: Vec<GhCliAsset>,
+        }
+
+        #[derive(Deserialize)]
+        struct GhCliAsset {
+            name: String,
+            url: String,
+            size: Option<u64>,
+        }
+
+        let cli_rel: GhCliRelease = serde_json::from_slice(&output.stdout)
+            .map_err(|e| format!("Failed to parse gh CLI JSON: {}", e))?;
+
+        Ok(GitHubRelease {
+            tag_name: cli_rel.tag_name,
+            name: cli_rel.name,
+            html_url: cli_rel.url.unwrap_or_default(),
+            body: None,
+            assets: cli_rel
+                .assets
+                .into_iter()
+                .map(|a| GitHubAsset {
+                    name: a.name,
+                    browser_download_url: a.url,
+                    size: a.size.unwrap_or(0),
+                })
+                .collect(),
+        })
     }
 
     /// Checks for updates and performs hot-swap replacement if a newer version exists
@@ -155,8 +203,12 @@ impl AutoUpdater {
             info!("Found downloadable asset: {}", asset.name);
             match Self::download_and_apply(&asset.browser_download_url).await {
                 Ok(_) => {
+                    info!(
+                        "AirDrop Bridge was silently updated to {} via GitHub",
+                        release.tag_name
+                    );
                     let msg = format!(
-                        "AirDrop Bridge se ha actualizado a {}. Reinicia para aplicar.",
+                        "AirDrop Bridge se ha actualizado silenciosamente a {}. Se aplicará en el próximo inicio.",
                         release.tag_name
                     );
                     NotificationManager::notify_clipboard("update", &msg);
@@ -233,18 +285,30 @@ impl AutoUpdater {
         }
     }
 
-    /// Spawns periodic background update check loop
-    pub fn spawn_background_checker() {
-        tokio::spawn(async {
-            // Wait 10 seconds after boot
-            tokio::time::sleep(std::time::Duration::from_secs(10)).await;
-            Self::check_and_update(false).await;
+    /// Spawns periodic silent background update check loop
+    pub fn spawn_background_checker(config: Arc<RwLock<AppConfig>>) {
+        tokio::spawn(async move {
+            // Initial silent check 5 seconds after startup
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+            {
+                let conf = config.read().await;
+                if conf.auto_update {
+                    drop(conf);
+                    info!("Running initial silent update check...");
+                    Self::check_and_update(false).await;
+                }
+            }
 
-            // Check every 12 hours
-            let mut interval = tokio::time::interval(std::time::Duration::from_secs(12 * 3600));
+            // Periodic silent check every 1 hour
+            let mut interval = tokio::time::interval(std::time::Duration::from_secs(3600));
             loop {
                 interval.tick().await;
-                Self::check_and_update(false).await;
+                let conf = config.read().await;
+                if conf.auto_update {
+                    drop(conf);
+                    info!("Running periodic silent background update check...");
+                    Self::check_and_update(false).await;
+                }
             }
         });
     }
