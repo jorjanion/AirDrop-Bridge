@@ -123,7 +123,8 @@ Example configuration:
   "token": "d8f94a...",
   "download_dir": "C:\\Users\\user\\Downloads\\AirDropBridge",
   "auto_update": true,
-  "autostart": false
+  "autostart": false,
+  "language": "en"
 }
 ```
 

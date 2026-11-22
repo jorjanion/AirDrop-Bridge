@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-22
+
+### Added
+* Full internationalization (i18n) support with English (`en`) as the default system language and dynamic runtime switching to Spanish (`es`).
+* Dynamic language selection in the System Tray menu (`Settings -> Language`) and on the web onboarding portal (`/setup?lang=en|es`).
+* Extensible translation architecture with compile-time safety across all UI labels, tray menus, toast notifications, and updater messages.
+* Interactive Settings submenu in the System Tray allowing real-time toggling of:
+  * Start with Windows (Autostart)
+  * System Notifications
+  * Sound on Receive
+  * Open Folder on Receive
+  * Clipboard Synchronization
+  * Automatic Updates
+  * Language Selection
+* Silent automated background updater checking GitHub Releases periodically and performing hot-swap binary replacement.
+* Multi-resolution embedded application icon (16x16 to 256x256) with 32-bit alpha transparency for Windows Taskbar, Alt-Tab, and Titlebar.
+* Direct `.shortcut` file download endpoint (`/shortcut/AirDrop_Bridge.shortcut`) to resolve iOS shortcut import issues.
+
+### Changed
+* Default language switched from Spanish to English across the entire application.
+* Language preference is now automatically persisted in `config.json`.
+* Improved tray icon rendering by cropping transparent margins and eliminating gray artifact borders.
+* Optimized tray loop responsiveness using an integrated Win32 message pump.
+
+### Fixed
+* Fixed issue where closing the main window left the system tray icon unresponsive to clicks.
+* Fixed Taskbar icon display issue when running in windowed mode.
+* Fixed iOS shortcut import URL failure on modern iOS versions by providing official iCloud link and local `.shortcut` fallback.
+
 ## [0.2.0] - 2026-11-22
 
 ### Added
