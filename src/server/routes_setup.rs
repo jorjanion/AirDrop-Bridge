@@ -269,7 +269,7 @@ pub async fn setup_page_handler(
             <div class="info-row"><span class="info-label">{label_security}</span> <span class="info-val">{auth_status}</span></div>
         </div>
 
-        <a href="{shortcut_install_url}" class="btn btn-primary" target="_blank" rel="noopener">
+        <a href="{shortcut_install_url}" class="btn btn-primary">
             {btn_install}
         </a>
 
