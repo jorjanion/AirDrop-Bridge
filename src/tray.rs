@@ -1,12 +1,13 @@
-#[cfg(windows)]
 use crate::autostart::AutostartManager;
+use crate::clipboard::ClipboardManager;
 use crate::config::AppConfig;
+use crate::notification::NotificationManager;
+use crate::ui::win_ui;
+use muda::{CheckMenuItem, Menu, MenuEvent, MenuItem, PredefinedMenuItem};
 use std::sync::Arc;
 use tokio::sync::{RwLock, mpsc};
-#[cfg(windows)]
-use tracing::error;
-#[cfg(not(windows))]
-use tracing::info;
+use tracing::{error, info};
+use tray_icon::{MouseButton, TrayIcon, TrayIconBuilder, TrayIconEvent};
 
 pub enum TrayCommand {
     PairDevice,
@@ -20,224 +21,135 @@ pub enum TrayCommand {
 pub struct TrayManager;
 
 impl TrayManager {
-    #[cfg(windows)]
     pub fn spawn_tray(
         config: Arc<RwLock<AppConfig>>,
         cmd_tx: mpsc::Sender<TrayCommand>,
     ) -> std::thread::JoinHandle<()> {
         std::thread::spawn(move || {
-            if let Err(e) = run_windows_tray(config, cmd_tx) {
-                error!("Windows tray error: {}", e);
+            if let Err(e) = run_tray_loop(config, cmd_tx) {
+                error!("Tray loop error: {}", e);
             }
-        })
-    }
-
-    #[cfg(not(windows))]
-    pub fn spawn_tray(
-        _config: Arc<RwLock<AppConfig>>,
-        _cmd_tx: mpsc::Sender<TrayCommand>,
-    ) -> std::thread::JoinHandle<()> {
-        std::thread::spawn(move || {
-            info!("System tray initialized (headless/stub for non-windows)");
         })
     }
 }
 
-#[cfg(windows)]
-fn run_windows_tray(
+fn load_tray_icon() -> Result<tray_icon::Icon, Box<dyn std::error::Error + Send + Sync>> {
+    let png_bytes = include_bytes!("../resources/icon.png");
+    let img = image::load_from_memory(png_bytes)?.to_rgba8();
+    let (width, height) = img.dimensions();
+    let icon = tray_icon::Icon::from_rgba(img.into_raw(), width, height)?;
+    Ok(icon)
+}
+
+fn run_tray_loop(
     config: Arc<RwLock<AppConfig>>,
     cmd_tx: mpsc::Sender<TrayCommand>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    use std::ffi::OsStr;
-    use std::os::windows::ffi::OsStrExt;
-    use windows_sys::Win32::Foundation::POINT;
-    use windows_sys::Win32::UI::Shell::{
-        NIF_ICON, NIF_MESSAGE, NIF_TIP, NIM_ADD, NIM_DELETE, NOTIFYICONDATAW, Shell_NotifyIconW,
-    };
-    use windows_sys::Win32::UI::WindowsAndMessaging::{
-        AppendMenuW, CreatePopupMenu, CreateWindowExW, DefWindowProcW, DestroyMenu, DestroyWindow,
-        DispatchMessageW, GetCursorPos, GetMessageW, IDI_APPLICATION, LoadIconW, MF_CHECKED,
-        MF_DISABLED, MF_GRAYED, MF_SEPARATOR, MF_STRING, MF_UNCHECKED, MSG, PostQuitMessage,
-        RegisterClassExW, SetForegroundWindow, TPM_BOTTOMALIGN, TPM_LEFTALIGN, TrackPopupMenuEx,
-        TranslateMessage, WM_APP, WM_RBUTTONUP, WNDCLASSEXW, WS_OVERLAPPEDWINDOW,
+    let icon = match load_tray_icon() {
+        Ok(i) => i,
+        Err(e) => {
+            error!("Failed to load custom tray icon: {}", e);
+            // Fallback: 16x16 transparent icon
+            tray_icon::Icon::from_rgba(vec![0; 16 * 16 * 4], 16, 16)?
+        }
     };
 
-    const WM_TRAYICON: u32 = WM_APP + 1;
-    const ID_HEADER: usize = 1000;
-    const ID_PAIR: usize = 1001;
-    const ID_DOWNLOADS: usize = 1002;
-    const ID_COPY_TOKEN: usize = 1003;
-    const ID_AUTOSTART: usize = 1004;
-    const ID_CHECK_UPDATE: usize = 1005;
-    const ID_EXIT: usize = 1006;
+    let conf = config.blocking_read();
+    let port = conf.port;
+    let is_autostart = AutostartManager::is_enabled();
+    drop(conf);
 
-    let class_name: Vec<u16> = OsStr::new("AirDropBridgeTrayClass")
-        .encode_wide()
-        .chain(std::iter::once(0))
-        .collect();
+    // Build context menu with muda
+    let menu = Menu::new();
 
-    unsafe {
-        let h_instance =
-            windows_sys::Win32::System::LibraryLoader::GetModuleHandleW(std::ptr::null());
+    let header_title = format!("AirDrop Bridge (:{})", port);
+    let header_item = MenuItem::new(header_title, false, None);
+    let sep1 = PredefinedMenuItem::separator();
 
-        let wnd_class = WNDCLASSEXW {
-            cbSize: std::mem::size_of::<WNDCLASSEXW>() as u32,
-            style: 0,
-            lpfnWndProc: Some(DefWindowProcW),
-            cbClsExtra: 0,
-            cbWndExtra: 0,
-            hInstance: h_instance,
-            hIcon: LoadIconW(0 as _, IDI_APPLICATION),
-            hCursor: std::ptr::null_mut(),
-            hbrBackground: std::ptr::null_mut(),
-            lpszMenuName: std::ptr::null(),
-            lpszClassName: class_name.as_ptr(),
-            hIconSm: std::ptr::null_mut(),
-        };
+    let open_item = MenuItem::new("📱 Abrir AirDrop Bridge", true, None);
+    let dl_item = MenuItem::new("📂 Abrir descargas", true, None);
+    let token_item = MenuItem::new("📋 Copiar token", true, None);
+    let web_item = MenuItem::new("🌐 Abrir en navegador", true, None);
+    let sep2 = PredefinedMenuItem::separator();
 
-        RegisterClassExW(&wnd_class);
+    let autostart_item = CheckMenuItem::new("⚙️ Iniciar con Windows", true, is_autostart, None);
+    let update_item = MenuItem::new("🔄 Buscar actualizaciones...", true, None);
+    let sep3 = PredefinedMenuItem::separator();
 
-        let hwnd = CreateWindowExW(
-            0,
-            class_name.as_ptr(),
-            class_name.as_ptr(),
-            WS_OVERLAPPEDWINDOW,
-            0,
-            0,
-            0,
-            0,
-            std::ptr::null_mut(),
-            std::ptr::null_mut(),
-            h_instance,
-            std::ptr::null_mut(),
-        );
+    let exit_item = MenuItem::new("❌ Salir", true, None);
 
-        if hwnd.is_null() {
-            return Err("Failed to create tray window".into());
-        }
+    let open_id = open_item.id().clone();
+    let dl_id = dl_item.id().clone();
+    let token_id = token_item.id().clone();
+    let web_id = web_item.id().clone();
+    let autostart_id = autostart_item.id().clone();
+    let update_id = update_item.id().clone();
+    let exit_id = exit_item.id().clone();
 
-        let mut nid: NOTIFYICONDATAW = std::mem::zeroed();
-        nid.cbSize = std::mem::size_of::<NOTIFYICONDATAW>() as u32;
-        nid.hWnd = hwnd;
-        nid.uID = 1;
-        nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
-        nid.uCallbackMessage = WM_TRAYICON;
-        nid.hIcon = LoadIconW(0 as _, IDI_APPLICATION);
+    menu.append_items(&[
+        &header_item,
+        &sep1,
+        &open_item,
+        &dl_item,
+        &token_item,
+        &web_item,
+        &sep2,
+        &autostart_item,
+        &update_item,
+        &sep3,
+        &exit_item,
+    ])?;
 
-        let tip = "AirDrop Bridge - Conectado\0";
-        for (i, c) in tip.encode_utf16().enumerate() {
-            if i < nid.szTip.len() {
-                nid.szTip[i] = c;
-            }
-        }
+    let _tray_icon: TrayIcon = TrayIconBuilder::new()
+        .with_menu(Box::new(menu))
+        .with_tooltip("AirDrop Bridge - En linea")
+        .with_icon(icon)
+        .build()?;
 
-        Shell_NotifyIconW(NIM_ADD, &nid);
+    info!("System Tray initialized successfully with native icon and context menu");
 
-        let mut msg: MSG = std::mem::zeroed();
-        while GetMessageW(&mut msg, std::ptr::null_mut(), 0, 0) > 0 {
-            if msg.message == WM_TRAYICON && msg.lParam as u32 == WM_RBUTTONUP {
-                let mut pt: POINT = std::mem::zeroed();
-                GetCursorPos(&mut pt);
+    // Event loop for tray clicks and menu selections
+    let menu_channel = MenuEvent::receiver();
+    let tray_channel = TrayIconEvent::receiver();
 
-                let hmenu = CreatePopupMenu();
-
-                let header_text =
-                    format!("AirDrop Bridge (Puerto {})\0", config.blocking_read().port);
-                let header_wide: Vec<u16> = header_text.encode_utf16().collect();
-                AppendMenuW(
-                    hmenu,
-                    MF_STRING | MF_DISABLED | MF_GRAYED,
-                    ID_HEADER,
-                    header_wide.as_ptr(),
-                );
-
-                AppendMenuW(hmenu, MF_SEPARATOR, 0, std::ptr::null());
-
-                let pair_text = "📱 Emparejar dispositivo (QR)...\0"
-                    .encode_utf16()
-                    .collect::<Vec<_>>();
-                AppendMenuW(hmenu, MF_STRING, ID_PAIR, pair_text.as_ptr());
-
-                let dl_text = "📂 Abrir carpeta de descargas\0"
-                    .encode_utf16()
-                    .collect::<Vec<_>>();
-                AppendMenuW(hmenu, MF_STRING, ID_DOWNLOADS, dl_text.as_ptr());
-
-                let token_text = "📋 Copiar token de seguridad\0"
-                    .encode_utf16()
-                    .collect::<Vec<_>>();
-                AppendMenuW(hmenu, MF_STRING, ID_COPY_TOKEN, token_text.as_ptr());
-
-                AppendMenuW(hmenu, MF_SEPARATOR, 0, std::ptr::null());
-
-                let is_autostart = AutostartManager::is_enabled();
-                let autostart_flag = if is_autostart {
-                    MF_CHECKED
+    loop {
+        // Handle menu clicks
+        if let Ok(event) = menu_channel.try_recv() {
+            if event.id == open_id {
+                win_ui::show_window();
+            } else if event.id == dl_id {
+                let conf = config.blocking_read();
+                NotificationManager::open_directory(&conf.download_dir);
+            } else if event.id == token_id {
+                let conf = config.blocking_read();
+                if let Err(e) = ClipboardManager::set_text(&conf.token) {
+                    error!("Failed to copy token: {}", e);
                 } else {
-                    MF_UNCHECKED
-                };
-                let autostart_text = "⚙️ Iniciar con Windows\0"
-                    .encode_utf16()
-                    .collect::<Vec<_>>();
-                AppendMenuW(
-                    hmenu,
-                    MF_STRING | autostart_flag,
-                    ID_AUTOSTART,
-                    autostart_text.as_ptr(),
-                );
-
-                let update_text = "🔄 Buscar actualizaciones...\0"
-                    .encode_utf16()
-                    .collect::<Vec<_>>();
-                AppendMenuW(hmenu, MF_STRING, ID_CHECK_UPDATE, update_text.as_ptr());
-
-                AppendMenuW(hmenu, MF_SEPARATOR, 0, std::ptr::null());
-
-                let exit_text = "❌ Salir\0".encode_utf16().collect::<Vec<_>>();
-                AppendMenuW(hmenu, MF_STRING, ID_EXIT, exit_text.as_ptr());
-
-                SetForegroundWindow(hwnd);
-                let cmd = TrackPopupMenuEx(
-                    hmenu,
-                    TPM_LEFTALIGN | TPM_BOTTOMALIGN | 0x0100, // TPM_RETURNCMD
-                    pt.x,
-                    pt.y,
-                    hwnd,
-                    std::ptr::null_mut(),
-                );
-                DestroyMenu(hmenu);
-
-                match cmd as usize {
-                    ID_PAIR => {
-                        let _ = cmd_tx.blocking_send(TrayCommand::PairDevice);
-                    }
-                    ID_DOWNLOADS => {
-                        let _ = cmd_tx.blocking_send(TrayCommand::OpenDownloads);
-                    }
-                    ID_COPY_TOKEN => {
-                        let _ = cmd_tx.blocking_send(TrayCommand::CopyToken);
-                    }
-                    ID_AUTOSTART => {
-                        let _ = cmd_tx.blocking_send(TrayCommand::ToggleAutostart);
-                    }
-                    ID_CHECK_UPDATE => {
-                        let _ = cmd_tx.blocking_send(TrayCommand::CheckUpdate);
-                    }
-                    ID_EXIT => {
-                        let _ = cmd_tx.blocking_send(TrayCommand::Exit);
-                        Shell_NotifyIconW(NIM_DELETE, &nid);
-                        DestroyWindow(hwnd);
-                        PostQuitMessage(0);
-                        break;
-                    }
-                    _ => {}
+                    NotificationManager::notify_clipboard("text", "Token copiado al portapapeles");
                 }
+            } else if event.id == web_id {
+                let _ = cmd_tx.blocking_send(TrayCommand::PairDevice);
+            } else if event.id == autostart_id {
+                let _ = cmd_tx.blocking_send(TrayCommand::ToggleAutostart);
+            } else if event.id == update_id {
+                let _ = cmd_tx.blocking_send(TrayCommand::CheckUpdate);
+            } else if event.id == exit_id {
+                win_ui::close_window();
+                let _ = cmd_tx.blocking_send(TrayCommand::Exit);
+                break;
             }
-            TranslateMessage(&msg);
-            DispatchMessageW(&msg);
         }
 
-        Shell_NotifyIconW(NIM_DELETE, &nid);
+        // Handle left click on tray icon -> show UI window!
+        if let Ok(TrayIconEvent::Click {
+            button: MouseButton::Left,
+            ..
+        }) = tray_channel.try_recv()
+        {
+            win_ui::show_window();
+        }
+
+        std::thread::sleep(std::time::Duration::from_millis(50));
     }
 
     Ok(())

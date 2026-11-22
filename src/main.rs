@@ -1,3 +1,5 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 pub mod autostart;
 pub mod clipboard;
 pub mod config;
@@ -6,6 +8,7 @@ pub mod notification;
 pub mod qr;
 pub mod server;
 pub mod tray;
+pub mod ui;
 pub mod updater;
 
 use autostart::AutostartManager;
@@ -19,6 +22,7 @@ use std::net::SocketAddr;
 use tokio::sync::mpsc;
 use tracing::{error, info};
 use tray::{TrayCommand, TrayManager};
+use ui::win_ui;
 use updater::AutoUpdater;
 
 #[tokio::main]
@@ -94,9 +98,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         AutoUpdater::spawn_background_checker();
     }
 
+    let config_arc = state.config.clone();
+
+    // Start Native UI Window thread (starts visible, minimizes to tray on close)
+    win_ui::start_ui_thread(config_arc.clone());
+
     // Set up System Tray & command channel
     let (cmd_tx, mut cmd_rx) = mpsc::channel::<TrayCommand>(32);
-    let config_arc = state.config.clone();
     let _tray_thread = TrayManager::spawn_tray(config_arc.clone(), cmd_tx);
 
     info!("AirDrop Bridge is active in system tray. Zero-config ready!");
@@ -139,6 +147,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             }
             TrayCommand::Exit => {
                 info!("Shutdown requested from tray. Exiting cleanly...");
+                win_ui::close_window();
                 break;
             }
         }

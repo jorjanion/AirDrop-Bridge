@@ -29,6 +29,8 @@ semver = "1.0"
 urlencoding = "2.1"
 directories = "6.0"
 sanitize-filename = "0.6"
+tray-icon = "0.26"
+muda = "0.21"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = [
@@ -39,7 +41,8 @@ windows-sys = { version = "0.59", features = [
     "Win32_System_Com",
     "Win32_UI_Shell",
     "Win32_System_LibraryLoader",
-    "Win32_Graphics_Gdi"
+    "Win32_Graphics_Gdi",
+    "Win32_Graphics_Dwm"
 ] }
 
 [target.'cfg(not(windows))'.dependencies]
@@ -51,3 +54,6 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
+
+[build-dependencies]
+winres = "0.1.12"
