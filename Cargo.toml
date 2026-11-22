@@ -5,7 +5,7 @@ edition = "2024"
 authors = ["Jorge <jorge.paris.f@gmail.com>"]
 description = "Ultra-lightweight, native, secure AirDrop bridge for Windows and Linux"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/jorjanion/airdrop-bridge"
+repository = "https://github.com/jorjanion/AirDrop-Bridge"
 
 [dependencies]
 tokio = { version = "1.43", features = ["rt-multi-thread", "macros", "fs", "io-util", "sync", "time"] }

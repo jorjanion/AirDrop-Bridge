@@ -21,8 +21,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jorjanion/airdrop-bridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/airdrop-bridge?color=38bdf8&style=flat-square" alt="Release" /></a>
-  <a href="https://github.com/jorjanion/airdrop-bridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="ライセンス" /></a>
+  <a href="https://github.com/jorjanion/AirDrop-Bridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/AirDrop-Bridge?color=38bdf8&style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/jorjanion/AirDrop-Bridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="ライセンス" /></a>
   <img src="https://img.shields.io/badge/プラットフォーム-Windows%20%7C%20Linux-emerald?style=flat-square" alt="プラットフォーム" />
   <img src="https://img.shields.io/badge/対応言語-8言語内蔵-purple?style=flat-square" alt="対応言語" />
   <img src="https://img.shields.io/badge/rust-2024%20edition-orange?style=flat-square" alt="Rust" />
@@ -71,7 +71,7 @@ App Store から外部アプリをダウンロードしたり、大切な個人�
 セットアップは 1 分もかからずに完了します。
 
 ### 1. PC へのダウンロードと起動
-* [GitHub Releases](https://github.com/jorjanion/airdrop-bridge/releases/latest) から `airdrop-bridge-windows-x64.exe` をダウンロードします。
+* [GitHub Releases](https://github.com/jorjanion/AirDrop-Bridge/releases/latest) から `airdrop-bridge-windows-x64.exe` をダウンロードします。
 * ダブルクリックして起動します。タスクトレイに常駐し、画面上に QR コード付きの連携ウィンドウが表示されます。
 
 ### 2. iPhone のカメラでスキャン
@@ -142,7 +142,7 @@ Windows タスクバー右下の通知領域にあるアイコンを右クリッ
 必要環境: [Rust](https://www.rust-lang.org/) (2024 edition 以降)。
 
 ```bash
-git clone https://github.com/jorjanion/airdrop-bridge.git
+git clone https://github.com/jorjanion/AirDrop-Bridge.git
 cd airdrop-bridge
 cargo build --release
 ```
@@ -157,7 +157,7 @@ cargo build --release
 
 ### 問題の報告や機能リクエスト
 不具合を見つけた場合や、改善案がある場合：
-1. [GitHub の Issues ページ](https://github.com/jorjanion/airdrop-bridge/issues) を開きます。
+1. [GitHub の Issues ページ](https://github.com/jorjanion/AirDrop-Bridge/issues) を開きます。
 2. 同様の問題が既に報告されていないか確認します。
 3. **New Issue** をクリックし、以下を記載してください：
    * 発生した現象と期待される動作。

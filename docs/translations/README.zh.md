@@ -21,8 +21,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jorjanion/airdrop-bridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/airdrop-bridge?color=38bdf8&style=flat-square" alt="Release" /></a>
-  <a href="https://github.com/jorjanion/airdrop-bridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="许可证" /></a>
+  <a href="https://github.com/jorjanion/AirDrop-Bridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/AirDrop-Bridge?color=38bdf8&style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/jorjanion/AirDrop-Bridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="许可证" /></a>
   <img src="https://img.shields.io/badge/平台-Windows%20%7C%20Linux-emerald?style=flat-square" alt="平台" />
   <img src="https://img.shields.io/badge/语言-内置%208%20种-purple?style=flat-square" alt="语言" />
   <img src="https://img.shields.io/badge/rust-2024%20edition-orange?style=flat-square" alt="Rust" />
@@ -71,7 +71,7 @@
 只需不到一分钟即可完成配置。
 
 ### 1. 电脑端下载并启动
-* 在 [GitHub Releases](https://github.com/jorjanion/airdrop-bridge/releases/latest) 下载 `airdrop-bridge-windows-x64.exe`。
+* 在 [GitHub Releases](https://github.com/jorjanion/AirDrop-Bridge/releases/latest) 下载 `airdrop-bridge-windows-x64.exe`。
 * 双击运行。程序会在系统托盘中静默运行，并弹出配对二维码窗口。
 
 ### 2. 使用 iPhone 相机扫码
@@ -142,7 +142,7 @@
 环境要求: [Rust](https://www.rust-lang.org/) (2024 edition 或更新版本)。
 
 ```bash
-git clone https://github.com/jorjanion/airdrop-bridge.git
+git clone https://github.com/jorjanion/AirDrop-Bridge.git
 cd airdrop-bridge
 cargo build --release
 ```
@@ -157,7 +157,7 @@ cargo build --release
 
 ### 报告问题或提出建议
 如果您在使用中遇到了异常，或者有更好的功能想法：
-1. 前往项目的 [Issues 页面](https://github.com/jorjanion/airdrop-bridge/issues)。
+1. 前往项目的 [Issues 页面](https://github.com/jorjanion/AirDrop-Bridge/issues)。
 2. 查看是否已有相似主题。
 3. 点击 **New Issue** 并注明：
    * 发生了什么现象以及您预期的效果。

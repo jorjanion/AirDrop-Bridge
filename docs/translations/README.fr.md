@@ -21,8 +21,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jorjanion/airdrop-bridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/airdrop-bridge?color=38bdf8&style=flat-square" alt="Version" /></a>
-  <a href="https://github.com/jorjanion/airdrop-bridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="Licence" /></a>
+  <a href="https://github.com/jorjanion/AirDrop-Bridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/AirDrop-Bridge?color=38bdf8&style=flat-square" alt="Version" /></a>
+  <a href="https://github.com/jorjanion/AirDrop-Bridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="Licence" /></a>
   <img src="https://img.shields.io/badge/plateforme-Windows%20%7C%20Linux-emerald?style=flat-square" alt="Plateforme" />
   <img src="https://img.shields.io/badge/langues-8%20incluses-purple?style=flat-square" alt="Langues" />
   <img src="https://img.shields.io/badge/rust-édition%202024-orange?style=flat-square" alt="Rust" />
@@ -71,7 +71,7 @@ Au lieu d'imposer des applications lourdes de l'App Store ou de faire transiter 
 La configuration s'effectue en moins d'une minute.
 
 ### 1. Télécharger et lancer sur PC
-* Téléchargez `airdrop-bridge-windows-x64.exe` depuis la page des [Releases GitHub](https://github.com/jorjanion/airdrop-bridge/releases/latest).
+* Téléchargez `airdrop-bridge-windows-x64.exe` depuis la page des [Releases GitHub](https://github.com/jorjanion/AirDrop-Bridge/releases/latest).
 * Double-cliquez pour démarrer. L'application se loge discrètement dans la zone de notification et ouvre la fenêtre avec le QR code.
 
 ### 2. Scanner avec l'Appareil photo de l'iPhone
@@ -142,7 +142,7 @@ Faites un clic droit sur l'icône AirDrop Bridge dans la barre des tâches pour 
 Prérequis : [Rust](https://www.rust-lang.org/) (édition 2024 ou plus récente).
 
 ```bash
-git clone https://github.com/jorjanion/airdrop-bridge.git
+git clone https://github.com/jorjanion/AirDrop-Bridge.git
 cd airdrop-bridge
 cargo build --release
 ```
@@ -157,7 +157,7 @@ Les contributions, signalements de bugs et suggestions de la communauté sont to
 
 ### Signaler un problème ou suggérer une idée
 Si vous rencontrez un comportement inattendu :
-1. Consultez la page des [Issues GitHub](https://github.com/jorjanion/airdrop-bridge/issues).
+1. Consultez la page des [Issues GitHub](https://github.com/jorjanion/AirDrop-Bridge/issues).
 2. Vérifiez si le sujet n'a pas déjà été abordé.
 3. Cliquez sur **New Issue** et précisez :
    * Ce qui s'est produit et ce que vous attendiez.
