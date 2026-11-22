@@ -43,11 +43,23 @@ pub async fn setup_page_handler(
         None => String::new(),
     };
 
-    let is_en = lang == crate::i18n::Language::En;
-    let en_color = if is_en { "var(--primary)" } else { "var(--text-muted)" };
-    let en_weight = if is_en { "700" } else { "400" };
-    let es_color = if !is_en { "var(--primary)" } else { "var(--text-muted)" };
-    let es_weight = if !is_en { "700" } else { "400" };
+    let lang_links = crate::i18n::Language::ALL
+        .iter()
+        .map(|&l| {
+            let is_sel = l == lang;
+            let color = if is_sel { "var(--primary)" } else { "var(--text-muted)" };
+            let weight = if is_sel { "700" } else { "400" };
+            format!(
+                r#"<a href="?lang={code}{token_param}" class="lang-link" style="color: {color}; font-weight: {weight};">{name}</a>"#,
+                code = l.code(),
+                token_param = token_param,
+                color = color,
+                weight = weight,
+                name = l.display_name(),
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(r#"<span class="lang-sep">|</span>"#);
 
     let local_ip_str = local_ip()
         .map(|ip| ip.to_string())
@@ -132,7 +144,8 @@ pub async fn setup_page_handler(
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 6px 10px;
             font-size: 13px;
             margin-bottom: 12px;
         }}
@@ -252,9 +265,7 @@ pub async fn setup_page_handler(
 <body>
     <div class="card">
         <div class="lang-picker">
-            <a href="?lang=en{token_param}" class="lang-link" style="color: {en_color}; font-weight: {en_weight};">English</a>
-            <span class="lang-sep">|</span>
-            <a href="?lang=es{token_param}" class="lang-link" style="color: {es_color}; font-weight: {es_weight};">Español</a>
+            {lang_links}
         </div>
         <div class="header">
             <div class="badge"><div class="dot"></div> {badge_text} &bull; v{app_version}</div>
@@ -287,11 +298,7 @@ pub async fn setup_page_handler(
 </body>
 </html>"#,
         lang_code = lang.code(),
-        token_param = token_param,
-        en_color = en_color,
-        en_weight = en_weight,
-        es_color = es_color,
-        es_weight = es_weight,
+        lang_links = lang_links,
         badge_text = strings.setup_online_badge,
         app_version = env!("CARGO_PKG_VERSION"),
         label_version = strings.setup_version,

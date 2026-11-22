@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-11-22
+
+### Added
+* Support for 6 additional major languages:
+  * Simplified Chinese (`zh` / 简体中文)
+  * Portuguese (`pt` / Português)
+  * French (`fr` / Français)
+  * German (`de` / Deutsch)
+  * Italian (`it` / Italiano)
+  * Japanese (`ja` / 日本語)
+* Dynamic, responsive language picker on the web onboarding portal (`/setup`) automatically rendering all supported languages.
+* Full localization across the Win32 GUI window, System Tray context menu, and desktop toast notifications.
+
+### Changed
+* Official Apple Shortcut installation link updated to direct same-window Universal Link navigation, triggering iOS native *"Open this page in 'Shortcuts'?"* prompt immediately with zero download steps.
+
+## [0.3.2] - 2026-11-22
+
+### Added
+* Visible running application version display across all interfaces:
+  * System Tray menu header: `AirDrop Bridge vX.Y.Z (:PORT)`.
+  * Native Win32 QR pairing window: Titlebar and emerald green version badge under QR code.
+  * Web onboarding portal: Header status badge and information card.
+* Integrated official iCloud Shortcut link signed by Apple (`https://www.icloud.com/shortcuts/406580108b4e44a48674eb1087bcc9c6`).
+
 ## [0.3.1] - 2026-11-22
 
 ### Added

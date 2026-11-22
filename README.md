@@ -17,6 +17,7 @@ Key characteristics:
 * Native system tray icon with dark and light theme support.
 * Windows interactive toast notifications with options to open the received file or containing folder.
 * Native audio chime on file arrival.
+* Multi-language support with 8 built-in languages (English, Español, 简体中文, Português, Français, Deutsch, Italiano, 日本語).
 * In-place background updater backed by GitHub Releases.
 
 ## Architecture
