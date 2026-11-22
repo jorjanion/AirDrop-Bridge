@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-22
+
+### Added
+* Official 1.0.0 General Availability release for public distribution.
+* Comprehensive multi-language documentation with native READMEs translated into 8 languages: English, Español, 简体中文, Português, Français, Deutsch, Italiano, and 日本語 (`docs/translations/`).
+* High-resolution UI screenshots and visual walkthrough guide in `assets/screenshots/`.
+* Quick-action language navigation bar at the top of every documentation page.
+
+### Fixed
+* Fixed millisecond console/CMD window flash on Windows when receiving files, syncing clipboard, or checking updates by enforcing `CREATE_NO_WINDOW (0x08000000)` process flags.
+
 ## [0.3.3] - 2026-11-22
 
 ### Added

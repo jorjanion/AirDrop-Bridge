@@ -1,137 +1,181 @@
-# AirDrop Bridge
+<p align="center">
+  <img src="resources/icon.png" width="120" alt="AirDrop Bridge Logo" />
+</p>
 
-AirDrop Bridge is a lightweight local network daemon that allows Apple devices (iPhone and iPad using iOS Shortcuts) to send and receive files, photos, and clipboard contents to and from Windows and Linux computers.
+<h1 align="center">AirDrop Bridge</h1>
 
-It requires no third-party mobile apps, no account creation, and no cloud relay. It runs as a background process with a system tray menu, using mDNS for discovery and streaming uploads directly to disk.
+<p align="center">
+  <strong>Native, blazing-fast file transfers from iPhone and iPad to Windows and Linux.</strong><br>
+  No third-party iOS apps, no cloud accounts, and no subscriptions.
+</p>
+
+<p align="center">
+  <strong>English</strong> |
+  <a href="docs/translations/README.es.md">Español</a> |
+  <a href="docs/translations/README.zh.md">简体中文</a> |
+  <a href="docs/translations/README.pt.md">Português</a> |
+  <a href="docs/translations/README.fr.md">Français</a> |
+  <a href="docs/translations/README.de.md">Deutsch</a> |
+  <a href="docs/translations/README.it.md">Italiano</a> |
+  <a href="docs/translations/README.ja.md">日本語</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/jorjanion/airdrop-bridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/airdrop-bridge?color=38bdf8&style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/jorjanion/airdrop-bridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="License" /></a>
+  <img src="https://img.shields.io/badge/platform-Windows%20%7C%20Linux-emerald?style=flat-square" alt="Platform" />
+  <img src="https://img.shields.io/badge/languages-8%20built--in-purple?style=flat-square" alt="Languages" />
+  <img src="https://img.shields.io/badge/rust-2024%20edition-orange?style=flat-square" alt="Rust" />
+</p>
+
+> ⭐ **Love AirDrop Bridge?** Please consider giving it a star on GitHub! It helps more people discover this free, open-source project and motivates ongoing development.
+
+---
 
 ## Overview
 
-AirDrop Bridge acts as a local HTTP receiver that integrates directly with iOS Shortcuts through the native iOS Share Sheet, Action Button, or Back Tap.
+**AirDrop Bridge** lets you send photos, 4K videos, and documents from your iPhone or iPad directly to your computer using your local Wi-Fi network.
 
-Key characteristics:
-* Idle memory footprint under 15 MB RAM (typically around 8 to 14 MB).
-* Negligible CPU usage when idle.
-* O(1) memory disk streaming for uploads. Large video files and photo libraries are written directly to disk in chunks rather than buffered in RAM.
-* Dual-address discovery: Advertises via mDNS (_dropbridge._tcp.local) while also providing local IP fallback for Wi-Fi networks with multicast isolation.
-* Local Bearer token authorization to block unauthorized requests on public or shared Wi-Fi networks.
-* Native system tray icon with dark and light theme support.
-* Windows interactive toast notifications with options to open the received file or containing folder.
-* Native audio chime on file arrival.
-* Multi-language support with 8 built-in languages (English, Español, 简体中文, Português, Français, Deutsch, Italiano, 日本語).
-* In-place background updater backed by GitHub Releases.
+Instead of requiring an App Store download or sending your personal files through third-party cloud servers, AirDrop Bridge pairs your PC directly with an official Apple Shortcut. It integrates seamlessly into the native iOS Share Sheet, Action Button, and Back Tap gesture.
 
-## Architecture
+<p align="center">
+  <img src="assets/screenshots/pairing-window.png" width="280" alt="Desktop Pairing Window" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/screenshots/mobile-setup.png" width="240" alt="Mobile Safari Setup" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="assets/screenshots/ios-share-sheet.png" width="240" alt="iOS Share Sheet" />
+</p>
 
-The mobile client is an Apple Shortcut that runs inside iOS. When invoked from the Share Sheet or Action Button, it determines whether the input is a file or clipboard data, resolves the computer address, and sends an authenticated HTTP request to the desktop daemon.
+---
 
-```
-+---------------------------------+
-| iPhone / iPad (Apple Shortcut)  |
-+---------------------------------+
-               |
-               | HTTP Streaming + Bearer Token
-               v
-+---------------------------------+
-| AirDrop Bridge Daemon (Rust)    |
-|   - Axum HTTP Server            |
-|   - mDNS Responder (DNS-SD)     |
-|   - Chunk Streamer to Disk      |
-|   - Native Clipboard (arboard)  |
-|   - Windows Toast Notifications |
-|   - System Tray Context Menu    |
-|   - Self-Updater Engine         |
-+---------------------------------+
-```
+## Key Features
 
-## Quick Start
+* **100% Local & Private**: Direct peer-to-peer Wi-Fi streaming. Your photos and files never leave your home network.
+* **Zero Third-Party Apps on iOS**: Uses an official Apple Shortcut signed by iOS.
+* **Blazing Fast**: Uses chunked disk streaming with constant memory usage (under 15 MB RAM on PC). Transfer gigabyte-sized videos without buffering or RAM spikes.
+* **Zero-Config Discovery**: Automatic local detection via mDNS and LAN fallback.
+* **Secure by Default**: Cryptographic Bearer token authorization blocks unwanted transfers on shared Wi-Fi networks.
+* **Global Language Support**: Full interface translation in 8 languages (English, Español, 简体中文, Português, Français, Deutsch, Italiano, and 日本語).
+* **Native Desktop Experience**: Windows dark-mode pairing window, system tray menu, customizable audio chimes, and interactive toast notifications.
+* **Clipboard Synchronization**: Send copied text between devices with a single tap.
+* **Automatic Updates**: Silent background updater keeps you on the latest version.
 
-### Installation
+<p align="center">
+  <img src="assets/screenshots/tray-menus.png" width="620" alt="System Tray Menu and Settings" />
+</p>
 
-Download the precompiled binary from GitHub Releases:
-* Windows: Download airdrop-bridge-windows-x64.exe and run it directly.
-* Linux: Download airdrop-bridge-linux-x64.tar.gz and run the binary.
+---
 
-To build from source:
+## Quick Start Guide
+
+Setting up AirDrop Bridge takes less than a minute.
+
+### 1. Download & Launch on PC
+* Download `airdrop-bridge-windows-x64.exe` from the latest [GitHub Releases](https://github.com/jorjanion/airdrop-bridge/releases/latest).
+* Double-click to start. AirDrop Bridge runs silently in your system tray and opens the pairing window with a QR code.
+
+### 2. Scan with your iPhone Camera
+* Open the default Camera app on your iPhone or iPad and scan the QR code on your PC screen.
+* Tap the yellow link to open the setup portal in Safari.
+
+### 3. Install the Official Apple Shortcut
+* On the web page, tap **"1. Download & Install AirDrop Bridge Shortcut"**.
+* Safari will ask to open Apple Shortcuts. Tap **Open** and then tap **Add Shortcut**.
+
+### 4. Link your PC
+* Return to Safari and tap **"2. Link & Configure this PC"**.
+* The shortcut will import your secure security token and local IP address automatically.
+
+### 5. You are ready to share!
+* Open the **Photos** app or **Files** app on your iPhone.
+* Select any photo, video, or file, tap the **Share** button, and choose **AirDrop Bridge**.
+* Your file will arrive instantly in your PC Downloads folder (`Downloads\AirDropBridge`) accompanied by a chime and a desktop notification!
+
+---
+
+## Windows SmartScreen Notice
+
+When running AirDrop Bridge for the first time, Windows Defender SmartScreen may display a blue dialog:
+
+> *"Windows protected your PC"*
+
+### Why does this appear?
+Commercial code-signing certificates from Microsoft partners cost hundreds of dollars every year. Because AirDrop Bridge is an independent, non-commercial open-source project, we do not purchase costly enterprise certificates. Windows temporarily shows this warning on newer executable downloads until enough users have run them.
+
+### How to proceed:
+1. Click on **"More info"** (*"Más información"*).
+2. Click **"Run anyway"** (*"Ejecutar de todas formas"*).
+
+The full application source code is 100% open, transparent, and auditable right here in this repository. You can also build it directly from source with Cargo if you prefer!
+
+---
+
+## System Tray Settings
+
+Right-click the AirDrop Bridge icon in the Windows taskbar tray to access quick settings:
+
+* **Open AirDrop Bridge**: Show the QR pairing window at any time.
+* **Open Downloads**: Quick shortcut to your received files folder.
+* **Copy Token**: Copy your security token to the clipboard.
+* **Settings**:
+  * **Start with Windows**: Toggle automatic startup on login.
+  * **System Notifications**: Enable or mute desktop toast notifications.
+  * **Sound on Receive**: Play a subtle audio chime when a file arrives.
+  * **Open Folder on Receive**: Automatically pop open the destination folder.
+  * **Sync Clipboard**: Keep clipboard synchronization active.
+  * **Automatic Updates**: Check and update silently in the background.
+  * **Language**: Switch instantly between English, Spanish, Chinese, Portuguese, French, German, Italian, or Japanese.
+
+---
+
+## Building from Source
+
+Requirements: [Rust](https://www.rust-lang.org/) (2024 edition or newer).
+
 ```bash
 git clone https://github.com/jorjanion/airdrop-bridge.git
 cd airdrop-bridge
 cargo build --release
 ```
-The compiled binary will be located at target/release/airdrop-bridge.exe (or target/release/airdrop-bridge on Linux).
 
-### Pairing with iOS
+The optimized executable will be generated at `target/release/airdrop-bridge.exe`.
 
-1. Run the AirDrop Bridge binary. It starts in your system tray.
-2. Right-click the tray icon and select "Pair new device (QR)".
-3. Open the Camera app on your iPhone or iPad and scan the QR code.
-4. Safari opens a local setup page served by the daemon.
-5. Tap "Install Shortcut" (or install directly via the [Official iCloud Shortcut](https://www.icloud.com/shortcuts/406580108b4e44a48674eb1087bcc9c6)) to add the shortcut to your device.
-6. Tap "Configure" to save the local token and connection settings into the shortcut automatically.
+---
 
-Once configured, select AirDrop Bridge from the iOS Share Sheet whenever you share photos, videos, or documents.
+## Contributing, Issues & PRs
 
-## API Reference
+We welcome contributions, bug reports, and suggestions from the community!
 
-All protected endpoints require the HTTP header:
-`Authorization: Bearer <token>`
+### Reporting Bugs or Requesting Features
+If you run into an issue or have an idea to improve AirDrop Bridge:
+1. Visit the [Issues Tracker](https://github.com/jorjanion/airdrop-bridge/issues).
+2. Check if a similar issue has already been reported.
+3. Click **New Issue** and describe:
+   * What happened and what you expected to happen.
+   * Your operating system version (e.g. Windows 11, Windows 10, or Linux distribution).
+   * Your iOS/iPadOS version (e.g. iOS 18.1).
+   * Steps to reproduce the issue.
 
-### GET /api/v1/ping
-Connectivity and health check. Does not require authentication.
-* Response: JSON with status, device name, and version.
+### Submitting a Pull Request (PR)
+1. Fork the repository and create a descriptive feature branch:
+   ```bash
+   git checkout -b feature/my-cool-improvement
+   ```
+2. Make your changes cleanly and ensure all tests pass:
+   ```bash
+   cargo test
+   ```
+3. Commit your changes following standard commit conventions (e.g. `feat: ...`, `fix: ...`).
+4. Push to your fork and open a Pull Request against the `main` branch.
+5. Provide a brief summary of what your PR introduces. We review and merge PRs actively!
 
-### POST /api/v1/upload
-Streams multipart file payloads directly to the downloads directory (Downloads/AirDropBridge).
-* Payload: multipart/form-data.
-* Behavior: Incoming data is written to a temporary .part file and renamed upon completion to avoid partial transfers.
-
-### POST /api/v1/clipboard
-Sets the host system clipboard.
-* Content-Type: application/json
-* Body format:
-```json
-{
-  "type": "text",
-  "content": "Copied string"
-}
-```
-For images, type is set to "image" with base64-encoded image data.
-
-### GET /api/v1/clipboard
-Retrieves the current host clipboard content.
-* Response format:
-```json
-{
-  "status": "success",
-  "type": "text",
-  "content": "Clipboard text content"
-}
-```
-
-### GET /setup
-Local onboarding portal served directly by the daemon to pair new iOS devices via Safari.
-
-## Configuration
-
-Settings are saved in the user configuration directory:
-* Windows: %APPDATA%\AirDropBridge\config.json
-* Linux: ~/.config/AirDropBridge/config.json
-
-Example configuration:
-```json
-{
-  "device_name": "Desktop-PC",
-  "port": 53317,
-  "token": "d8f94a...",
-  "download_dir": "C:\\Users\\user\\Downloads\\AirDropBridge",
-  "auto_update": true,
-  "autostart": false,
-  "language": "en"
-}
-```
+---
 
 ## License
 
-Licensed under either of:
-* Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0)
-* MIT license (http://opensource.org/licenses/MIT)
+AirDrop Bridge is licensed under either of:
+
+* Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE) or http://www.apache.org/licenses/LICENSE-2.0)
+* MIT license ([LICENSE-MIT](LICENSE) or http://opensource.org/licenses/MIT)
+
 at your option.
