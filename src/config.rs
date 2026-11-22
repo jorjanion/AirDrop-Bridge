@@ -1,3 +1,4 @@
+use crate::i18n::Language;
 use directories::ProjectDirs;
 use rand::RngCore;
 use serde::{Deserialize, Serialize};
@@ -35,6 +36,8 @@ pub struct AppConfig {
     pub open_folder_on_receive: bool,
     #[serde(default = "default_true")]
     pub clipboard_sync: bool,
+    #[serde(default)]
+    pub language: Language,
 }
 
 impl AppConfig {
@@ -102,6 +105,7 @@ impl AppConfig {
                 play_sound: true,
                 open_folder_on_receive: false,
                 clipboard_sync: true,
+                language: Language::En,
             };
 
             config.save_to_path(&path)?;
@@ -122,6 +126,7 @@ impl AppConfig {
             play_sound: true,
             open_folder_on_receive: false,
             clipboard_sync: true,
+            language: Language::En,
         };
         fallback.ensure_directories()?;
         Ok(fallback)
@@ -180,6 +185,7 @@ mod tests {
             play_sound: true,
             open_folder_on_receive: false,
             clipboard_sync: true,
+            language: Language::Es,
         };
 
         let serialized = serde_json::to_string(&config).unwrap();
@@ -192,5 +198,6 @@ mod tests {
         assert_eq!(config.play_sound, deserialized.play_sound);
         assert_eq!(config.open_folder_on_receive, deserialized.open_folder_on_receive);
         assert_eq!(config.clipboard_sync, deserialized.clipboard_sync);
+        assert_eq!(config.language, deserialized.language);
     }
 }

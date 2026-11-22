@@ -15,17 +15,19 @@ pub mod win_ui {
     use windows_sys::Win32::Graphics::Dwm::{DWMWA_USE_IMMERSIVE_DARK_MODE, DwmSetWindowAttribute};
     use windows_sys::Win32::Graphics::Gdi::{
         BI_RGB, BITMAPINFO, BITMAPINFOHEADER, BeginPaint, CreateFontW, CreateSolidBrush,
-        DIB_RGB_COLORS, DeleteObject, EndPaint, FW_BOLD, FW_NORMAL, FillRect, PAINTSTRUCT, SRCCOPY,
-        SelectObject, SetBkMode, SetTextColor, StretchDIBits, TRANSPARENT, TextOutW,
+        DIB_RGB_COLORS, DeleteObject, EndPaint, FW_BOLD, FW_NORMAL, FillRect, InvalidateRect,
+        PAINTSTRUCT, SRCCOPY, SelectObject, SetBkMode, SetTextColor, StretchDIBits, TRANSPARENT,
+        TextOutW,
     };
     use windows_sys::Win32::UI::WindowsAndMessaging::{
         BS_PUSHBUTTON, CreateIconFromResourceEx, CreateWindowExW, DefWindowProcW, DestroyWindow,
-        DispatchMessageW, GetClientRect, GetMessageW, GetSystemMetrics, HMENU, ICON_BIG,
-        ICON_SMALL, IDI_APPLICATION, IMAGE_ICON, LR_DEFAULTCOLOR, LoadIconW, LoadImageW, MSG,
-        PostQuitMessage, RegisterClassExW, SM_CXICON, SM_CXSMICON, SM_CYICON, SM_CYSMICON,
-        SW_HIDE, SW_RESTORE, SW_SHOW, SW_SHOWNORMAL, SendMessageW, SetForegroundWindow, ShowWindow,
-        TranslateMessage, WM_CLOSE, WM_COMMAND, WM_CREATE, WM_DESTROY, WM_PAINT, WM_SETFONT, WM_SETICON,
-        WNDCLASSEXW, WS_CHILD, WS_MINIMIZEBOX, WS_OVERLAPPED, WS_SYSMENU, WS_VISIBLE,
+        DispatchMessageW, GetClientRect, GetDlgItem, GetMessageW, GetSystemMetrics, HMENU,
+        ICON_BIG, ICON_SMALL, IDI_APPLICATION, IMAGE_ICON, LR_DEFAULTCOLOR, LoadIconW, LoadImageW,
+        MSG, PostQuitMessage, RegisterClassExW, SM_CXICON, SM_CXSMICON, SM_CYICON, SM_CYSMICON,
+        SW_HIDE, SW_RESTORE, SW_SHOW, SW_SHOWNORMAL, SendMessageW, SetForegroundWindow,
+        SetWindowTextW, ShowWindow, TranslateMessage, WM_CLOSE, WM_COMMAND, WM_CREATE, WM_DESTROY,
+        WM_PAINT, WM_SETFONT, WM_SETICON, WNDCLASSEXW, WS_CHILD, WS_MINIMIZEBOX, WS_OVERLAPPED,
+        WS_SYSMENU, WS_VISIBLE,
     };
 
     static WINDOW_HWND: AtomicPtr<std::ffi::c_void> = AtomicPtr::new(std::ptr::null_mut());
@@ -56,10 +58,41 @@ pub mod win_ui {
     pub fn show_window() {
         let hwnd = WINDOW_HWND.load(Ordering::SeqCst) as HWND;
         if !hwnd.is_null() {
+            update_language();
             unsafe {
                 ShowWindow(hwnd, SW_SHOW);
                 ShowWindow(hwnd, SW_RESTORE);
                 SetForegroundWindow(hwnd);
+            }
+        }
+    }
+
+    pub fn update_language() {
+        let hwnd = WINDOW_HWND.load(Ordering::SeqCst) as HWND;
+        if !hwnd.is_null() {
+            if let Some(state) = GLOBAL_STATE.get() {
+                let lang = state.config.blocking_read().language;
+                let strings = crate::i18n::t(lang);
+
+                unsafe {
+                    let set_btn = |id: usize, text: &str| {
+                        let h_btn = GetDlgItem(hwnd, id as i32);
+                        if !h_btn.is_null() {
+                            let wide: Vec<u16> = OsStr::new(text)
+                                .encode_wide()
+                                .chain(std::iter::once(0))
+                                .collect();
+                            SetWindowTextW(h_btn, wide.as_ptr());
+                        }
+                    };
+
+                    set_btn(BTN_OPEN_DOWNLOADS, strings.ui_btn_downloads);
+                    set_btn(BTN_COPY_TOKEN, strings.ui_btn_token);
+                    set_btn(BTN_OPEN_BROWSER, strings.ui_btn_browser);
+                    set_btn(BTN_MINIMIZE, strings.ui_btn_minimize);
+
+                    InvalidateRect(hwnd, std::ptr::null(), 1);
+                }
             }
         }
     }
@@ -299,8 +332,14 @@ pub mod win_ui {
                             .as_ptr(),
                     );
 
+                    let lang = GLOBAL_STATE
+                        .get()
+                        .map(|s| s.config.blocking_read().language)
+                        .unwrap_or_default();
+                    let strings = crate::i18n::t(lang);
+
                     // Button 1: Open Downloads
-                    let txt_dl = OsStr::new("Abrir Descargas")
+                    let txt_dl = OsStr::new(strings.ui_btn_downloads)
                         .encode_wide()
                         .chain(std::iter::once(0))
                         .collect::<Vec<_>>();
@@ -321,7 +360,7 @@ pub mod win_ui {
                     SendMessageW(btn1, WM_SETFONT, font as WPARAM, 1);
 
                     // Button 2: Copy Token
-                    let txt_token = OsStr::new("Copiar Token")
+                    let txt_token = OsStr::new(strings.ui_btn_token)
                         .encode_wide()
                         .chain(std::iter::once(0))
                         .collect::<Vec<_>>();
@@ -342,7 +381,7 @@ pub mod win_ui {
                     SendMessageW(btn2, WM_SETFONT, font as WPARAM, 1);
 
                     // Button 3: Open in browser
-                    let txt_web = OsStr::new("Abrir en Navegador")
+                    let txt_web = OsStr::new(strings.ui_btn_browser)
                         .encode_wide()
                         .chain(std::iter::once(0))
                         .collect::<Vec<_>>();
@@ -363,7 +402,7 @@ pub mod win_ui {
                     SendMessageW(btn3, WM_SETFONT, font as WPARAM, 1);
 
                     // Button 4: Minimize / Hide to tray
-                    let txt_hide = OsStr::new("Minimizar a la Bandeja")
+                    let txt_hide = OsStr::new(strings.ui_btn_minimize)
                         .encode_wide()
                         .chain(std::iter::once(0))
                         .collect::<Vec<_>>();
@@ -397,9 +436,10 @@ pub mod win_ui {
                             BTN_COPY_TOKEN => {
                                 let conf = state.config.blocking_read();
                                 let _ = ClipboardManager::set_text(&conf.token);
-                                NotificationManager::notify_clipboard(
-                                    "text",
-                                    "Token copiado al portapapeles",
+                                let strings = crate::i18n::t(conf.language);
+                                NotificationManager::notify_message(
+                                    strings.ui_title,
+                                    strings.token_copied,
                                 );
                             }
                             BTN_OPEN_BROWSER => {
@@ -453,8 +493,14 @@ pub mod win_ui {
                     );
                     let old_font = SelectObject(hdc, font_title as _);
 
+                    let lang = GLOBAL_STATE
+                        .get()
+                        .map(|s| s.config.blocking_read().language)
+                        .unwrap_or_default();
+                    let strings = crate::i18n::t(lang);
+
                     SetTextColor(hdc, 0x00f8fafc); // White
-                    let title_text = OsStr::new("AirDrop Bridge")
+                    let title_text = OsStr::new(strings.ui_title)
                         .encode_wide()
                         .collect::<Vec<_>>();
                     TextOutW(hdc, 40, 24, title_text.as_ptr(), title_text.len() as i32);
@@ -483,18 +529,18 @@ pub mod win_ui {
                     SelectObject(hdc, font_sub as _);
 
                     SetTextColor(hdc, 0x0081b910); // Emerald Green in BGR
-                    let status_text = OsStr::new("● En linea  -  Listo para recibir")
+                    let status_text = OsStr::new(strings.ui_status_online)
                         .encode_wide()
                         .collect::<Vec<_>>();
                     TextOutW(hdc, 40, 60, status_text.as_ptr(), status_text.len() as i32);
 
                     if let Some(state) = GLOBAL_STATE.get() {
                         SetTextColor(hdc, 0x00b8a394); // Muted grey in BGR (#94a3b8)
-                        let info_text = format!("Host: {}:53317", state.local_ip_str);
+                        let info_text = format!("{} {}:53317", strings.ui_host_prefix, state.local_ip_str);
                         let info_wide = OsStr::new(&info_text).encode_wide().collect::<Vec<_>>();
                         TextOutW(hdc, 40, 84, info_wide.as_ptr(), info_wide.len() as i32);
 
-                        let scan_tip = OsStr::new("Escanea con la app Camara de tu iPhone:")
+                        let scan_tip = OsStr::new(strings.ui_scan_tip)
                             .encode_wide()
                             .collect::<Vec<_>>();
                         SetTextColor(hdc, 0x00f8fafc);
@@ -549,7 +595,7 @@ pub mod win_ui {
                     }
 
                     // Instructions footer
-                    let hint = OsStr::new("El atajo de iOS se autoconfigurara en un solo toque.")
+                    let hint = OsStr::new(strings.ui_footer_hint)
                         .encode_wide()
                         .collect::<Vec<_>>();
                     SetTextColor(hdc, 0x00b8a394);
@@ -591,4 +637,5 @@ pub mod win_ui {
     pub fn show_window() {}
     pub fn hide_window() {}
     pub fn close_window() {}
+    pub fn update_language() {}
 }

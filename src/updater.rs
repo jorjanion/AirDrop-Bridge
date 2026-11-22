@@ -1,4 +1,5 @@
 use crate::config::AppConfig;
+use crate::i18n::Language;
 use crate::notification::NotificationManager;
 use semver::Version;
 use serde::Deserialize;
@@ -140,7 +141,8 @@ impl AutoUpdater {
     }
 
     /// Checks for updates and performs hot-swap replacement if a newer version exists
-    pub async fn check_and_update(notify_if_latest: bool) {
+    pub async fn check_and_update(notify_if_latest: bool, lang: Language) {
+        let strings = crate::i18n::t(lang);
         info!("Checking for updates on GitHub...");
         let current_version = env!("CARGO_PKG_VERSION");
 
@@ -149,9 +151,9 @@ impl AutoUpdater {
             Err(e) => {
                 warn!("Update check failed: {}", e);
                 if notify_if_latest {
-                    NotificationManager::notify_clipboard(
-                        "update",
-                        "No se pudo comprobar actualizaciones (sin conexión)",
+                    NotificationManager::notify_message(
+                        strings.ui_title,
+                        strings.update_offline,
                     );
                 }
                 return;
@@ -161,9 +163,9 @@ impl AutoUpdater {
         if !Self::is_newer(current_version, &release.tag_name) {
             info!("AirDrop Bridge is up to date (version {})", current_version);
             if notify_if_latest {
-                NotificationManager::notify_clipboard(
-                    "update",
-                    &format!("AirDrop Bridge ya está actualizado ({})", current_version),
+                NotificationManager::notify_message(
+                    strings.ui_title,
+                    &format!("{} ({})", strings.update_latest_prefix, current_version),
                 );
             }
             return;
@@ -207,11 +209,10 @@ impl AutoUpdater {
                         "AirDrop Bridge was silently updated to {} via GitHub",
                         release.tag_name
                     );
-                    let msg = format!(
-                        "AirDrop Bridge se ha actualizado silenciosamente a {}. Se aplicará en el próximo inicio.",
-                        release.tag_name
-                    );
-                    NotificationManager::notify_clipboard("update", &msg);
+                    let msg = strings
+                        .update_silent_done_fmt
+                        .replace("{}", &release.tag_name);
+                    NotificationManager::notify_message(strings.ui_title, &msg);
                 }
                 Err(e) => {
                     error!("Failed to apply update: {}", e);
@@ -293,9 +294,10 @@ impl AutoUpdater {
             {
                 let conf = config.read().await;
                 if conf.auto_update {
+                    let lang = conf.language;
                     drop(conf);
                     info!("Running initial silent update check...");
-                    Self::check_and_update(false).await;
+                    Self::check_and_update(false, lang).await;
                 }
             }
 
@@ -305,9 +307,10 @@ impl AutoUpdater {
                 interval.tick().await;
                 let conf = config.read().await;
                 if conf.auto_update {
+                    let lang = conf.language;
                     drop(conf);
                     info!("Running periodic silent background update check...");
-                    Self::check_and_update(false).await;
+                    Self::check_and_update(false, lang).await;
                 }
             }
         });

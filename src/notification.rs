@@ -1,3 +1,4 @@
+use crate::i18n::Language;
 use std::path::Path;
 #[cfg(windows)]
 use std::path::PathBuf;
@@ -79,9 +80,10 @@ impl NotificationManager {
     }
 
     /// Displays an interactive native Toast notification when a file is received
-    pub fn notify_file_received(filename: &str, _path: &Path, size_bytes: u64) {
+    pub fn notify_file_received(filename: &str, _path: &Path, size_bytes: u64, lang: Language) {
+        let strings = crate::i18n::t(lang);
         let human_size = format_size(size_bytes);
-        let title = "AirDrop Bridge - Archivo recibido";
+        let title = strings.notif_file_received_title;
         let message = format!("{} ({})", filename, human_size);
 
         info!("Notification: {} - {}", title, message);
@@ -91,9 +93,10 @@ impl NotificationManager {
             let path_clone = _path.to_path_buf();
             let title_clone = title.to_string();
             let msg_clone = message.clone();
+            let saved_in_prefix = strings.notif_saved_in.to_string();
 
             std::thread::spawn(move || {
-                show_windows_toast(&title_clone, &msg_clone, Some(&path_clone));
+                show_windows_toast(&title_clone, &msg_clone, Some(&path_clone), Some(&saved_in_prefix));
             });
         }
 
@@ -108,9 +111,10 @@ impl NotificationManager {
     }
 
     /// Displays a notification when text or image is copied to the clipboard
-    pub fn notify_clipboard(_content_type: &str, summary: &str) {
-        let title = "AirDrop Bridge - Portapapeles";
-        let message = format!("Copiado al portapapeles: {}", summary);
+    pub fn notify_clipboard(_content_type: &str, summary: &str, lang: Language) {
+        let strings = crate::i18n::t(lang);
+        let title = strings.notif_clipboard_title;
+        let message = format!("{} {}", strings.notif_copied, summary);
 
         info!("Notification: {} - {}", title, message);
 
@@ -120,7 +124,7 @@ impl NotificationManager {
             let msg_clone = message.clone();
 
             std::thread::spawn(move || {
-                show_windows_toast(&title_clone, &msg_clone, None);
+                show_windows_toast(&title_clone, &msg_clone, None, None);
             });
         }
 
@@ -130,6 +134,30 @@ impl NotificationManager {
                 .summary(title)
                 .body(&message)
                 .icon("edit-paste")
+                .show();
+        }
+    }
+
+    /// Displays a general application notification
+    pub fn notify_message(title: &str, message: &str) {
+        info!("Notification: {} - {}", title, message);
+
+        #[cfg(windows)]
+        {
+            let title_clone = title.to_string();
+            let msg_clone = message.to_string();
+
+            std::thread::spawn(move || {
+                show_windows_toast(&title_clone, &msg_clone, None, None);
+            });
+        }
+
+        #[cfg(not(windows))]
+        {
+            let _ = notify_rust::Notification::new()
+                .summary(title)
+                .body(message)
+                .icon("dialog-information")
                 .show();
         }
     }
@@ -153,13 +181,19 @@ pub fn format_size(bytes: u64) -> String {
 }
 
 #[cfg(windows)]
-fn show_windows_toast(title: &str, message: &str, target_path: Option<&PathBuf>) {
+fn show_windows_toast(
+    title: &str,
+    message: &str,
+    target_path: Option<&PathBuf>,
+    saved_in_prefix: Option<&str>,
+) {
     let clean_title = title.replace('\'', "''");
     let clean_msg = message.replace('\'', "''");
 
     let script = if let Some(p) = target_path {
         let clean_path = p.display().to_string().replace('\'', "''");
-        let full_msg = format!("{} (Guardado en {})", clean_msg, clean_path);
+        let prefix = saved_in_prefix.unwrap_or("Saved in");
+        let full_msg = format!("{} ({} {})", clean_msg, prefix, clean_path);
         format!(
             r#"[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null
 $template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02)

@@ -13,6 +13,7 @@ use serde_json::{Value, json};
 #[derive(Deserialize)]
 pub struct SetupQuery {
     pub token: Option<String>,
+    pub lang: Option<String>,
 }
 
 pub async fn setup_page_handler(
@@ -21,11 +22,29 @@ pub async fn setup_page_handler(
 ) -> impl IntoResponse {
     let conf = state.config.read().await;
 
+    let lang = query
+        .lang
+        .as_deref()
+        .map(crate::i18n::Language::from_code)
+        .unwrap_or(conf.language);
+    let strings = crate::i18n::t(lang);
+
     // Validate token if provided or warn
     let is_authorized = match &query.token {
         Some(t) => t == &conf.token,
         None => false,
     };
+
+    let token_param = match &query.token {
+        Some(t) => format!("&token={}", urlencoding::encode(t)),
+        None => String::new(),
+    };
+
+    let is_en = lang == crate::i18n::Language::En;
+    let en_color = if is_en { "var(--primary)" } else { "var(--text-muted)" };
+    let en_weight = if is_en { "700" } else { "400" };
+    let es_color = if !is_en { "var(--primary)" } else { "var(--text-muted)" };
+    let es_weight = if !is_en { "700" } else { "400" };
 
     let local_ip_str = local_ip()
         .map(|ip| ip.to_string())
@@ -59,11 +78,11 @@ pub async fn setup_page_handler(
 
     let html = format!(
         r#"<!DOCTYPE html>
-<html lang="es">
+<html lang="{lang_code}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>AirDrop Bridge - Emparejamiento</title>
+    <title>AirDrop Bridge</title>
     <style>
         :root {{
             --bg: #0f172a;
@@ -107,6 +126,21 @@ pub async fn setup_page_handler(
             max-width: 440px;
             width: 100%;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }}
+        .lang-picker {{
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }}
+        .lang-link {{
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }}
+        .lang-sep {{
+            color: var(--border);
         }}
         .header {{
             text-align: center;
@@ -216,50 +250,73 @@ pub async fn setup_page_handler(
 </head>
 <body>
     <div class="card">
+        <div class="lang-picker">
+            <a href="?lang=en{token_param}" class="lang-link" style="color: {en_color}; font-weight: {en_weight};">English</a>
+            <span class="lang-sep">|</span>
+            <a href="?lang=es{token_param}" class="lang-link" style="color: {es_color}; font-weight: {es_weight};">Español</a>
+        </div>
         <div class="header">
-            <div class="badge"><div class="dot"></div> En línea</div>
+            <div class="badge"><div class="dot"></div> {badge_text}</div>
             <h1>AirDrop Bridge</h1>
-            <p class="subtitle">Conexión con <strong>{device_name}</strong></p>
+            <p class="subtitle">{connection_prefix} <strong>{device_name}</strong></p>
         </div>
 
         <div class="info-box">
-            <div class="info-row"><span class="info-label">Host mDNS:</span> <span class="info-val">{mdns_host}</span></div>
-            <div class="info-row"><span class="info-label">IP LAN:</span> <span class="info-val">{local_ip_str}:{port}</span></div>
-            <div class="info-row"><span class="info-label">Seguridad:</span> <span class="info-val">{auth_status}</span></div>
+            <div class="info-row"><span class="info-label">{label_mdns}</span> <span class="info-val">{mdns_host}</span></div>
+            <div class="info-row"><span class="info-label">{label_lan}</span> <span class="info-val">{local_ip_str}:{port}</span></div>
+            <div class="info-row"><span class="info-label">{label_security}</span> <span class="info-val">{auth_status}</span></div>
         </div>
 
         <a href="{shortcut_url}" class="btn btn-primary" target="_blank">
-            1. Instalar Atajo en iOS (iCloud)
+            {btn_install}
         </a>
 
         <a href="{shortcut_deep_link}" class="btn btn-secondary">
-            2. Conectar y Configurar este PC
+            {btn_connect}
         </a>
 
         <a href="/shortcut/AirDrop_Bridge.shortcut" class="btn btn-outline" download="AirDrop_Bridge.shortcut">
-            Descargar archivo .shortcut
+            {btn_download}
         </a>
 
         <div class="instructions">
-            <strong>Instrucciones:</strong><br>
-            1. Pulsa en el paso 1 para añadir el Atajo a tu iPhone a través de iCloud.<br>
-            2. Pulsa en el paso 2 para que el Atajo importe automáticamente el token de seguridad y la dirección de este ordenador.<br>
-            3. ¡Listo! Ya puedes compartir archivos desde el menú Compartir o sincronizar portapapeles.
+            <strong>{instructions_title}</strong><br>
+            {step1}<br>
+            {step2}<br>
+            {step3}
         </div>
     </div>
 </body>
 </html>"#,
+        lang_code = lang.code(),
+        token_param = token_param,
+        en_color = en_color,
+        en_weight = en_weight,
+        es_color = es_color,
+        es_weight = es_weight,
+        badge_text = strings.setup_online_badge,
+        connection_prefix = strings.setup_connection_with,
         device_name = conf.device_name,
+        label_mdns = strings.setup_host_mdns,
         mdns_host = mdns_host,
+        label_lan = strings.setup_lan_ip,
         local_ip_str = local_ip_str,
         port = conf.port,
+        label_security = strings.setup_security,
         auth_status = if is_authorized {
-            "Autenticado ✓"
+            strings.setup_authenticated
         } else {
-            "Pendiente"
+            strings.setup_pending
         },
         shortcut_url = shortcut_url,
-        shortcut_deep_link = shortcut_deep_link
+        btn_install = strings.setup_btn_install,
+        shortcut_deep_link = shortcut_deep_link,
+        btn_connect = strings.setup_btn_connect,
+        btn_download = strings.setup_btn_download_file,
+        instructions_title = strings.setup_instructions_title,
+        step1 = strings.setup_step1,
+        step2 = strings.setup_step2,
+        step3 = strings.setup_step3
     );
 
     Html(html)

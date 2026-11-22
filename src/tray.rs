@@ -1,6 +1,7 @@
 use crate::autostart::AutostartManager;
 use crate::clipboard::ClipboardManager;
 use crate::config::AppConfig;
+use crate::i18n::{Language, t};
 use crate::notification::NotificationManager;
 use crate::ui::win_ui;
 use muda::{CheckMenuItem, Menu, MenuEvent, MenuItem, PredefinedMenuItem, Submenu};
@@ -62,7 +63,10 @@ fn run_tray_loop(
     let is_open_folder = conf.open_folder_on_receive;
     let is_clipboard = conf.clipboard_sync;
     let is_auto_update = conf.auto_update;
+    let mut current_lang = conf.language;
     drop(conf);
+
+    let strings = t(current_lang);
 
     // Build context menu with muda
     let menu = Menu::new();
@@ -71,23 +75,37 @@ fn run_tray_loop(
     let header_item = MenuItem::new(header_title, false, None);
     let sep1 = PredefinedMenuItem::separator();
 
-    let open_item = MenuItem::new("📱 Abrir AirDrop Bridge", true, None);
-    let dl_item = MenuItem::new("📂 Abrir descargas", true, None);
-    let token_item = MenuItem::new("📋 Copiar token", true, None);
-    let web_item = MenuItem::new("🌐 Abrir en navegador", true, None);
+    let open_item = MenuItem::new(strings.tray_open, true, None);
+    let dl_item = MenuItem::new(strings.tray_downloads, true, None);
+    let token_item = MenuItem::new(strings.tray_copy_token, true, None);
+    let web_item = MenuItem::new(strings.tray_browser, true, None);
     let sep2 = PredefinedMenuItem::separator();
 
     // Settings submenu
-    let settings_submenu = Submenu::new("⚙️ Ajustes", true);
-    let autostart_item = CheckMenuItem::new("Iniciar con Windows", true, is_autostart, None);
-    let notif_item = CheckMenuItem::new("Notificaciones del sistema", true, is_notif, None);
-    let sound_item = CheckMenuItem::new("Sonido al recibir", true, is_sound, None);
+    let settings_submenu = Submenu::new(strings.tray_settings, true);
+    let autostart_item = CheckMenuItem::new(strings.tray_autostart, true, is_autostart, None);
+    let notif_item = CheckMenuItem::new(strings.tray_notifications, true, is_notif, None);
+    let sound_item = CheckMenuItem::new(strings.tray_sound, true, is_sound, None);
     let open_folder_item =
-        CheckMenuItem::new("Abrir carpeta al recibir", true, is_open_folder, None);
+        CheckMenuItem::new(strings.tray_open_folder, true, is_open_folder, None);
     let clipboard_item =
-        CheckMenuItem::new("Sincronizar portapapeles", true, is_clipboard, None);
+        CheckMenuItem::new(strings.tray_clipboard, true, is_clipboard, None);
     let auto_update_item =
-        CheckMenuItem::new("Actualizaciones automáticas", true, is_auto_update, None);
+        CheckMenuItem::new(strings.tray_auto_update, true, is_auto_update, None);
+
+    // Language submenu
+    let lang_submenu = Submenu::new(strings.tray_language, true);
+    let lang_items: Vec<(Language, CheckMenuItem)> = Language::ALL
+        .iter()
+        .map(|&l| {
+            let item = CheckMenuItem::new(l.display_name(), true, current_lang == l, None);
+            (l, item)
+        })
+        .collect();
+
+    for (_, item) in &lang_items {
+        lang_submenu.append(item)?;
+    }
 
     settings_submenu.append_items(&[
         &autostart_item,
@@ -96,12 +114,13 @@ fn run_tray_loop(
         &open_folder_item,
         &clipboard_item,
         &auto_update_item,
+        &lang_submenu,
     ])?;
 
-    let update_item = MenuItem::new("🔄 Buscar actualizaciones...", true, None);
+    let update_item = MenuItem::new(strings.tray_check_updates, true, None);
     let sep3 = PredefinedMenuItem::separator();
 
-    let exit_item = MenuItem::new("❌ Salir", true, None);
+    let exit_item = MenuItem::new(strings.tray_exit, true, None);
 
     let open_id = open_item.id().clone();
     let dl_id = dl_item.id().clone();
@@ -132,9 +151,9 @@ fn run_tray_loop(
         &exit_item,
     ])?;
 
-    let _tray_icon: TrayIcon = TrayIconBuilder::new()
+    let tray_icon: TrayIcon = TrayIconBuilder::new()
         .with_menu(Box::new(menu))
-        .with_tooltip("AirDrop Bridge - En linea")
+        .with_tooltip(strings.tray_tooltip)
         .with_icon(icon)
         .build()?;
 
@@ -180,7 +199,8 @@ fn run_tray_loop(
                 if let Err(e) = ClipboardManager::set_text(&conf.token) {
                     error!("Failed to copy token: {}", e);
                 } else {
-                    NotificationManager::notify_clipboard("text", "Token copiado al portapapeles");
+                    let strings = t(conf.language);
+                    NotificationManager::notify_message(strings.ui_title, strings.token_copied);
                 }
             } else if event.id == web_id {
                 let _ = cmd_tx.blocking_send(TrayCommand::PairDevice);
@@ -220,6 +240,43 @@ fn run_tray_loop(
                 conf.auto_update = !conf.auto_update;
                 auto_update_item.set_checked(conf.auto_update);
                 let _ = conf.save();
+            } else if let Some(&(lang, _)) =
+                lang_items.iter().find(|(_, item)| item.id() == &event.id)
+            {
+                if current_lang != lang {
+                    current_lang = lang;
+                    let mut conf = config.blocking_write();
+                    conf.language = lang;
+                    let _ = conf.save();
+                    drop(conf);
+
+                    for (l, item) in &lang_items {
+                        item.set_checked(*l == current_lang);
+                    }
+
+                    let new_strings = t(current_lang);
+                    open_item.set_text(new_strings.tray_open);
+                    dl_item.set_text(new_strings.tray_downloads);
+                    token_item.set_text(new_strings.tray_copy_token);
+                    web_item.set_text(new_strings.tray_browser);
+                    settings_submenu.set_text(new_strings.tray_settings);
+                    autostart_item.set_text(new_strings.tray_autostart);
+                    notif_item.set_text(new_strings.tray_notifications);
+                    sound_item.set_text(new_strings.tray_sound);
+                    open_folder_item.set_text(new_strings.tray_open_folder);
+                    clipboard_item.set_text(new_strings.tray_clipboard);
+                    auto_update_item.set_text(new_strings.tray_auto_update);
+                    lang_submenu.set_text(new_strings.tray_language);
+                    update_item.set_text(new_strings.tray_check_updates);
+                    exit_item.set_text(new_strings.tray_exit);
+                    let _ = tray_icon.set_tooltip(Some(new_strings.tray_tooltip));
+
+                    win_ui::update_language();
+                } else {
+                    for (l, item) in &lang_items {
+                        item.set_checked(*l == current_lang);
+                    }
+                }
             } else if event.id == update_id {
                 let _ = cmd_tx.blocking_send(TrayCommand::CheckUpdate);
             } else if event.id == exit_id {

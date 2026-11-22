@@ -58,6 +58,7 @@ pub async fn auth_middleware(
 mod tests {
     use super::*;
     use crate::config::AppConfig;
+    use crate::i18n::Language;
     use crate::server::create_router;
     use axum::body::to_bytes;
     use axum::http::Request;
@@ -78,6 +79,7 @@ mod tests {
             play_sound: true,
             open_folder_on_receive: false,
             clipboard_sync: true,
+            language: Language::En,
         };
         let (state, _rx) = AppState::new(config);
         let router = create_router(state);
@@ -106,6 +108,7 @@ mod tests {
             play_sound: true,
             open_folder_on_receive: false,
             clipboard_sync: true,
+            language: Language::En,
         };
         let (state, _rx) = AppState::new(config);
         let router = create_router(state);

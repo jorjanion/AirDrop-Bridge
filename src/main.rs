@@ -3,6 +3,7 @@
 pub mod autostart;
 pub mod clipboard;
 pub mod config;
+pub mod i18n;
 pub mod mdns;
 pub mod notification;
 pub mod qr;
@@ -87,7 +88,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                         NotificationManager::play_chime();
                     }
                     if conf.notifications_enabled {
-                        NotificationManager::notify_file_received(&filename, &path, size_bytes);
+                        NotificationManager::notify_file_received(
+                            &filename,
+                            &path,
+                            size_bytes,
+                            conf.language,
+                        );
                     }
                     if conf.open_folder_on_receive {
                         NotificationManager::open_directory(&conf.download_dir);
@@ -101,7 +107,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                         NotificationManager::play_chime();
                     }
                     if conf.notifications_enabled {
-                        NotificationManager::notify_clipboard(&content_type, &summary);
+                        NotificationManager::notify_clipboard(
+                            &content_type,
+                            &summary,
+                            conf.language,
+                        );
                     }
                 }
             }
@@ -140,7 +150,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 if let Err(e) = ClipboardManager::set_text(&conf.token) {
                     error!("Failed to copy token: {}", e);
                 } else {
-                    NotificationManager::notify_clipboard("text", "Token de seguridad copiado");
+                    let strings = crate::i18n::t(conf.language);
+                    NotificationManager::notify_message(strings.ui_title, strings.token_copied);
                 }
             }
             TrayCommand::ToggleAutostart => {
@@ -154,8 +165,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                 }
             }
             TrayCommand::CheckUpdate => {
-                tokio::spawn(async {
-                    AutoUpdater::check_and_update(true).await;
+                let config_for_update = config_arc.clone();
+                tokio::spawn(async move {
+                    let conf = config_for_update.read().await;
+                    let lang = conf.language;
+                    drop(conf);
+                    AutoUpdater::check_and_update(true, lang).await;
                 });
             }
             TrayCommand::Exit => {

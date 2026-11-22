@@ -166,6 +166,7 @@ pub async fn get_clipboard_handler(
 mod tests {
     use super::*;
     use crate::config::AppConfig;
+    use crate::i18n::Language;
     use crate::server::create_router;
     use axum::body::{Body, to_bytes};
     use axum::http::Request;
@@ -186,6 +187,7 @@ mod tests {
             play_sound: true,
             open_folder_on_receive: false,
             clipboard_sync: true,
+            language: Language::En,
         };
         let (state, mut rx) = AppState::new(config);
         let router = create_router(state);
