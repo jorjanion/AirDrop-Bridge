@@ -91,8 +91,15 @@ impl AutoUpdater {
     pub async fn fetch_latest_release_via_gh_cli() -> Result<GitHubRelease, String> {
         let repo_arg = format!("{}/{}", REPO_OWNER, REPO_NAME);
         let output = tokio::task::spawn_blocking(move || {
-            std::process::Command::new("gh")
-                .args(["release", "view", "--repo", &repo_arg, "--json", "tagName,name,assets,url"])
+            #[cfg(windows)]
+            use std::os::windows::process::CommandExt;
+            #[cfg(windows)]
+            const CREATE_NO_WINDOW: u32 = 0x08000000;
+
+            let mut cmd = std::process::Command::new("gh");
+            #[cfg(windows)]
+            cmd.creation_flags(CREATE_NO_WINDOW);
+            cmd.args(["release", "view", "--repo", &repo_arg, "--json", "tagName,name,assets,url"])
                 .output()
         })
         .await
