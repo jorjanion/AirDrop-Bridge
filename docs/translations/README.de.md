@@ -86,10 +86,19 @@ Die Einrichtung ist in weniger als einer Minute abgeschlossen.
 * Kehre zu Safari zurück und tippe auf **"2. Diesen PC koppeln & konfigurieren"**.
 * Der Kurzbefehl übernimmt automatisch dein Sicherheitstoken und die IP-Adresse deines PCs.
 
-### 5. Bereit zum Teilen!
+### 5. Bereit zum Teilen von Dateien und Zwischenablage!
+
+#### Fotos, Videos und Dateien senden:
 * Öffne die **Fotos**- oder **Dateien**-App auf deinem iPhone.
 * Wähle Fotos, Videos oder Dokumente aus, tippe auf **Teilen** und wähle **AirDrop Bridge**.
 * Deine Datei landet sofort in deinem Downloads-Ordner (`Downloads\AirDropBridge`), begleitet von einem Hinweiston und einer Desktop-Benachrichtigung!
+
+#### Zwischenablage synchronisieren (bidirektional):
+* Führe den Kurzbefehl **AirDrop Bridge** direkt aus (über die Kurzbefehle-App, ein Startbildschirm-Widget, die Aktionstaste oder Tippen auf die Rückseite).
+* Ein Auswahldialog bietet zwei praktische Aktionen:
+  * 📤 **Send clipboard**: Überträgt den auf dem iPhone kopierten Text direkt in die Zwischenablage deines PCs.
+  * 📥 **Get clipboard**: Holt den aktuell auf dem PC kopierten Text direkt auf dein iPhone.
+* Du kannst auch beliebigen Text auf deinem iPhone markieren (in Safari, Notizen oder Nachrichten), auf **Teilen** tippen und **AirDrop Bridge** wählen, um ihn sofort an den PC zu senden!
 
 ---
 

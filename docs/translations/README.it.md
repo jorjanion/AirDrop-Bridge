@@ -86,10 +86,19 @@ La configurazione richiede meno di un minuto.
 * Torna in Safari e tocca **"2. Collega e Configura questo PC"**.
 * Il comando salverà automaticamente il token di sicurezza e l'indirizzo IP del computer.
 
-### 5. Inizia a condividere!
+### 5. Inizia a condividere file e appunti!
+
+#### Invio di Foto, Video e File:
 * Apri l'app **Foto** o **File** sul tuo iPhone.
 * Seleziona foto, video o documenti, tocca il pulsante **Condividi** e scegli **AirDrop Bridge**.
 * Il file arriverà istantaneamente nella cartella Download (`Download\AirDropBridge`), accompagnato da un suono e da una notifica desktop!
+
+#### Sincronizzazione degli Appunti (Bidirezionale):
+* Avvia il comando **AirDrop Bridge** direttamente (dall'app Comandi Rapidi, da un widget della schermata Home, dal Tasto Azione o dal tocco posteriore).
+* Apparirà un menu rapido con due opzioni:
+  * 📤 **Send clipboard**: Invia il testo copiato sul tuo iPhone direttamente negli appunti del PC.
+  * 📥 **Get clipboard**: Preleva il testo attualmente presente negli appunti del PC e lo copia sul tuo iPhone.
+* Puoi anche selezionare qualsiasi testo sul tuo iPhone (in Safari, Note o Messaggi), toccare **Condividi** e scegliere **AirDrop Bridge** per inviarlo subito al computer!
 
 ---
 

@@ -86,10 +86,19 @@ Setting up AirDrop Bridge takes less than a minute.
 * Return to Safari and tap **"2. Link & Configure this PC"**.
 * The shortcut will import your secure security token and local IP address automatically.
 
-### 5. You are ready to share!
-* Open the **Photos** app or **Files** app on your iPhone.
-* Select any photo, video, or file, tap the **Share** button, and choose **AirDrop Bridge**.
-* Your file will arrive instantly in your PC Downloads folder (`Downloads\AirDropBridge`) accompanied by a chime and a desktop notification!
+### 5. Start Sharing Files & Clipboard!
+
+#### Sending Photos, Videos & Files:
+* Open the **Photos** or **Files** app on your iPhone.
+* Select any photo, video, or document, tap the **Share** button, and choose **AirDrop Bridge**.
+* Your file will arrive instantly in your PC Downloads folder (`Downloads\AirDropBridge`), accompanied by a chime and a desktop notification!
+
+#### Syncing Clipboard (Bidirectional):
+* Run the **AirDrop Bridge** shortcut directly (from the Shortcuts app, Home Screen, Action Button, or Back Tap).
+* A menu will prompt you with two options:
+  * 📤 **Send clipboard**: Sends whatever text you have copied on your iPhone straight to your PC clipboard.
+  * 📥 **Get clipboard**: Pulls the text currently on your PC clipboard directly into your iPhone.
+* You can also select any text on your iPhone (in Safari, Notes, or Messages), tap **Share**, and pick **AirDrop Bridge** to copy it instantly to your PC!
 
 ---
 

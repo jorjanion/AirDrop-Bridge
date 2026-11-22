@@ -86,10 +86,19 @@ La configuration s'effectue en moins d'une minute.
 * Revenez dans Safari et touchez **"2. Associer et Configurer ce PC"**.
 * Le raccourci enregistrera automatiquement votre jeton de sécurité ainsi que l'adresse IP de votre ordinateur.
 
-### 5. Partagez sans attendre !
+### 5. Partagez vos fichiers et votre presse-papiers !
+
+#### Envoyer des photos, vidéos et fichiers :
 * Ouvrez l'application **Photos** ou **Fichiers** sur votre iPhone.
 * Sélectionnez des photos, vidéos ou documents, touchez le bouton **Partager** et choisissez **AirDrop Bridge**.
 * Votre fichier arrive instantanément dans votre dossier Téléchargements (`Téléchargements\AirDropBridge`), accompagné d'un signal sonore et d'une notification de bureau !
+
+#### Synchroniser le presse-papiers (bidirectionnel) :
+* Lancez le raccourci **AirDrop Bridge** directement (depuis l'application Raccourcis, un widget d'écran d'accueil, le bouton Action ou le toucher au dos).
+* Un menu rapide s'affiche avec deux options :
+  * 📤 **Send clipboard** : Envoie le texte copié sur votre iPhone directement dans le presse-papiers de votre PC.
+  * 📥 **Get clipboard** : Récupère le texte actuellement présent dans le presse-papiers de votre PC pour le coller sur votre iPhone.
+* Vous pouvez également surligner n'importe quel texte sur votre iPhone (dans Safari, Notes ou Messages), toucher **Partager** et choisir **AirDrop Bridge** pour l'envoyer immédiatement au PC !
 
 ---
 

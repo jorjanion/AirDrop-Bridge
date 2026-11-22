@@ -86,10 +86,19 @@ Configurar AirDrop Bridge lleva menos de un minuto.
 * Vuelve a Safari y pulsa en **"2. Vincular y Configurar este PC"**.
 * El atajo importará automáticamente tu token de seguridad privado y la dirección IP de tu ordenador.
 
-### 5. ¡Listo para compartir!
+### 5. ¡Listo para compartir archivos y portapapeles!
+
+#### Enviar Fotos, Vídeos y Archivos:
 * Abre la app **Fotos** o **Archivos** en tu iPhone.
 * Selecciona cualquier foto, vídeo o documento, pulsa el botón **Compartir** y elige **AirDrop Bridge**.
 * ¡El archivo llegará al instante a tu carpeta de Descargas (`Descargas\AirDropBridge`) con un sonido de confirmación y una notificación en el escritorio!
+
+#### Sincronizar Portapapeles (Bidireccional):
+* Ejecuta el atajo **AirDrop Bridge** directamente (desde la app Atajos, un widget en la pantalla de inicio, el Botón de Acción o el toque trasero).
+* Te aparecerá un menú rápido con dos opciones:
+  * 📤 **Send clipboard**: Envía el texto copiado en tu iPhone directamente al portapapeles de tu PC.
+  * 📥 **Get clipboard**: Copia en tu iPhone el texto que tengas actualmente en el portapapeles de tu PC.
+* También puedes seleccionar cualquier texto en tu iPhone (en Safari, Notas o Mensajes), pulsar **Compartir** y elegir **AirDrop Bridge** para mandarlo al instante al PC.
 
 ---
 
