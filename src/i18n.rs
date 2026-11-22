@@ -135,13 +135,13 @@ pub const EN_TRANSLATIONS: Translations = Translations {
     setup_security: "Security:",
     setup_authenticated: "Authenticated ✓",
     setup_pending: "Pending",
-    setup_btn_install: "1. Install Shortcut on iOS (iCloud)",
-    setup_btn_connect: "2. Connect & Configure this PC",
-    setup_btn_download_file: "Download .shortcut file",
+    setup_btn_install: "1. Download & Install AirDrop Bridge Shortcut",
+    setup_btn_connect: "2. Link & Configure this PC",
+    setup_btn_download_file: "Download .shortcut file directly",
     setup_instructions_title: "Instructions:",
-    setup_step1: "1. Tap step 1 to install the Shortcut on your iPhone via iCloud.",
-    setup_step2: "2. Tap step 2 to import the security token and PC address automatically.",
-    setup_step3: "3. Ready! Share photos, videos, or text directly from your iPhone.",
+    setup_step1: "1. Tap step 1 to download and install the AirDrop Bridge Shortcut on your iPhone.",
+    setup_step2: "2. Tap step 2 to import the security token and link this PC automatically.",
+    setup_step3: "3. Ready! Share photos, videos, or documents directly from the iOS Share Sheet.",
 };
 
 pub const ES_TRANSLATIONS: Translations = Translations {
@@ -188,13 +188,13 @@ pub const ES_TRANSLATIONS: Translations = Translations {
     setup_security: "Seguridad:",
     setup_authenticated: "Autenticado ✓",
     setup_pending: "Pendiente",
-    setup_btn_install: "1. Instalar Atajo en iOS (iCloud)",
-    setup_btn_connect: "2. Conectar y Configurar este PC",
-    setup_btn_download_file: "Descargar archivo .shortcut",
+    setup_btn_install: "1. Descargar e Instalar Atajo AirDrop Bridge",
+    setup_btn_connect: "2. Vincular y Configurar este PC",
+    setup_btn_download_file: "Descargar archivo .shortcut directamente",
     setup_instructions_title: "Instrucciones:",
-    setup_step1: "1. Pulsa en el paso 1 para añadir el Atajo a tu iPhone a través de iCloud.",
-    setup_step2: "2. Pulsa en el paso 2 para que el Atajo importe automáticamente el token de seguridad y la dirección de este ordenador.",
-    setup_step3: "3. ¡Listo! Ya puedes compartir archivos desde el menú Compartir o sincronizar portapapeles.",
+    setup_step1: "1. Pulsa en el paso 1 para descargar e instalar el Atajo AirDrop Bridge en tu iPhone.",
+    setup_step2: "2. Pulsa en el paso 2 para importar el token de seguridad y vincular este PC automáticamente.",
+    setup_step3: "3. ¡Listo! Ya puedes compartir fotos, vídeos o documentos desde el menú Compartir de iOS.",
 };
 
 pub fn t(lang: Language) -> &'static Translations {

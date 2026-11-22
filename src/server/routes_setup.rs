@@ -54,13 +54,6 @@ pub async fn setup_page_handler(
         conf.device_name.to_lowercase().replace(' ', "-")
     );
 
-    const DEFAULT_SHORTCUT_ICLOUD: &str =
-        "https://www.icloud.com/shortcuts/87c14547b1de4195b903ce1d18495c2f";
-    let shortcut_url = conf
-        .shortcut_url
-        .as_deref()
-        .unwrap_or(DEFAULT_SHORTCUT_ICLOUD);
-
     let shortcut_config = json!({
         "token": conf.token,
         "host": mdns_host,
@@ -267,16 +260,12 @@ pub async fn setup_page_handler(
             <div class="info-row"><span class="info-label">{label_security}</span> <span class="info-val">{auth_status}</span></div>
         </div>
 
-        <a href="{shortcut_url}" class="btn btn-primary" target="_blank">
+        <a href="/shortcut/AirDrop_Bridge.shortcut" class="btn btn-primary" download="AirDrop Bridge.shortcut">
             {btn_install}
         </a>
 
         <a href="{shortcut_deep_link}" class="btn btn-secondary">
             {btn_connect}
-        </a>
-
-        <a href="/shortcut/AirDrop_Bridge.shortcut" class="btn btn-outline" download="AirDrop_Bridge.shortcut">
-            {btn_download}
         </a>
 
         <div class="instructions">
@@ -308,11 +297,9 @@ pub async fn setup_page_handler(
         } else {
             strings.setup_pending
         },
-        shortcut_url = shortcut_url,
         btn_install = strings.setup_btn_install,
         shortcut_deep_link = shortcut_deep_link,
         btn_connect = strings.setup_btn_connect,
-        btn_download = strings.setup_btn_download_file,
         instructions_title = strings.setup_instructions_title,
         step1 = strings.setup_step1,
         step2 = strings.setup_step2,
@@ -356,10 +343,10 @@ pub async fn shortcut_download_handler() -> impl IntoResponse {
     let bytes = include_bytes!("../../resources/shortcut/AirDrop_Bridge.shortcut");
     (
         [
-            (header::CONTENT_TYPE, "application/octet-stream"),
+            (header::CONTENT_TYPE, "application/x-apple-shortcut"),
             (
                 header::CONTENT_DISPOSITION,
-                "attachment; filename=\"AirDrop_Bridge.shortcut\"",
+                "attachment; filename=\"AirDrop Bridge.shortcut\"",
             ),
         ],
         bytes.as_slice(),

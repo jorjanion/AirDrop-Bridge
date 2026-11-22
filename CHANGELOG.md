@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-22
+
+### Added
+* Official native Apple Shortcut (`AirDrop Bridge`) built from scratch with zero third-party dependencies, clean English strings, and official AirDrop glyph.
+* Direct integration with `/api/v1/upload` (multipart streaming) and `/api/v1/clipboard` (text/image synchronization).
+* Automated 1-tap configuration mechanism via `shortcuts://run-shortcut?name=AirDrop%20Bridge&input=text&text=...` saving settings directly to `AirDropBridge.json`.
+* Direct shortcut installer button in Safari with `application/x-apple-shortcut` MIME type for instant iOS installation.
+* Included Python generator script (`resources/shortcut/create_shortcut.py`) to reproducibly build the binary `.shortcut` plist.
+
+### Fixed
+* Removed all legacy third-party shortcut artifacts, Chinese texts, and mismatched endpoints (`/file/send`).
+* Fixed shortcut name mismatch ("AirDrop Plus" vs "AirDrop Bridge") preventing iOS configuration linking.
+* Fixed iOS 404/401 errors by aligning shortcut HTTP requests with standard Bearer token authorization and server endpoints.
+
 ## [0.3.0] - 2026-11-22
 
 ### Added
