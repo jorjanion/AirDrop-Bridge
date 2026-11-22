@@ -57,7 +57,11 @@ pub fn create_router(state: AppState) -> Router {
         .route("/api/v1/ping", get(routes_ping::ping_handler))
         .route("/setup", get(routes_setup::setup_page_handler))
         .route("/setup/pair-url", get(routes_setup::pair_url_handler))
-        .route("/setup/qr.png", get(routes_setup::qr_image_handler));
+        .route("/setup/qr.png", get(routes_setup::qr_image_handler))
+        .route(
+            "/shortcut/AirDrop_Bridge.shortcut",
+            get(routes_setup::shortcut_download_handler),
+        );
 
     // Protected API routes (Bearer token required)
     let protected_routes = Router::new()

@@ -35,6 +35,13 @@ pub async fn setup_page_handler(
         conf.device_name.to_lowercase().replace(' ', "-")
     );
 
+    const DEFAULT_SHORTCUT_ICLOUD: &str =
+        "https://www.icloud.com/shortcuts/87c14547b1de4195b903ce1d18495c2f";
+    let shortcut_url = conf
+        .shortcut_url
+        .as_deref()
+        .unwrap_or(DEFAULT_SHORTCUT_ICLOUD);
+
     let shortcut_config = json!({
         "token": conf.token,
         "host": mdns_host,
@@ -186,6 +193,17 @@ pub async fn setup_page_handler(
         .btn-secondary:active {{
             transform: scale(0.98);
         }}
+        .btn-outline {{
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--border);
+            font-size: 14px;
+            padding: 10px 14px;
+        }}
+        .btn-outline:active {{
+            transform: scale(0.98);
+            background: rgba(56, 189, 248, 0.1);
+        }}
         .instructions {{
             margin-top: 20px;
             border-top: 1px solid var(--border);
@@ -210,18 +228,23 @@ pub async fn setup_page_handler(
             <div class="info-row"><span class="info-label">Seguridad:</span> <span class="info-val">{auth_status}</span></div>
         </div>
 
-        <a href="https://www.icloud.com/shortcuts/" class="btn btn-secondary">
-            1. Descargar Atajo de iOS
+        <a href="{shortcut_url}" class="btn btn-primary" target="_blank">
+            1. Instalar Atajo en iOS (iCloud)
         </a>
 
-        <a href="{shortcut_deep_link}" class="btn btn-primary">
+        <a href="{shortcut_deep_link}" class="btn btn-secondary">
             2. Conectar y Configurar este PC
+        </a>
+
+        <a href="/shortcut/AirDrop_Bridge.shortcut" class="btn btn-outline" download="AirDrop_Bridge.shortcut">
+            Descargar archivo .shortcut
         </a>
 
         <div class="instructions">
             <strong>Instrucciones:</strong><br>
-            1. Pulsa en el paso 1 si aún no tienes el Atajo instalado.<br>
-            2. Pulsa en el paso 2 para que el Atajo importe automáticamente el token de seguridad y la dirección de este ordenador.
+            1. Pulsa en el paso 1 para añadir el Atajo a tu iPhone a través de iCloud.<br>
+            2. Pulsa en el paso 2 para que el Atajo importe automáticamente el token de seguridad y la dirección de este ordenador.<br>
+            3. ¡Listo! Ya puedes compartir archivos desde el menú Compartir o sincronizar portapapeles.
         </div>
     </div>
 </body>
@@ -235,6 +258,7 @@ pub async fn setup_page_handler(
         } else {
             "Pendiente"
         },
+        shortcut_url = shortcut_url,
         shortcut_deep_link = shortcut_deep_link
     );
 
@@ -269,4 +293,18 @@ pub async fn qr_image_handler(State(state): State<AppState>) -> Result<Response,
         QrManager::render_png(&url, 300).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     Ok(([(header::CONTENT_TYPE, "image/png")], png_bytes).into_response())
+}
+
+pub async fn shortcut_download_handler() -> impl IntoResponse {
+    let bytes = include_bytes!("../../resources/shortcut/AirDrop_Bridge.shortcut");
+    (
+        [
+            (header::CONTENT_TYPE, "application/octet-stream"),
+            (
+                header::CONTENT_DISPOSITION,
+                "attachment; filename=\"AirDrop_Bridge.shortcut\"",
+            ),
+        ],
+        bytes.as_slice(),
+    )
 }

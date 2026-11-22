@@ -19,10 +19,12 @@ pub mod win_ui {
         SelectObject, SetBkMode, SetTextColor, StretchDIBits, TRANSPARENT, TextOutW,
     };
     use windows_sys::Win32::UI::WindowsAndMessaging::{
-        BS_PUSHBUTTON, CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW,
-        GetClientRect, GetMessageW, HMENU, IDI_APPLICATION, LoadIconW, MSG, PostQuitMessage,
-        RegisterClassExW, SW_HIDE, SW_SHOWNORMAL, SendMessageW, SetForegroundWindow, ShowWindow,
-        TranslateMessage, WM_CLOSE, WM_COMMAND, WM_CREATE, WM_DESTROY, WM_PAINT, WM_SETFONT,
+        BS_PUSHBUTTON, CreateIconFromResourceEx, CreateWindowExW, DefWindowProcW, DestroyWindow,
+        DispatchMessageW, GetClientRect, GetMessageW, GetSystemMetrics, HMENU, ICON_BIG,
+        ICON_SMALL, IDI_APPLICATION, IMAGE_ICON, LR_DEFAULTCOLOR, LoadIconW, LoadImageW, MSG,
+        PostQuitMessage, RegisterClassExW, SM_CXICON, SM_CXSMICON, SM_CYICON, SM_CYSMICON,
+        SW_HIDE, SW_SHOWNORMAL, SendMessageW, SetForegroundWindow, ShowWindow, TranslateMessage,
+        WM_CLOSE, WM_COMMAND, WM_CREATE, WM_DESTROY, WM_PAINT, WM_SETFONT, WM_SETICON,
         WNDCLASSEXW, WS_CHILD, WS_MINIMIZEBOX, WS_OVERLAPPED, WS_SYSMENU, WS_VISIBLE,
     };
 
@@ -123,6 +125,64 @@ pub mod win_ui {
 
             let bg_brush = CreateSolidBrush(0x00170F); // #0f172a in BGR
 
+            let cx_icon = GetSystemMetrics(SM_CXICON);
+            let cy_icon = GetSystemMetrics(SM_CYICON);
+            let cx_smicon = GetSystemMetrics(SM_CXSMICON);
+            let cy_smicon = GetSystemMetrics(SM_CYSMICON);
+
+            let mut h_icon_big = LoadImageW(
+                h_instance,
+                1 as *const u16,
+                IMAGE_ICON,
+                cx_icon,
+                cy_icon,
+                LR_DEFAULTCOLOR,
+            );
+            let mut h_icon_small = LoadImageW(
+                h_instance,
+                1 as *const u16,
+                IMAGE_ICON,
+                cx_smicon,
+                cy_smicon,
+                LR_DEFAULTCOLOR,
+            );
+
+            // Fallback: load directly from embedded PNG bytes if resource isn't found
+            let png_bytes = include_bytes!("../resources/icon.png");
+            if h_icon_big.is_null() {
+                h_icon_big = CreateIconFromResourceEx(
+                    png_bytes.as_ptr() as *mut u8,
+                    png_bytes.len() as u32,
+                    1,
+                    0x00030000,
+                    cx_icon,
+                    cy_icon,
+                    LR_DEFAULTCOLOR,
+                );
+            }
+            if h_icon_small.is_null() {
+                h_icon_small = CreateIconFromResourceEx(
+                    png_bytes.as_ptr() as *mut u8,
+                    png_bytes.len() as u32,
+                    1,
+                    0x00030000,
+                    cx_smicon,
+                    cy_smicon,
+                    LR_DEFAULTCOLOR,
+                );
+            }
+
+            let final_icon_big = if !h_icon_big.is_null() {
+                h_icon_big
+            } else {
+                LoadIconW(0 as _, IDI_APPLICATION)
+            };
+            let final_icon_small = if !h_icon_small.is_null() {
+                h_icon_small
+            } else {
+                final_icon_big
+            };
+
             let wnd_class = WNDCLASSEXW {
                 cbSize: std::mem::size_of::<WNDCLASSEXW>() as u32,
                 style: 0,
@@ -130,12 +190,12 @@ pub mod win_ui {
                 cbClsExtra: 0,
                 cbWndExtra: 0,
                 hInstance: h_instance,
-                hIcon: LoadIconW(0 as _, IDI_APPLICATION),
+                hIcon: final_icon_big,
                 hCursor: std::ptr::null_mut(),
                 hbrBackground: bg_brush,
                 lpszMenuName: std::ptr::null(),
                 lpszClassName: class_name.as_ptr(),
-                hIconSm: std::ptr::null_mut(),
+                hIconSm: final_icon_small,
             };
 
             RegisterClassExW(&wnd_class);
@@ -165,6 +225,14 @@ pub mod win_ui {
 
             if hwnd.is_null() {
                 return Err("Failed to create UI window".into());
+            }
+
+            // Set big and small window icons explicitly (for Taskbar, Alt-Tab, and Titlebar)
+            if !final_icon_big.is_null() {
+                SendMessageW(hwnd, WM_SETICON, ICON_BIG as _, final_icon_big as _);
+            }
+            if !final_icon_small.is_null() {
+                SendMessageW(hwnd, WM_SETICON, ICON_SMALL as _, final_icon_small as _);
             }
 
             // Enable Windows 10/11 Immersive Dark Mode for title bar

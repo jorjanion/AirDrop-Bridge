@@ -73,6 +73,7 @@ mod tests {
             download_dir: PathBuf::from("./downloads"),
             auto_update: false,
             autostart: false,
+            shortcut_url: None,
         };
         let (state, _rx) = AppState::new(config);
         let router = create_router(state);
@@ -96,6 +97,7 @@ mod tests {
             download_dir: PathBuf::from("./downloads"),
             auto_update: false,
             autostart: false,
+            shortcut_url: None,
         };
         let (state, _rx) = AppState::new(config);
         let router = create_router(state);

@@ -17,6 +17,8 @@ pub struct AppConfig {
     pub download_dir: PathBuf,
     pub auto_update: bool,
     pub autostart: bool,
+    #[serde(default)]
+    pub shortcut_url: Option<String>,
 }
 
 impl AppConfig {
@@ -79,6 +81,7 @@ impl AppConfig {
                 download_dir: Self::default_download_dir(),
                 auto_update: true,
                 autostart: false,
+                shortcut_url: None,
             };
 
             config.save_to_path(&path)?;
@@ -94,6 +97,7 @@ impl AppConfig {
             download_dir: PathBuf::from("./downloads"),
             auto_update: true,
             autostart: false,
+            shortcut_url: None,
         };
         fallback.ensure_directories()?;
         Ok(fallback)
@@ -147,6 +151,7 @@ mod tests {
             download_dir: PathBuf::from("C:/test_downloads"),
             auto_update: true,
             autostart: false,
+            shortcut_url: Some("https://www.icloud.com/shortcuts/87c14547b1de4195b903ce1d18495c2f".to_string()),
         };
 
         let serialized = serde_json::to_string(&config).unwrap();
@@ -154,5 +159,6 @@ mod tests {
         assert_eq!(config.device_name, deserialized.device_name);
         assert_eq!(config.port, deserialized.port);
         assert_eq!(config.token, deserialized.token);
+        assert_eq!(config.shortcut_url, deserialized.shortcut_url);
     }
 }
