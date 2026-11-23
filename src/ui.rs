@@ -683,4 +683,5 @@ pub mod win_ui {
     pub fn hide_window() {}
     pub fn close_window() {}
     pub fn update_language() {}
+    pub fn refresh_pairing_state() {}
 }
