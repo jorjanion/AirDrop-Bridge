@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+* Support for Linux AppImage packaging (`AirDrop-Bridge-x86_64.AppImage`) (resolves GitHub Issue #3).
+* Automated AppImage generation pipeline in GitHub Actions release workflow (`.github/workflows/release.yml`) and build script (`scripts/build-appimage.sh`).
+* Desktop metadata specification (`resources/linux/airdrop-bridge.desktop`) and 512x512 app icon branding.
+* Full AppImage support in Linux autostart manager (`src/autostart.rs`) and silent auto-updater (`src/updater.rs`), automatically preserving execute permissions across updates.
 * Support for Tailscale, WireGuard, and custom VPN/FQDN connections (resolves GitHub Issue #2).
 * Network interface autodetection: automatically identifies LAN IPv4, Tailscale CGNAT interfaces (`100.64.0.0/10`), and active VPN adapters.
 * Dynamic endpoint selector on the web setup portal (`/setup`): lets users switch between LAN and Tailscale/VPN hosts with 1 click, generating matching QR codes and shortcut configuration payloads.

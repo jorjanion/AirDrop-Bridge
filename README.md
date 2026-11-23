@@ -71,9 +71,10 @@ Instead of requiring an App Store download or sending your personal files throug
 
 Setting up AirDrop Bridge takes less than a minute.
 
-### 1. Download & Launch on PC
-* Download `airdrop-bridge-windows-x64.exe` from the latest [GitHub Releases](https://github.com/jorjanion/AirDrop-Bridge/releases/latest).
-* Double-click to start. AirDrop Bridge runs silently in your system tray and opens the pairing window with a QR code.
+### 1. Download & Launch on PC / Linux
+* **Windows**: Download `airdrop-bridge-windows-x64.exe` from the latest [GitHub Releases](https://github.com/jorjanion/AirDrop-Bridge/releases/latest) and double-click to start.
+* **Linux**: Download `AirDrop-Bridge-x86_64.AppImage` (or `airdrop-bridge-linux-x64.tar.gz`), make it executable (`chmod +x AirDrop-Bridge-x86_64.AppImage`), and launch it.
+* AirDrop Bridge runs silently in your system tray and opens the pairing window with a QR code.
 
 ### 2. Scan with your iPhone Camera
 * Open the default Camera app on your iPhone or iPad and scan the QR code on your PC screen.

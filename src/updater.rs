@@ -203,10 +203,21 @@ impl AutoUpdater {
             .or_else(|| release.assets.iter().find(|a| a.name.ends_with(".exe")));
 
         #[cfg(not(windows))]
-        let target_asset = release
-            .assets
-            .iter()
-            .find(|a| a.name.contains("linux") || !a.name.contains("windows"));
+        let is_appimage = std::env::var("APPIMAGE").is_ok();
+        #[cfg(not(windows))]
+        let target_asset = if is_appimage {
+            release
+                .assets
+                .iter()
+                .find(|a| a.name.ends_with(".AppImage"))
+                .or_else(|| release.assets.iter().find(|a| a.name.contains("linux")))
+        } else {
+            release
+                .assets
+                .iter()
+                .find(|a| a.name.contains("linux") && a.name.ends_with(".tar.gz"))
+                .or_else(|| release.assets.iter().find(|a| a.name.contains("linux") || !a.name.contains("windows")))
+        };
 
         if let Some(asset) = target_asset {
             info!("Found downloadable asset: {}", asset.name);
@@ -230,8 +241,23 @@ impl AutoUpdater {
 
     /// Downloads and replaces the executable in-place
     async fn download_and_apply(download_url: &str) -> Result<(), String> {
+        #[cfg(windows)]
         let current_exe = std::env::current_exe()
             .map_err(|e| format!("Failed to get current executable path: {}", e))?;
+
+        #[cfg(not(windows))]
+        let current_exe = if let Ok(appimage) = std::env::var("APPIMAGE") {
+            if !appimage.is_empty() {
+                std::path::PathBuf::from(appimage)
+            } else {
+                std::env::current_exe()
+                    .map_err(|e| format!("Failed to get current executable path: {}", e))?
+            }
+        } else {
+            std::env::current_exe()
+                .map_err(|e| format!("Failed to get current executable path: {}", e))?
+        };
+
         let parent_dir = current_exe
             .parent()
             .ok_or_else(|| "Failed to get exe directory".to_string())?;
@@ -252,9 +278,24 @@ impl AutoUpdater {
             .await
             .map_err(|e| format!("Failed to read update stream: {}", e))?;
 
-        let new_exe_temp = parent_dir.join("airdrop-bridge.new.exe");
+        let ext = current_exe
+            .extension()
+            .and_then(|s| s.to_str())
+            .unwrap_or("");
+        let new_temp_name = if ext.is_empty() {
+            "airdrop-bridge.new".to_string()
+        } else {
+            format!("airdrop-bridge.new.{}", ext)
+        };
+        let new_exe_temp = parent_dir.join(new_temp_name);
         std::fs::write(&new_exe_temp, &bytes)
             .map_err(|e| format!("Failed to write downloaded update file: {}", e))?;
+
+        #[cfg(not(windows))]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let _ = std::fs::set_permissions(&new_exe_temp, std::fs::Permissions::from_mode(0o755));
+        }
 
         // Perform safe in-place replacement
         Self::swap_executables(&current_exe, &new_exe_temp)
@@ -286,6 +327,8 @@ impl AutoUpdater {
 
         #[cfg(not(windows))]
         {
+            use std::os::unix::fs::PermissionsExt;
+            let _ = std::fs::set_permissions(new, std::fs::Permissions::from_mode(0o755));
             std::fs::rename(new, current)
                 .map_err(|e| format!("Failed to replace binary: {}", e))?;
             info!("Binary replacement completed successfully!");

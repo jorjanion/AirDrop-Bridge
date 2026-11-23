@@ -8,6 +8,14 @@ const APP_NAME: &str = "AirDropBridge";
 impl AutostartManager {
     /// Gets the current running executable's canonical path
     pub fn current_exe_path() -> Result<PathBuf, String> {
+        #[cfg(not(windows))]
+        {
+            if let Ok(appimage) = std::env::var("APPIMAGE") {
+                if !appimage.is_empty() {
+                    return Ok(PathBuf::from(appimage));
+                }
+            }
+        }
         std::env::current_exe().map_err(|e| format!("Failed to get current executable path: {}", e))
     }
 

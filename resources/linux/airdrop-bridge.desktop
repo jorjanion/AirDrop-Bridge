@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=AirDrop Bridge
+GenericName=File Transfer
+Comment=Ultra-lightweight, native, secure AirDrop bridge for Apple devices
+Exec=airdrop-bridge %U
+Icon=airdrop-bridge
+Terminal=false
+Type=Application
+Categories=Network;FileTransfer;Utility;
+Keywords=airdrop;apple;transfer;share;ios;shortcut;
+StartupNotify=false
+X-AppImage-Version=1.0.0
