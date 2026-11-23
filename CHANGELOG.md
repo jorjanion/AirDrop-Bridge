@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-23
+
 ### Added
 * Support for Linux AppImage packaging (`AirDrop-Bridge-x86_64.AppImage`) (resolves GitHub Issue #3).
 * Automated AppImage generation pipeline in GitHub Actions release workflow (`.github/workflows/release.yml`) and build script (`scripts/build-appimage.sh`).

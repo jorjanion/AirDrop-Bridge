@@ -51,6 +51,7 @@ En lugar de requerir descargas pesadas desde la App Store o enviar tus archivos 
 ## Características principales
 
 * **100% Local y Privado**: Transferencia directa punto a punto por Wi-Fi. Tus fotos y archivos nunca salen de tu red doméstica.
+* **Compatible con Tailscale y VPNs**: Funciona a través de subredes, datos móviles o cualquier parte del mundo mediante direcciones CGNAT de Tailscale (`100.64.0.0/10`) o túneles VPN personalizados.
 * **Sin apps de terceros en iOS**: Utiliza un Atajo oficial firmado por el sistema iOS.
 * **Velocidad máxima**: Transmisión por bloques directamente al disco con uso de memoria constante (menos de 15 MB de RAM en tu PC). Transfiere vídeos gigantescos sin saturar la memoria.
 * **Descubrimiento automático**: Detección inmediata en la red local mediante mDNS y alternativa por IP LAN.
@@ -70,9 +71,10 @@ En lugar de requerir descargas pesadas desde la App Store o enviar tus archivos 
 
 Configurar AirDrop Bridge lleva menos de un minuto.
 
-### 1. Descarga y abre la app en tu PC
-* Descarga `airdrop-bridge-windows-x64.exe` desde la sección de [Releases de GitHub](https://github.com/jorjanion/AirDrop-Bridge/releases/latest).
-* Haz doble clic para iniciar. AirDrop Bridge se ejecutará silenciosamente en la bandeja del sistema y abrirá la ventana con el código QR.
+### 1. Descarga y abre la app en tu PC / Linux
+* **Windows**: Descarga `airdrop-bridge-windows-x64.exe` desde la sección de [Releases de GitHub](https://github.com/jorjanion/AirDrop-Bridge/releases/latest) y haz doble clic para iniciar.
+* **Linux**: Descarga `AirDrop-Bridge-x86_64.AppImage` (o `airdrop-bridge-linux-x64.tar.gz`), dale permisos de ejecución (`chmod +x AirDrop-Bridge-x86_64.AppImage`) y lánzalo.
+* AirDrop Bridge se ejecutará silenciosamente en la bandeja del sistema y abrirá la ventana con el código QR.
 
 ### 2. Escanea con la Cámara de tu iPhone
 * Abre la app Cámara de tu iPhone o iPad y enfoca el código QR en la pantalla de tu ordenador.
@@ -132,6 +134,7 @@ Haz clic derecho en el icono de AirDrop Bridge en la barra de tareas de Windows 
   * **Sonido al recibir**: Reproduce un sonido sutil cuando llega un archivo.
   * **Abrir carpeta al recibir**: Abre automáticamente la carpeta de destino al completarse la descarga.
   * **Sincronizar portapapeles**: Mantiene activa la sincronización de texto.
+  * **Interfaz de red**: Selecciona el adaptador activo (Auto / LAN o IP detectada de Tailscale / VPN).
   * **Actualizaciones automáticas**: Comprueba e instala actualizaciones silenciosamente.
   * **Idioma**: Cambia al instante entre los 8 idiomas disponibles.
 

@@ -9,4 +9,4 @@ Type=Application
 Categories=Network;FileTransfer;Utility;
 Keywords=airdrop;apple;transfer;share;ios;shortcut;
 StartupNotify=false
-X-AppImage-Version=1.0.0
+X-AppImage-Version=1.1.0
