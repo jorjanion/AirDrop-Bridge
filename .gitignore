@@ -26,3 +26,8 @@ Desktop.ini
 *.part
 *.old.exe
 *.new.exe
+
+# Temporary files & media tests
+/output/
+test_*.mp3
+test_*.png

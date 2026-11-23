@@ -38,6 +38,15 @@ pub struct AppConfig {
     pub clipboard_sync: bool,
     #[serde(default)]
     pub language: Language,
+    #[serde(default)]
+    pub custom_host: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct NetworkEndpoint {
+    pub name: String,
+    pub ip: String,
+    pub is_tailscale: bool,
 }
 
 impl AppConfig {
@@ -106,6 +115,7 @@ impl AppConfig {
                 open_folder_on_receive: false,
                 clipboard_sync: true,
                 language: Language::En,
+                custom_host: None,
             };
 
             config.save_to_path(&path)?;
@@ -127,6 +137,7 @@ impl AppConfig {
             open_folder_on_receive: false,
             clipboard_sync: true,
             language: Language::En,
+            custom_host: None,
         };
         fallback.ensure_directories()?;
         Ok(fallback)
@@ -155,6 +166,43 @@ impl AppConfig {
             fs::create_dir_all(&self.download_dir)?;
         }
         Ok(())
+    }
+
+    /// Discovers all available network IPv4 endpoints (LAN, Tailscale, VPNs)
+    pub fn get_available_endpoints() -> Vec<NetworkEndpoint> {
+        let mut endpoints = Vec::new();
+        if let Ok(ifaces) = local_ip_address::list_afinet_netifas() {
+            for (name, ip) in ifaces {
+                if let std::net::IpAddr::V4(ipv4) = ip {
+                    if ipv4.is_loopback() || ipv4.is_unspecified() {
+                        continue;
+                    }
+                    let octets = ipv4.octets();
+                    // Tailscale CGNAT range is 100.64.0.0/10 (100.64.0.0 - 100.127.255.255)
+                    let is_tailscale = (octets[0] == 100 && (64..=127).contains(&octets[1]))
+                        || name.to_lowercase().contains("tailscale");
+                    endpoints.push(NetworkEndpoint {
+                        name,
+                        ip: ipv4.to_string(),
+                        is_tailscale,
+                    });
+                }
+            }
+        }
+        endpoints
+    }
+
+    /// Resolves the primary host or IP to advertise for pairing
+    pub fn resolve_primary_host(&self) -> String {
+        if let Some(ref custom) = self.custom_host {
+            let trimmed = custom.trim();
+            if !trimmed.is_empty() {
+                return trimmed.to_string();
+            }
+        }
+        local_ip_address::local_ip()
+            .map(|ip| ip.to_string())
+            .unwrap_or_else(|_| "127.0.0.1".to_string())
     }
 }
 
@@ -186,6 +234,7 @@ mod tests {
             open_folder_on_receive: false,
             clipboard_sync: true,
             language: Language::Es,
+            custom_host: Some("100.115.92.10".to_string()),
         };
 
         let serialized = serde_json::to_string(&config).unwrap();
@@ -199,5 +248,43 @@ mod tests {
         assert_eq!(config.open_folder_on_receive, deserialized.open_folder_on_receive);
         assert_eq!(config.clipboard_sync, deserialized.clipboard_sync);
         assert_eq!(config.language, deserialized.language);
+        assert_eq!(config.custom_host, deserialized.custom_host);
+    }
+
+    #[test]
+    fn test_resolve_primary_host_prefers_custom() {
+        let mut config = AppConfig {
+            device_name: "TestPC".to_string(),
+            port: 53317,
+            token: "token".to_string(),
+            download_dir: PathBuf::from("./downloads"),
+            auto_update: false,
+            autostart: false,
+            shortcut_url: None,
+            notifications_enabled: true,
+            play_sound: true,
+            open_folder_on_receive: false,
+            clipboard_sync: true,
+            language: Language::En,
+            custom_host: Some("my-pc.tailnet-xyz.ts.net".to_string()),
+        };
+
+        assert_eq!(config.resolve_primary_host(), "my-pc.tailnet-xyz.ts.net");
+
+        config.custom_host = None;
+        assert!(!config.resolve_primary_host().is_empty());
+    }
+
+    #[test]
+    fn test_available_endpoints_detection() {
+        let endpoints = AppConfig::get_available_endpoints();
+        for ep in &endpoints {
+            assert!(!ep.ip.is_empty());
+            assert!(!ep.name.is_empty());
+            if ep.is_tailscale {
+                let parts: Vec<&str> = ep.ip.split('.').collect();
+                assert_eq!(parts[0], "100");
+            }
+        }
     }
 }

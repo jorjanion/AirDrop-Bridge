@@ -6,7 +6,6 @@ use axum::{
     http::{StatusCode, header},
     response::{Html, IntoResponse, Response},
 };
-use local_ip_address::local_ip;
 use serde::Deserialize;
 use serde_json::{Value, json};
 
@@ -17,10 +16,12 @@ pub const DEFAULT_SHORTCUT_ICLOUD_URL: &str =
 pub struct SetupQuery {
     pub token: Option<String>,
     pub lang: Option<String>,
+    pub host: Option<String>,
 }
 
 pub async fn setup_page_handler(
     State(state): State<AppState>,
+    headers: axum::http::HeaderMap,
     Query(query): Query<SetupQuery>,
 ) -> impl IntoResponse {
     let conf = state.config.read().await;
@@ -43,6 +44,11 @@ pub async fn setup_page_handler(
         None => String::new(),
     };
 
+    let host_param = match &query.host {
+        Some(h) => format!("&host={}", urlencoding::encode(h)),
+        None => String::new(),
+    };
+
     let lang_links = crate::i18n::Language::ALL
         .iter()
         .map(|&l| {
@@ -50,9 +56,10 @@ pub async fn setup_page_handler(
             let color = if is_sel { "var(--primary)" } else { "var(--text-muted)" };
             let weight = if is_sel { "700" } else { "400" };
             format!(
-                r#"<a href="?lang={code}{token_param}" class="lang-link" style="color: {color}; font-weight: {weight};">{name}</a>"#,
+                r#"<a href="?lang={code}{token_param}{host_param}" class="lang-link" style="color: {color}; font-weight: {weight};">{name}</a>"#,
                 code = l.code(),
                 token_param = token_param,
+                host_param = host_param,
                 color = color,
                 weight = weight,
                 name = l.display_name(),
@@ -61,18 +68,54 @@ pub async fn setup_page_handler(
         .collect::<Vec<_>>()
         .join(r#"<span class="lang-sep">|</span>"#);
 
-    let local_ip_str = local_ip()
-        .map(|ip| ip.to_string())
-        .unwrap_or_else(|_| "127.0.0.1".to_string());
+    let header_host = headers
+        .get(header::HOST)
+        .and_then(|h| h.to_str().ok())
+        .map(|h| {
+            if let Some((host_part, _)) = h.split_once(':') {
+                host_part.to_string()
+            } else {
+                h.to_string()
+            }
+        })
+        .filter(|h| h != "localhost" && h != "127.0.0.1");
+
+    let effective_host = if let Some(ref q_host) = query.host {
+        let trimmed = q_host.trim();
+        if !trimmed.is_empty() {
+            trimmed.to_string()
+        } else {
+            conf.resolve_primary_host()
+        }
+    } else if let Some(ref c_host) = conf.custom_host {
+        let trimmed = c_host.trim();
+        if !trimmed.is_empty() {
+            trimmed.to_string()
+        } else {
+            header_host.unwrap_or_else(|| conf.resolve_primary_host())
+        }
+    } else if let Some(h) = header_host {
+        h
+    } else {
+        conf.resolve_primary_host()
+    };
+
     let mdns_host = format!(
         "{}.local",
         conf.device_name.to_lowercase().replace(' ', "-")
     );
 
+    let is_hostname = effective_host.contains('.') && !effective_host.chars().all(|c| c.is_ascii_digit() || c == '.');
+    let target_host = if is_hostname {
+        effective_host.clone()
+    } else {
+        mdns_host.clone()
+    };
+
     let shortcut_config = json!({
         "token": conf.token,
-        "host": mdns_host,
-        "ip": local_ip_str,
+        "host": target_host,
+        "ip": effective_host,
         "port": conf.port.to_string(),
         "device_name": conf.device_name
     });
@@ -88,6 +131,49 @@ pub async fn setup_page_handler(
         .shortcut_url
         .as_deref()
         .unwrap_or(DEFAULT_SHORTCUT_ICLOUD_URL);
+
+    let available_endpoints = crate::config::AppConfig::get_available_endpoints();
+    let mut endpoint_selector = String::new();
+    if available_endpoints.len() > 1 || conf.custom_host.is_some() {
+        endpoint_selector.push_str(r#"<div style="margin:14px 0;background:var(--surface);padding:10px 14px;border-radius:12px;border:1px solid var(--border);text-align:left;">"#);
+        endpoint_selector.push_str(r#"<div style="font-size:11px;font-weight:600;margin-bottom:8px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Network Endpoint (Tailscale / LAN):</div><div style="display:flex;flex-wrap:wrap;gap:6px;">"#);
+
+        for ep in &available_endpoints {
+            let is_active = ep.ip == effective_host;
+            let bg = if is_active { "var(--primary)" } else { "rgba(255,255,255,0.06)" };
+            let fg = if is_active { "#ffffff" } else { "var(--text)" };
+            let border = if is_active { "var(--primary)" } else { "var(--border)" };
+            let badge = if ep.is_tailscale { " 🔒 Tailscale" } else { "" };
+            let href = format!("?host={}{token_param}&lang={lang_code}", urlencoding::encode(&ep.ip), lang_code = lang.code());
+            endpoint_selector.push_str(&format!(
+                r#"<a href="{href}" style="padding:5px 9px;border-radius:7px;background:{bg};color:{fg};border:1px solid {border};text-decoration:none;font-size:12px;font-weight:500;">{ip}{badge}</a>"#,
+                href = href,
+                bg = bg,
+                fg = fg,
+                border = border,
+                ip = ep.ip,
+                badge = badge
+            ));
+        }
+
+        if let Some(ref custom) = conf.custom_host {
+            let is_active = custom == &effective_host;
+            let bg = if is_active { "var(--primary)" } else { "rgba(255,255,255,0.06)" };
+            let fg = if is_active { "#ffffff" } else { "var(--text)" };
+            let border = if is_active { "var(--primary)" } else { "var(--border)" };
+            let href = format!("?host={}{token_param}&lang={lang_code}", urlencoding::encode(custom), lang_code = lang.code());
+            endpoint_selector.push_str(&format!(
+                r#"<a href="{href}" style="padding:5px 9px;border-radius:7px;background:{bg};color:{fg};border:1px solid {border};text-decoration:none;font-size:12px;font-weight:500;">{custom} (Custom)</a>"#,
+                href = href,
+                bg = bg,
+                fg = fg,
+                border = border,
+                custom = custom
+            ));
+        }
+
+        endpoint_selector.push_str(r#"</div></div>"#);
+    }
 
     let html = format!(
         r#"<!DOCTYPE html>
@@ -275,10 +361,12 @@ pub async fn setup_page_handler(
 
         <div class="info-box">
             <div class="info-row"><span class="info-label">{label_version}</span> <span class="info-val">v{app_version}</span></div>
-            <div class="info-row"><span class="info-label">{label_mdns}</span> <span class="info-val">{mdns_host}</span></div>
-            <div class="info-row"><span class="info-label">{label_lan}</span> <span class="info-val">{local_ip_str}:{port}</span></div>
+            <div class="info-row"><span class="info-label">{label_mdns}</span> <span class="info-val">{target_host}</span></div>
+            <div class="info-row"><span class="info-label">{label_lan}</span> <span class="info-val">{effective_host}:{port}</span></div>
             <div class="info-row"><span class="info-label">{label_security}</span> <span class="info-val">{auth_status}</span></div>
         </div>
+
+        {endpoint_selector}
 
         <a href="{shortcut_install_url}" class="btn btn-primary">
             {btn_install}
@@ -305,9 +393,9 @@ pub async fn setup_page_handler(
         connection_prefix = strings.setup_connection_with,
         device_name = conf.device_name,
         label_mdns = strings.setup_host_mdns,
-        mdns_host = mdns_host,
+        target_host = target_host,
         label_lan = strings.setup_lan_ip,
-        local_ip_str = local_ip_str,
+        effective_host = effective_host,
         port = conf.port,
         label_security = strings.setup_security,
         auth_status = if is_authorized {
@@ -315,6 +403,7 @@ pub async fn setup_page_handler(
         } else {
             strings.setup_pending
         },
+        endpoint_selector = endpoint_selector,
         shortcut_install_url = shortcut_install_url,
         btn_install = strings.setup_btn_install,
         shortcut_deep_link = shortcut_deep_link,
@@ -330,28 +419,26 @@ pub async fn setup_page_handler(
 
 pub async fn pair_url_handler(State(state): State<AppState>) -> Json<Value> {
     let conf = state.config.read().await;
-    let local_ip_str = local_ip()
-        .map(|ip| ip.to_string())
-        .unwrap_or_else(|_| "127.0.0.1".to_string());
+    let primary_host = conf.resolve_primary_host();
 
-    let url = QrManager::pairing_url(&local_ip_str, conf.port, &conf.token);
+    let url = QrManager::pairing_url(&primary_host, conf.port, &conf.token);
 
     Json(json!({
         "device_name": conf.device_name,
-        "ip": local_ip_str,
+        "ip": primary_host,
         "port": conf.port,
         "url": url,
-        "token": conf.token
+        "token": conf.token,
+        "custom_host": conf.custom_host,
+        "endpoints": crate::config::AppConfig::get_available_endpoints()
     }))
 }
 
 pub async fn qr_image_handler(State(state): State<AppState>) -> Result<Response, StatusCode> {
     let conf = state.config.read().await;
-    let local_ip_str = local_ip()
-        .map(|ip| ip.to_string())
-        .unwrap_or_else(|_| "127.0.0.1".to_string());
+    let primary_host = conf.resolve_primary_host();
 
-    let url = QrManager::pairing_url(&local_ip_str, conf.port, &conf.token);
+    let url = QrManager::pairing_url(&primary_host, conf.port, &conf.token);
     let png_bytes =
         QrManager::render_png(&url, 300).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 

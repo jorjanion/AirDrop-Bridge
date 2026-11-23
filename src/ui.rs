@@ -4,7 +4,6 @@ pub mod win_ui {
     use crate::config::AppConfig;
     use crate::notification::NotificationManager;
     use crate::qr::QrManager;
-    use local_ip_address::local_ip;
     use std::ffi::OsStr;
     use std::os::windows::ffi::OsStrExt;
     use std::sync::atomic::{AtomicPtr, Ordering};
@@ -39,10 +38,10 @@ pub mod win_ui {
 
     struct UiState {
         config: Arc<RwLock<AppConfig>>,
-        qr_rgba: Vec<u8>,
-        qr_size: u32,
-        pairing_url: String,
-        local_ip_str: String,
+        qr_rgba: std::sync::RwLock<Vec<u8>>,
+        qr_size: std::sync::RwLock<u32>,
+        pairing_url: std::sync::RwLock<String>,
+        local_ip_str: std::sync::RwLock<String>,
     }
 
     static GLOBAL_STATE: OnceLock<UiState> = OnceLock::new();
@@ -55,9 +54,39 @@ pub mod win_ui {
         });
     }
 
+    pub fn refresh_pairing_state() {
+        if let Some(state) = GLOBAL_STATE.get() {
+            let conf = state.config.blocking_read();
+            let primary_host = conf.resolve_primary_host();
+            let pairing_url = QrManager::pairing_url(&primary_host, conf.port, &conf.token);
+
+            let current_url = state.pairing_url.read().unwrap().clone();
+            if current_url != pairing_url {
+                if let Ok(qr_code) = qrcode::QrCode::new(pairing_url.as_bytes()) {
+                    let qr_image = qr_code
+                        .render::<image::Rgba<u8>>()
+                        .max_dimensions(240, 240)
+                        .build();
+                    *state.qr_size.write().unwrap() = qr_image.width();
+                    *state.qr_rgba.write().unwrap() = qr_image.into_raw();
+                    *state.pairing_url.write().unwrap() = pairing_url;
+                    *state.local_ip_str.write().unwrap() = primary_host;
+
+                    let hwnd = WINDOW_HWND.load(Ordering::SeqCst) as HWND;
+                    if !hwnd.is_null() {
+                        unsafe {
+                            InvalidateRect(hwnd, std::ptr::null(), 1);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     pub fn show_window() {
         let hwnd = WINDOW_HWND.load(Ordering::SeqCst) as HWND;
         if !hwnd.is_null() {
+            refresh_pairing_state();
             update_language();
             unsafe {
                 ShowWindow(hwnd, SW_SHOW);
@@ -119,9 +148,7 @@ pub mod win_ui {
         config: Arc<RwLock<AppConfig>>,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let conf = config.blocking_read();
-        let local_ip_str = local_ip()
-            .map(|ip| ip.to_string())
-            .unwrap_or_else(|_| "127.0.0.1".to_string());
+        let local_ip_str = conf.resolve_primary_host();
         let pairing_url = QrManager::pairing_url(&local_ip_str, conf.port, &conf.token);
 
         // Generate QR code bitmap
@@ -138,10 +165,10 @@ pub mod win_ui {
 
         let _ = GLOBAL_STATE.set(UiState {
             config,
-            qr_rgba,
-            qr_size,
-            pairing_url,
-            local_ip_str,
+            qr_rgba: std::sync::RwLock::new(qr_rgba),
+            qr_size: std::sync::RwLock::new(qr_size),
+            pairing_url: std::sync::RwLock::new(pairing_url),
+            local_ip_str: std::sync::RwLock::new(local_ip_str),
         });
 
         let class_name: Vec<u16> = OsStr::new("AirDropBridgeUIWindow")
@@ -444,8 +471,9 @@ pub mod win_ui {
                                 );
                             }
                             BTN_OPEN_BROWSER => {
+                                let url = state.pairing_url.read().unwrap().clone();
                                 NotificationManager::open_directory(&std::path::PathBuf::from(
-                                    &state.pairing_url,
+                                    &url,
                                 ));
                             }
                             BTN_MINIMIZE => {
@@ -537,8 +565,17 @@ pub mod win_ui {
                     TextOutW(hdc, 40, 60, status_text.as_ptr(), status_text.len() as i32);
 
                     if let Some(state) = GLOBAL_STATE.get() {
+                        let local_ip = state.local_ip_str.read().unwrap().clone();
+                        let qr_rgba = state.qr_rgba.read().unwrap().clone();
+                        let qr_size = *state.qr_size.read().unwrap();
+
                         SetTextColor(hdc, 0x00b8a394); // Muted grey in BGR (#94a3b8)
-                        let info_text = format!("{} {}:53317", strings.ui_host_prefix, state.local_ip_str);
+                        let badge = if local_ip.starts_with("100.") || local_ip.contains(".ts.net") {
+                            " (Tailscale)"
+                        } else {
+                            ""
+                        };
+                        let info_text = format!("{} {}:53317{}", strings.ui_host_prefix, local_ip, badge);
                         let info_wide = OsStr::new(&info_text).encode_wide().collect::<Vec<_>>();
                         TextOutW(hdc, 40, 84, info_wide.as_ptr(), info_wide.len() as i32);
 
@@ -563,8 +600,8 @@ pub mod win_ui {
 
                         // Render QR Code onto HDC using StretchDIBits
                         // Convert RGBA to 32-bit BGRA for Win32 GDI
-                        let mut bgra = Vec::with_capacity(state.qr_rgba.len());
-                        for chunk in state.qr_rgba.chunks(4) {
+                        let mut bgra = Vec::with_capacity(qr_rgba.len());
+                        for chunk in qr_rgba.chunks(4) {
                             bgra.push(chunk[2]); // B
                             bgra.push(chunk[1]); // G
                             bgra.push(chunk[0]); // R
@@ -573,8 +610,8 @@ pub mod win_ui {
 
                         let mut bmi: BITMAPINFO = std::mem::zeroed();
                         bmi.bmiHeader.biSize = std::mem::size_of::<BITMAPINFOHEADER>() as u32;
-                        bmi.bmiHeader.biWidth = state.qr_size as i32;
-                        bmi.bmiHeader.biHeight = -(state.qr_size as i32); // Negative for top-down DIB
+                        bmi.bmiHeader.biWidth = qr_size as i32;
+                        bmi.bmiHeader.biHeight = -(qr_size as i32); // Negative for top-down DIB
                         bmi.bmiHeader.biPlanes = 1;
                         bmi.bmiHeader.biBitCount = 32;
                         bmi.bmiHeader.biCompression = BI_RGB;
@@ -587,8 +624,8 @@ pub mod win_ui {
                             240,
                             0,
                             0,
-                            state.qr_size as i32,
-                            state.qr_size as i32,
+                            qr_size as i32,
+                            qr_size as i32,
                             bgra.as_ptr() as _,
                             &bmi,
                             DIB_RGB_COLORS,

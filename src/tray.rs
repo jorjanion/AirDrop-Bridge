@@ -63,6 +63,7 @@ fn run_tray_loop(
     let is_open_folder = conf.open_folder_on_receive;
     let is_clipboard = conf.clipboard_sync;
     let is_auto_update = conf.auto_update;
+    let current_custom_host = conf.custom_host.clone();
     let mut current_lang = conf.language;
     drop(conf);
 
@@ -93,6 +94,24 @@ fn run_tray_loop(
     let auto_update_item =
         CheckMenuItem::new(strings.tray_auto_update, true, is_auto_update, None);
 
+    // Network Interface submenu
+    let network_submenu = Submenu::new("🌐 Network Interface", true);
+    let endpoints = AppConfig::get_available_endpoints();
+    let is_auto = current_custom_host.is_none();
+    let auto_item = CheckMenuItem::new("Auto (LAN)", true, is_auto, None);
+    network_submenu.append(&auto_item)?;
+
+    let mut endpoint_items: Vec<(Option<String>, CheckMenuItem)> = Vec::new();
+    endpoint_items.push((None, auto_item));
+
+    for ep in &endpoints {
+        let label = format!("{} ({})", ep.name, ep.ip);
+        let is_selected = current_custom_host.as_deref() == Some(&ep.ip);
+        let ep_item = CheckMenuItem::new(&label, true, is_selected, None);
+        network_submenu.append(&ep_item)?;
+        endpoint_items.push((Some(ep.ip.clone()), ep_item));
+    }
+
     // Language submenu
     let lang_submenu = Submenu::new(strings.tray_language, true);
     let lang_items: Vec<(Language, CheckMenuItem)> = Language::ALL
@@ -114,6 +133,7 @@ fn run_tray_loop(
         &open_folder_item,
         &clipboard_item,
         &auto_update_item,
+        &network_submenu,
         &lang_submenu,
     ])?;
 
@@ -277,6 +297,26 @@ fn run_tray_loop(
                         item.set_checked(*l == current_lang);
                     }
                 }
+            } else if let Some((custom_ip_opt, _)) =
+                endpoint_items.iter().find(|(_, item)| item.id() == &event.id)
+            {
+                let selected_ip = custom_ip_opt.clone();
+                let mut conf = config.blocking_write();
+                conf.custom_host = selected_ip.clone();
+                let _ = conf.save();
+                drop(conf);
+
+                for (ip_opt, item) in &endpoint_items {
+                    item.set_checked(ip_opt == &selected_ip);
+                }
+
+                win_ui::refresh_pairing_state();
+
+                let host_display = selected_ip.unwrap_or_else(|| "Auto".to_string());
+                NotificationManager::notify_message(
+                    "AirDrop Bridge",
+                    &format!("Network host set to: {}", host_display),
+                );
             } else if event.id == update_id {
                 let _ = cmd_tx.blocking_send(TrayCommand::CheckUpdate);
             } else if event.id == exit_id {

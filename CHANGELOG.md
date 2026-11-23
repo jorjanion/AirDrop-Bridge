@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+* Support for Tailscale, WireGuard, and custom VPN/FQDN connections (resolves GitHub Issue #2).
+* Network interface autodetection: automatically identifies LAN IPv4, Tailscale CGNAT interfaces (`100.64.0.0/10`), and active VPN adapters.
+* Dynamic endpoint selector on the web setup portal (`/setup`): lets users switch between LAN and Tailscale/VPN hosts with 1 click, generating matching QR codes and shortcut configuration payloads.
+* Windows System Tray "Network Interface" menu: switch between Auto (LAN) and detected Tailscale/VPN IPs without restarting the app.
+* Native Win32 UI display of active network type and dynamic QR code refresh when switching endpoints.
+* Added `custom_host` configuration parameter to `AppConfig` for persistent custom IP or domain names.
+
 ## [1.0.0] - 2026-11-22
 
 ### Added

@@ -188,6 +188,7 @@ mod tests {
             open_folder_on_receive: false,
             clipboard_sync: true,
             language: Language::En,
+            custom_host: None,
         };
         let (state, mut rx) = AppState::new(config);
         let router = create_router(state);

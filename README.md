@@ -51,6 +51,7 @@ Instead of requiring an App Store download or sending your personal files throug
 ## Key Features
 
 * **100% Local & Private**: Direct peer-to-peer Wi-Fi streaming. Your photos and files never leave your home network.
+* **Tailscale & VPN Ready**: Works seamlessly across subnets, mobile data, and planet-wide via Tailscale CGNAT (`100.64.0.0/10`) or custom VPN tunnels.
 * **Zero Third-Party Apps on iOS**: Uses an official Apple Shortcut signed by iOS.
 * **Blazing Fast**: Uses chunked disk streaming with constant memory usage (under 15 MB RAM on PC). Transfer gigabyte-sized videos without buffering or RAM spikes.
 * **Zero-Config Discovery**: Automatic local detection via mDNS and LAN fallback.
@@ -132,6 +133,7 @@ Right-click the AirDrop Bridge icon in the Windows taskbar tray to access quick 
   * **Sound on Receive**: Play a subtle audio chime when a file arrives.
   * **Open Folder on Receive**: Automatically pop open the destination folder.
   * **Sync Clipboard**: Keep clipboard synchronization active.
+  * **Network Interface**: Select active adapter (Auto / LAN vs detected Tailscale or VPN IP).
   * **Automatic Updates**: Check and update silently in the background.
   * **Language**: Switch instantly between English, Spanish, Chinese, Portuguese, French, German, Italian, or Japanese.
 
