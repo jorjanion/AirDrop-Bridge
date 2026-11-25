@@ -3,7 +3,7 @@ use tracing::info;
 
 pub struct AutostartManager;
 
-const APP_NAME: &str = "AirDropBridge";
+const APP_NAME: &str = "DropBridge";
 
 impl AutostartManager {
     /// Gets the current running executable's canonical path
@@ -133,7 +133,7 @@ impl AutostartManager {
             let autostart_file = user_dirs
                 .config_dir()
                 .join("autostart")
-                .join("airdrop-bridge.desktop");
+                .join("drop-bridge.desktop");
             return autostart_file.exists();
         }
         false
@@ -144,14 +144,14 @@ impl AutostartManager {
         let user_dirs = directories::BaseDirs::new()
             .ok_or_else(|| "Could not determine base config directory".to_string())?;
         let autostart_dir = user_dirs.config_dir().join("autostart");
-        let desktop_file = autostart_dir.join("airdrop-bridge.desktop");
+        let desktop_file = autostart_dir.join("drop-bridge.desktop");
 
         if enabled {
             std::fs::create_dir_all(&autostart_dir)
                 .map_err(|e| format!("Failed to create autostart directory: {}", e))?;
             let exe_path = Self::current_exe_path()?;
             let content = format!(
-                "[Desktop Entry]\nType=Application\nName=AirDrop Bridge\nExec=\"{}\"\nTerminal=false\n",
+                "[Desktop Entry]\nType=Application\nName=Drop Bridge\nExec=\"{}\"\nTerminal=false\n",
                 exe_path.to_string_lossy()
             );
             std::fs::write(&desktop_file, content)

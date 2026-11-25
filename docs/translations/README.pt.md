@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="../../resources/icon.png" width="120" alt="AirDrop Bridge Logo" />
+  <img src="../../resources/icon.png" width="120" alt="Drop Bridge Logo" />
 </p>
 
-<h1 align="center">AirDrop Bridge</h1>
+<h1 align="center">Drop Bridge</h1>
 
 <p align="center">
   <strong>Transferências nativas e ultrarrápidas do iPhone e iPad para Windows e Linux.</strong><br>
@@ -21,22 +21,22 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jorjanion/AirDrop-Bridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/AirDrop-Bridge?color=38bdf8&style=flat-square" alt="Release" /></a>
-  <a href="https://github.com/jorjanion/AirDrop-Bridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="Licença" /></a>
+  <a href="https://github.com/jorjanion/DropBridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/DropBridge?color=38bdf8&style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/jorjanion/DropBridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="Licença" /></a>
   <img src="https://img.shields.io/badge/plataforma-Windows%20%7C%20Linux-emerald?style=flat-square" alt="Plataforma" />
   <img src="https://img.shields.io/badge/idiomas-8%20integrados-purple?style=flat-square" alt="Idiomas" />
   <img src="https://img.shields.io/badge/rust-edição%202024-orange?style=flat-square" alt="Rust" />
 </p>
 
-> ⭐ **Gostou do AirDrop Bridge?** Deixe uma estrela no GitHub! Isso ajuda mais pessoas a descobrirem este projeto gratuito de código aberto e nos incentiva a continuar melhorando.
+> ⭐ **Gostou do Drop Bridge?** Deixe uma estrela no GitHub! Isso ajuda mais pessoas a descobrirem este projeto gratuito de código aberto e nos incentiva a continuar melhorando.
 
 ---
 
 ## Visão Geral
 
-O **AirDrop Bridge** permite enviar fotos, vídeos em 4K e documentos do seu iPhone ou iPad diretamente para o seu computador usando a rede Wi-Fi local.
+O **Drop Bridge** permite enviar fotos, vídeos em 4K e documentos do seu iPhone ou iPad diretamente para o seu computador usando a rede Wi-Fi local.
 
-Em vez de exigir downloads na App Store ou enviar seus arquivos pessoais para servidores na nuvem de terceiros, o AirDrop Bridge conecta seu PC diretamente a um Atalho oficial da Apple. Ele se integra nativamente ao menu Compartilhar do iOS, ao Botão de Ação e ao toque na parte de trás.
+Em vez de exigir downloads na App Store ou enviar seus arquivos pessoais para servidores na nuvem de terceiros, o Drop Bridge conecta seu PC diretamente a um Atalho oficial da Apple. Ele se integra nativamente ao menu Compartilhar do iOS, ao Botão de Ação e ao toque na parte de trás.
 
 <p align="center">
   <img src="../../assets/screenshots/pairing-window.png" width="280" alt="Janela de pareamento no PC" />
@@ -68,10 +68,10 @@ Em vez de exigir downloads na App Store ou enviar seus arquivos pessoais para se
 
 ## Guia de Início Rápido
 
-Configurar o AirDrop Bridge leva menos de um minuto.
+Configurar o Drop Bridge leva menos de um minuto.
 
 ### 1. Baixar e iniciar no PC
-* Baixe `airdrop-bridge-windows-x64.exe` na página de [Releases do GitHub](https://github.com/jorjanion/AirDrop-Bridge/releases/latest).
+* Baixe `drop-bridge-windows-x64.exe` na página de [Releases do GitHub](https://github.com/jorjanion/DropBridge/releases/latest).
 * Dê um duplo clique para abrir. O programa rodará silenciosamente na bandeja do sistema e exibirá a janela com o código QR.
 
 ### 2. Escanear com a Câmera do iPhone
@@ -79,7 +79,7 @@ Configurar o AirDrop Bridge leva menos de um minuto.
 * Toque no link amarelo para abrir a página de boas-vindas no Safari.
 
 ### 3. Instalar o Atalho oficial da Apple
-* Na página web, toque em **"1. Baixar e Instalar Atalho AirDrop Bridge"**.
+* Na página web, toque em **"1. Baixar e Instalar Atalho Drop Bridge"**.
 * O Safari perguntará se deseja abrir no Atalhos. Toque em **Abrir** e depois em **Adicionar Atalho**.
 
 ### 4. Vincular o PC
@@ -90,21 +90,21 @@ Configurar o AirDrop Bridge leva menos de um minuto.
 
 #### Enviando Fotos, Vídeos e Arquivos:
 * Abra o app **Fotos** ou **Arquivos** no seu iPhone.
-* Selecione fotos, vídeos ou documentos, toque no botão **Compartilhar** e selecione **AirDrop Bridge**.
-* O arquivo chegará imediatamente na sua pasta Downloads (`Downloads\AirDropBridge`) com um aviso sonoro e notificação na tela!
+* Selecione fotos, vídeos ou documentos, toque no botão **Compartilhar** e selecione **Drop Bridge**.
+* O arquivo chegará imediatamente na sua pasta Downloads (`Downloads\DropBridge`) com um aviso sonoro e notificação na tela!
 
 #### Sincronizando Área de Transferência (Bidirecional):
-* Execute o atalho **AirDrop Bridge** diretamente (pelo app Atalhos, widget na tela de início, Botão de Ação ou toque atrás).
+* Execute o atalho **Drop Bridge** diretamente (pelo app Atalhos, widget na tela de início, Botão de Ação ou toque atrás).
 * Um menu rápido aparecerá com duas opções:
   * 📤 **Send clipboard**: Envia o texto copiado no seu iPhone direto para a área de transferência do seu PC.
   * 📥 **Get clipboard**: Puxa o texto atual da área de transferência do seu PC diretamente para o seu iPhone.
-* Você também pode selecionar qualquer texto no seu iPhone (no Safari, Notas ou Mensagens), tocar em **Compartilhar** e escolher **AirDrop Bridge** para enviá-lo ao PC instantaneamente!
+* Você também pode selecionar qualquer texto no seu iPhone (no Safari, Notas ou Mensagens), tocar em **Compartilhar** e escolher **Drop Bridge** para enviá-lo ao PC instantaneamente!
 
 ---
 
 ## Aviso do Windows SmartScreen
 
-Ao abrir o AirDrop Bridge pela primeira vez, o Windows Defender SmartScreen pode exibir uma caixa de diálogo azul:
+Ao abrir o Drop Bridge pela primeira vez, o Windows Defender SmartScreen pode exibir uma caixa de diálogo azul:
 
 > *"O Windows protegeu o seu computador"*
 
@@ -121,9 +121,9 @@ O código-fonte completo é 100% aberto e auditável neste repositório. Você t
 
 ## Configurações na Bandeja do Sistema
 
-Clique com o botão direito no ícone do AirDrop Bridge na barra de tarefas para acessar as opções:
+Clique com o botão direito no ícone do Drop Bridge na barra de tarefas para acessar as opções:
 
-* **Abrir AirDrop Bridge**: Exibe a janela de pareamento com código QR a qualquer momento.
+* **Abrir Drop Bridge**: Exibe a janela de pareamento com código QR a qualquer momento.
 * **Abrir Downloads**: Acesso direto à pasta onde os arquivos são salvos.
 * **Copiar Token**: Copia o token de segurança para a área de transferência.
 * **Configurações**:
@@ -142,12 +142,12 @@ Clique com o botão direito no ícone do AirDrop Bridge na barra de tarefas para
 Requisitos: [Rust](https://www.rust-lang.org/) (edição 2024 ou superior).
 
 ```bash
-git clone https://github.com/jorjanion/AirDrop-Bridge.git
-cd airdrop-bridge
+git clone https://github.com/jorjanion/DropBridge.git
+cd DropBridge
 cargo build --release
 ```
 
-O arquivo executável otimizado estará em `target/release/airdrop-bridge.exe`.
+O arquivo executável otimizado estará em `target/release/drop-bridge.exe`.
 
 ---
 
@@ -157,7 +157,7 @@ Contribuições, relatos de bugs e sugestões da comunidade são sempre bem-vind
 
 ### Relatando Problemas ou Sugestões
 Se encontrar algum erro ou tiver uma ideia de melhoria:
-1. Visite o [Rastreador de Issues](https://github.com/jorjanion/AirDrop-Bridge/issues).
+1. Visite o [Rastreador de Issues](https://github.com/jorjanion/DropBridge/issues).
 2. Verifique se o assunto já foi discutido.
 3. Clique em **New Issue** e informe:
    * O que aconteceu e o que era esperado.
@@ -182,7 +182,7 @@ Se encontrar algum erro ou tiver uma ideia de melhoria:
 
 ## Licença
 
-O AirDrop Bridge está disponível sob os termos de qualquer uma das licenças abaixo, a seu critério:
+O Drop Bridge está disponível sob os termos de qualquer uma das licenças abaixo, a seu critério:
 
 * Apache License, Versão 2.0 ([LICENSE-APACHE](../../LICENSE) ou http://www.apache.org/licenses/LICENSE-2.0)
 * MIT license ([LICENSE-MIT](../../LICENSE) ou http://opensource.org/licenses/MIT)

@@ -6,10 +6,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 TARGET="${1:-x86_64-unknown-linux-gnu}"
-BINARY_PATH="$ROOT_DIR/target/$TARGET/release/airdrop-bridge"
+BINARY_PATH="$ROOT_DIR/target/$TARGET/release/drop-bridge"
 
 if [ ! -f "$BINARY_PATH" ]; then
-    BINARY_PATH="$ROOT_DIR/target/release/airdrop-bridge"
+    BINARY_PATH="$ROOT_DIR/target/release/drop-bridge"
 fi
 
 if [ ! -f "$BINARY_PATH" ]; then
@@ -31,20 +31,23 @@ mkdir -p "$APP_DIR/usr/share/icons/hicolor/512x512/apps"
 mkdir -p "$DIST_DIR"
 
 # 1. Copy Binary
-cp "$BINARY_PATH" "$APP_DIR/usr/bin/airdrop-bridge"
-chmod +x "$APP_DIR/usr/bin/airdrop-bridge"
+cp "$BINARY_PATH" "$APP_DIR/usr/bin/drop-bridge"
+chmod +x "$APP_DIR/usr/bin/drop-bridge"
 
 # 2. Copy Desktop Entry
-DESKTOP_SRC="$ROOT_DIR/resources/linux/airdrop-bridge.desktop"
-cp "$DESKTOP_SRC" "$APP_DIR/airdrop-bridge.desktop"
-cp "$DESKTOP_SRC" "$APP_DIR/usr/share/applications/airdrop-bridge.desktop"
+DESKTOP_SRC="$ROOT_DIR/resources/linux/drop-bridge.desktop"
+cp "$DESKTOP_SRC" "$APP_DIR/drop-bridge.desktop"
+cp "$DESKTOP_SRC" "$APP_DIR/usr/share/applications/drop-bridge.desktop"
 
 # 3. Copy Icon
-ICON_SRC="$ROOT_DIR/resources/icon.png"
-cp "$ICON_SRC" "$APP_DIR/airdrop-bridge.png"
+ICON_SRC="$ROOT_DIR/resources/linux/drop-bridge.png"
+if [ ! -f "$ICON_SRC" ]; then
+    ICON_SRC="$ROOT_DIR/resources/icon.png"
+fi
+cp "$ICON_SRC" "$APP_DIR/drop-bridge.png"
 cp "$ICON_SRC" "$APP_DIR/.DirIcon"
-cp "$ICON_SRC" "$APP_DIR/usr/share/icons/hicolor/512x512/apps/airdrop-bridge.png"
-cp "$ICON_SRC" "$APP_DIR/usr/share/icons/hicolor/256x256/apps/airdrop-bridge.png"
+cp "$ICON_SRC" "$APP_DIR/usr/share/icons/hicolor/512x512/apps/drop-bridge.png"
+cp "$ICON_SRC" "$APP_DIR/usr/share/icons/hicolor/256x256/apps/drop-bridge.png"
 
 # 4. Create AppRun Entrypoint
 cat << 'EOF' > "$APP_DIR/AppRun"
@@ -54,7 +57,7 @@ HERE=${SELF%/*}
 export PATH="${HERE}/usr/bin:${PATH}"
 export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
 export XDG_DATA_DIRS="${HERE}/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
-exec "${HERE}/usr/bin/airdrop-bridge" "$@"
+exec "${HERE}/usr/bin/drop-bridge" "$@"
 EOF
 chmod +x "$APP_DIR/AppRun"
 
@@ -81,7 +84,7 @@ if [ -z "$APPIMAGETOOL" ]; then
 fi
 
 # 6. Generate the AppImage
-OUTPUT_NAME="AirDrop-Bridge-x86_64.AppImage"
+OUTPUT_NAME="DropBridge-x86_64.AppImage"
 OUTPUT_PATH="$DIST_DIR/$OUTPUT_NAME"
 
 echo "==> Generating $OUTPUT_PATH using $APPIMAGETOOL..."

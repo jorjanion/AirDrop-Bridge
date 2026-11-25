@@ -72,7 +72,7 @@ fn run_tray_loop(
     // Build context menu with muda
     let menu = Menu::new();
 
-    let header_title = format!("AirDrop Bridge v{} (:{})", env!("CARGO_PKG_VERSION"), port);
+    let header_title = format!("Drop Bridge v{} (:{})", env!("CARGO_PKG_VERSION"), port);
     let header_item = MenuItem::new(header_title, false, None);
     let sep1 = PredefinedMenuItem::separator();
 
@@ -314,7 +314,7 @@ fn run_tray_loop(
 
                 let host_display = selected_ip.unwrap_or_else(|| "Auto".to_string());
                 NotificationManager::notify_message(
-                    "AirDrop Bridge",
+                    "Drop Bridge",
                     &format!("Network host set to: {}", host_display),
                 );
             } else if event.id == update_id {

@@ -59,7 +59,7 @@ pub fn create_router(state: AppState) -> Router {
         .route("/setup/pair-url", get(routes_setup::pair_url_handler))
         .route("/setup/qr.png", get(routes_setup::qr_image_handler))
         .route(
-            "/shortcut/AirDrop_Bridge.shortcut",
+            "/shortcut/Drop_Bridge.shortcut",
             get(routes_setup::shortcut_download_handler),
         );
 

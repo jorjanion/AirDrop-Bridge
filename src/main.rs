@@ -32,11 +32,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "airdrop_bridge=info,tower_http=info".into()),
+                .unwrap_or_else(|_| "drop_bridge=info,tower_http=info".into()),
         )
         .init();
 
-    info!("Starting AirDrop Bridge v{}...", env!("CARGO_PKG_VERSION"));
+    info!("Starting DropBridge v{}...", env!("CARGO_PKG_VERSION"));
 
     // Clean up residual binaries from previous hot-swap updates
     AutoUpdater::cleanup_old_binaries();
@@ -130,7 +130,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let (cmd_tx, mut cmd_rx) = mpsc::channel::<TrayCommand>(32);
     let _tray_thread = TrayManager::spawn_tray(config_arc.clone(), cmd_tx);
 
-    info!("AirDrop Bridge is active in system tray. Zero-config ready!");
+    info!("DropBridge is active in system tray. Zero-config ready!");
 
     // Main event loop handling system tray commands
     while let Some(cmd) = cmd_rx.recv().await {
@@ -181,6 +181,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         }
     }
 
-    info!("AirDrop Bridge stopped.");
+    info!("DropBridge stopped.");
     Ok(())
 }

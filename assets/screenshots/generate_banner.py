@@ -82,14 +82,14 @@ def create_banner():
         base.paste(icon_sm, (90, 48), icon_sm)
         
     draw = ImageDraw.Draw(base)
-    draw.text((160, 58), "AirDrop Bridge", font=f_header_logo, fill=(248, 250, 252, 255))
+    draw.text((160, 58), "Drop Bridge", font=f_header_logo, fill=(248, 250, 252, 255))
     
     # Pill next to logo
     draw.rounded_rectangle([410, 60, 550, 88], radius=14, fill=(30, 41, 59, 230), outline=(56, 189, 248, 140), width=1)
     draw.text((426, 65), "OPEN SOURCE", font=f_callout, fill=(56, 189, 248, 255))
     
     # Main Headline
-    draw.text((90, 122), "AirDrop to PC with ZERO Apps on iOS", font=f_title, fill=(255, 255, 255, 255))
+    draw.text((90, 122), "Drop to PC with ZERO Apps on iOS", font=f_title, fill=(255, 255, 255, 255))
     
     # Subtitle
     draw.text((92, 192), "Native Apple Shortcuts  •  Direct Local Wi-Fi  •  Built with Rust  •  No Cloud, 100% Private", font=f_subtitle, fill=(148, 163, 184, 255))
@@ -121,7 +121,7 @@ def create_banner():
         sm_draw.rounded_rectangle([0, 0, s_w, s_h], radius=30, fill=255)
         phone_body.paste(ss, (bezel, bezel), screen_mask)
         
-        # EXACT Highlight rectangle on "AirDrop Bridge" row in the share sheet
+        # EXACT Highlight rectangle on "Drop Bridge" row in the share sheet
         hl_y1 = bezel + 528
         hl_y2 = bezel + 570
         p_draw.rounded_rectangle([bezel + 6, hl_y1, bezel + s_w - 6, hl_y2], radius=10, outline=(56, 189, 248, 255), width=2)
@@ -140,7 +140,7 @@ def create_banner():
         base.paste(shadow, (phone_x - 40, phone_y - 45), shadow)
         base.paste(phone_body, (phone_x, phone_y), phone_body)
         
-        # Callout tag pointing directly to the highlighted AirDrop Bridge row
+        # Callout tag pointing directly to the highlighted Drop Bridge row
         tag_x = phone_x + p_w + 14
         tag_y = phone_y + hl_y1 + 4
         draw.rounded_rectangle([tag_x, tag_y, tag_x + 195, tag_y + 34], radius=17, fill=(15, 23, 42, 245), outline=(56, 189, 248, 220), width=1)
@@ -195,7 +195,7 @@ def create_banner():
             n_icon = Image.open(icon_path).convert('RGBA').resize((36, 36), Image.Resampling.LANCZOS)
             notif_img.paste(n_icon, (16, 14), n_icon)
             
-        n_draw.text((64, 14), "AirDrop Bridge", font=f_notif_title, fill=(241, 245, 249, 255))
+        n_draw.text((64, 14), "Drop Bridge", font=f_notif_title, fill=(241, 245, 249, 255))
         n_draw.text((362, 16), "Just now", font=f_notif_time, fill=(148, 163, 184, 255))
         n_draw.text((64, 36), "Photo received: IMG_4820.HEIC (12.4 MB)", font=f_notif_body, fill=(255, 255, 255, 255))
         n_draw.text((64, 58), "Direct Wi-Fi transfer • Saved to Downloads", font=f_notif_time, fill=(56, 189, 248, 255))

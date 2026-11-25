@@ -11,7 +11,7 @@ pub struct MdnsResponder {
 impl MdnsResponder {
     pub const SERVICE_TYPE: &'static str = "_dropbridge._tcp.local.";
 
-    /// Starts advertising the AirDrop Bridge service on the local network
+    /// Starts advertising the DropBridge service on the local network
     pub fn start(
         device_name: &str,
         port: u16,

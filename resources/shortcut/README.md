@@ -1,19 +1,19 @@
-# Apple Shortcut: AirDrop Bridge
+# Apple Shortcut: Drop Bridge
 
-Este directorio contiene la especificación y guía de integración del **Atajo oficial de iOS / iPadOS** para conectar directamente con el daemon de AirDrop Bridge.
+Este directorio contiene la especificación y guía de integración del **Atajo oficial de iOS / iPadOS** para conectar directamente con el daemon de Drop Bridge.
 
 ### 📥 Enlace oficial de instalación (iCloud):
-👉 **[Instalar Atajo AirDrop Bridge en iPhone / iPad](https://www.icloud.com/shortcuts/406580108b4e44a48674eb1087bcc9c6)**
+👉 **[Instalar Atajo Drop Bridge en iPhone / iPad](https://www.icloud.com/shortcuts/406580108b4e44a48674eb1087bcc9c6)**
 
 ## 📱 Modos de Uso en iOS / iPadOS
 
 1. **Menú Compartir (Share Sheet):**
    - Selecciona cualquier foto, vídeo 4K, archivo en la app Archivos, PDF o enlace en Safari.
-   - Toca en el botón Compartir y selecciona **AirDrop Bridge**.
-   - El archivo se envía instantáneamente a tu ordenador (`Descargas/AirDropBridge`).
+   - Toca en el botón Compartir y selecciona **Drop Bridge**.
+   - El archivo se envía instantáneamente a tu ordenador (`Descargas/DropBridge`).
 
 2. **Action Button (iPhone 15 Pro / 16 Series):**
-   - Asigna el atajo **AirDrop Bridge** al Botón de Acción.
+   - Asigna el atajo **Drop Bridge** al Botón de Acción.
    - Al pulsarlo, si no hay contenido compartido, muestra un menú rápido:
      - 📋 *Enviar portapapeles al PC*
      - 📥 *Traer portapapeles del PC al iPhone*

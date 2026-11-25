@@ -237,10 +237,10 @@ WIN_CARD = build_windows_mockup()
 # Script text definitions
 LINES = [
     "If you have an iPhone and a Windows PC, transferring files is a complete nightmare.",
-    "So I built AirDrop Bridge. Real, blazing-fast file transfers from iPhone to Windows and Linux over your local Wi-Fi.",
+    "So I built Drop Bridge. Real, blazing-fast file transfers from iPhone to Windows and Linux over your local Wi-Fi.",
     "And the best part? Zero apps to install on your phone. It runs through an official Apple Shortcut, straight in your native iOS Share Sheet.",
     "Under the hood, it is written in Rust with chunked streaming. Gigabyte-sized 4K videos land in your Downloads in seconds, using under 15 megabytes of RAM.",
-    "Setup takes thirty seconds with a single QR code. It is completely free and open-source on GitHub. Go grab AirDrop Bridge today!"
+    "Setup takes thirty seconds with a single QR code. It is completely free and open-source on GitHub. Go grab Drop Bridge today!"
 ]
 
 # Scene 1: The Problem
@@ -287,14 +287,14 @@ def draw_scene_1(canvas, lt, s_dur, alpha):
         draw_pill_badge(canvas, W // 2, 1260, "There is a much better way...", font(FONT_BOLD, 36),
                         bg=(15, 32, 45, 240), border=(56, 189, 248, 180), fg=(56, 189, 248, 255), alpha=alpha * bp)
 
-# Scene 2: The Solution (AirDrop Bridge)
+# Scene 2: The Solution (Drop Bridge)
 def draw_scene_2(canvas, lt, s_dur, alpha):
     d = ImageDraw.Draw(canvas, "RGBA")
     t_head = ease_out_cubic(lt / 0.35)
     hy = int(lerp(270, 230, t_head))
     ha = int(255 * alpha * t_head)
     
-    draw_centered_text(d, hy, "Meet AirDrop Bridge", font(FONT_BLACK, 84), (248, 250, 252, ha))
+    draw_centered_text(d, hy, "Meet Drop Bridge", font(FONT_BLACK, 84), (248, 250, 252, ha))
     draw_centered_text(d, hy + 96, "Native Local Wi-Fi Transfers", font(FONT_BLACK, 68), (56, 189, 248, ha))
     
     lp = ease_out_back((lt - 0.12) / 0.45, s=1.35)
@@ -338,10 +338,10 @@ def draw_scene_3(canvas, lt, s_dur, alpha):
     py = int(lerp(1200, 1020, phone_p))
     paste_centered(canvas, IPHONE_CARD, W // 2, py, scale=0.92 + 0.08 * phone_p, alpha=alpha * phone_p)
     
-    # Glowing pulse on "AirDrop Bridge" button
+    # Glowing pulse on "Drop Bridge" button
     tap_p = ease_out_cubic((lt - 0.45) / 0.40)
     if tap_p > 0.01:
-        # AirDrop Bridge row in iPhone mockup coordinates
+        # Drop Bridge row in iPhone mockup coordinates
         # Center of phone is at (W // 2, py)
         # Bounding box around row
         rw, rh = 470, 68
@@ -357,7 +357,7 @@ def draw_scene_3(canvas, lt, s_dur, alpha):
         # Callout badge above button
         callout_p = ease_out_back((lt - 0.70) / 0.35)
         if callout_p > 0.01:
-            draw_pill_badge(canvas, W // 2, ry - 54, "Tap Share -> AirDrop Bridge!", font(FONT_BOLD, 32),
+            draw_pill_badge(canvas, W // 2, ry - 54, "Tap Share -> Drop Bridge!", font(FONT_BOLD, 32),
                             bg=(15, 23, 42, 245), border=(56, 189, 248, 220), fg=(56, 189, 248, 255),
                             pad_x=34, pad_y=16, alpha=alpha * callout_p)
 
@@ -394,7 +394,7 @@ def draw_scene_4(canvas, lt, s_dur, alpha):
         # Toast icon
         safe_composite(canvas, LOGO_ROUNDED.resize((68, 68), Image.Resampling.LANCZOS), nx + 28, ny + 28)
         
-        d.text((nx + 118, ny + 24), "AirDrop Bridge", font=font(FONT_BOLD, 34), fill=(241, 245, 249, int(255 * na)))
+        d.text((nx + 118, ny + 24), "Drop Bridge", font=font(FONT_BOLD, 34), fill=(241, 245, 249, int(255 * na)))
         d.text((nx + nw - 170, ny + 26), "Just now", font=font(FONT_REG, 24), fill=(148, 163, 184, int(230 * na)))
         d.text((nx + 118, ny + 68), "Photo received: IMG_4820.HEIC (12.4 MB)", font=font(FONT_SEMI, 30), fill=(255, 255, 255, int(255 * na)))
         d.text((nx + 118, ny + 108), "Direct Wi-Fi transfer • Saved to Downloads in 0.3s", font=font(FONT_REG, 24), fill=(56, 189, 248, int(255 * na)))
@@ -411,7 +411,7 @@ def draw_scene_5(canvas, lt, s_dur, alpha):
     hy = int(lerp(240, 200, t_head))
     ha = int(255 * alpha * t_head)
     
-    draw_centered_text(d, hy, "GET AIRDROP BRIDGE", font(FONT_BLACK, 84), (248, 250, 252, ha))
+    draw_centered_text(d, hy, "GET DROP BRIDGE", font(FONT_BLACK, 84), (248, 250, 252, ha))
     draw_centered_text(d, hy + 94, "Free & Open Source", font(FONT_BLACK, 68), (56, 189, 248, ha))
     
     # GitHub Repo Showcase Card
@@ -431,8 +431,8 @@ def draw_scene_5(canvas, lt, s_dur, alpha):
     
     # Card Header
     safe_composite(canvas, LOGO_ROUNDED.resize((96, 96), Image.Resampling.LANCZOS), cx + 45, cy + 45)
-    d.text((cx + 165, cy + 48), "AirDrop Bridge", font=font(FONT_BLACK, 46), fill=(248, 250, 252, int(255 * ca)))
-    d.text((cx + 168, cy + 104), "github.com/jorjanion/AirDrop-Bridge", font=font(FONT_SEMI, 28), fill=(56, 189, 248, int(255 * ca)))
+    d.text((cx + 165, cy + 48), "Drop Bridge", font=font(FONT_BLACK, 46), fill=(248, 250, 252, int(255 * ca)))
+    d.text((cx + 168, cy + 104), "github.com/jorjanion/DropBridge", font=font(FONT_SEMI, 28), fill=(56, 189, 248, int(255 * ca)))
     
     # Features inside card
     card_bullets = [
@@ -457,7 +457,7 @@ def draw_scene_5(canvas, lt, s_dur, alpha):
         
     link_p = ease_out_cubic((lt - 0.70) / 0.35)
     if link_p > 0.01:
-        draw_pill_badge(canvas, W // 2, 1500, "Link in Bio • github.com/jorjanion/AirDrop-Bridge", font(FONT_BOLD, 30),
+        draw_pill_badge(canvas, W // 2, 1500, "Link in Bio • github.com/jorjanion/DropBridge", font(FONT_BOLD, 30),
                         bg=(18, 26, 44, 235), border=(74, 222, 128, 180), fg=(134, 239, 172, 255), pad_x=36, alpha=alpha * link_p)
 
 SCENE_FNS = [draw_scene_1, draw_scene_2, draw_scene_3, draw_scene_4, draw_scene_5]
@@ -530,7 +530,7 @@ def render_video():
     
     master_wav = build_synced_audio_track(clips, scene_windows, total_dur)
     raw_video = os.path.join(SCRATCH_DIR, "raw_video.mp4")
-    final_mp4 = os.path.join(OUT_DIR, "AirDropBridge-TikTok-EN.mp4")
+    final_mp4 = os.path.join(OUT_DIR, "DropBridge-TikTok-EN.mp4")
     
     writer = cv2.VideoWriter(raw_video, cv2.CAP_MSMF, cv2.VideoWriter_fourcc(*"avc1"), FPS, (W, H))
     assert writer.isOpened(), f"Failed to open VideoWriter for {raw_video}"

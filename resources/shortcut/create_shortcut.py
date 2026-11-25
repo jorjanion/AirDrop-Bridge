@@ -50,7 +50,7 @@ def build_shortcut():
     actions.append({
         "WFWorkflowActionIdentifier": "is.workflow.actions.comment",
         "WFWorkflowActionParameters": {
-            "WFCommentActionText": "AirDrop Bridge\nZero-config local file transfer and clipboard sync for Windows and Linux."
+            "WFCommentActionText": "Drop Bridge\nZero-config local file transfer and clipboard sync for Windows and Linux."
         }
     })
 
@@ -67,12 +67,12 @@ def build_shortcut():
                         {
                             "WFItemType": 0,
                             "WFKey": {"Value": {"string": "Host"}, "WFSerializationType": "WFTextTokenString"},
-                            "WFValue": {"Value": {"string": "AIRDROP_BRIDGE_HOST"}, "WFSerializationType": "WFTextTokenString"}
+                            "WFValue": {"Value": {"string": "DROP_BRIDGE_HOST"}, "WFSerializationType": "WFTextTokenString"}
                         },
                         {
                             "WFItemType": 0,
                             "WFKey": {"Value": {"string": "IP"}, "WFSerializationType": "WFTextTokenString"},
-                            "WFValue": {"Value": {"string": "AIRDROP_BRIDGE_IP"}, "WFSerializationType": "WFTextTokenString"}
+                            "WFValue": {"Value": {"string": "DROP_BRIDGE_IP"}, "WFSerializationType": "WFTextTokenString"}
                         },
                         {
                             "WFItemType": 0,
@@ -82,12 +82,12 @@ def build_shortcut():
                         {
                             "WFItemType": 0,
                             "WFKey": {"Value": {"string": "Token"}, "WFSerializationType": "WFTextTokenString"},
-                            "WFValue": {"Value": {"string": "AIRDROP_BRIDGE_TOKEN"}, "WFSerializationType": "WFTextTokenString"}
+                            "WFValue": {"Value": {"string": "DROP_BRIDGE_TOKEN"}, "WFSerializationType": "WFTextTokenString"}
                         },
                         {
                             "WFItemType": 0,
                             "WFKey": {"Value": {"string": "DeviceName"}, "WFSerializationType": "WFTextTokenString"},
-                            "WFValue": {"Value": {"string": "AirDrop Bridge PC"}, "WFSerializationType": "WFTextTokenString"}
+                            "WFValue": {"Value": {"string": "Drop Bridge PC"}, "WFSerializationType": "WFTextTokenString"}
                         }
                     ]
                 },
@@ -221,12 +221,12 @@ def build_shortcut():
         }
     })
 
-    # Save to iCloud Drive/Shortcuts/AirDropBridge.json
+    # Save to iCloud Drive/Shortcuts/DropBridge.json
     actions.append({
         "WFWorkflowActionIdentifier": "is.workflow.actions.documentpicker.save",
         "WFWorkflowActionParameters": {
             "WFAskWhereToSave": False,
-            "WFFileDestinationPath": "AirDropBridge.json",
+            "WFFileDestinationPath": "DropBridge.json",
             "WFFileStorageService": "iCloud Drive",
             "WFInput": {
                 "Value": action_output(save_dict_uuid, "SavedConfigDict"),
@@ -240,12 +240,12 @@ def build_shortcut():
         "WFWorkflowActionIdentifier": "is.workflow.actions.alert",
         "WFWorkflowActionParameters": {
             "WFAlertActionCancelButtonShown": False,
-            "WFAlertActionMessage": make_token_string("AirDrop Bridge is now connected to {SetupDevice}!\nHost: {SetupHost}:{SetupPort}", {
+            "WFAlertActionMessage": make_token_string("Drop Bridge is now connected to {SetupDevice}!\nHost: {SetupHost}:{SetupPort}", {
                 "SetupDevice": action_output(get_input_device_uuid, "SetupDevice"),
                 "SetupHost": action_output(get_input_host_uuid, "SetupHost"),
                 "SetupPort": action_output(get_input_port_uuid, "SetupPort")
             }),
-            "WFAlertActionTitle": "AirDrop Bridge Configured"
+            "WFAlertActionTitle": "Drop Bridge Configured"
         }
     })
 
@@ -272,7 +272,7 @@ def build_shortcut():
             "UUID": open_config_uuid,
             "WFDocumentPickerShowFilePicker": False,
             "WFFileStorageService": "iCloud Drive",
-            "WFGetFilePath": "AirDropBridge.json"
+            "WFGetFilePath": "DropBridge.json"
         }
     })
 
@@ -495,7 +495,7 @@ def build_shortcut():
         "WFWorkflowActionIdentifier": "is.workflow.actions.notification",
         "WFWorkflowActionParameters": {
             "WFNotificationActionBody": make_token_string("Files sent successfully to {DeviceName}!", {"DeviceName": device_att}),
-            "WFNotificationActionTitle": "AirDrop Bridge"
+            "WFNotificationActionTitle": "Drop Bridge"
         }
     })
 
@@ -524,7 +524,7 @@ def build_shortcut():
                 "📥 Get Clipboard from PC",
                 "🔍 Check Connection"
             ],
-            "WFMenuTitle": "AirDrop Bridge"
+            "WFMenuTitle": "Drop Bridge"
         }
     })
 
@@ -597,7 +597,7 @@ def build_shortcut():
         "WFWorkflowActionIdentifier": "is.workflow.actions.notification",
         "WFWorkflowActionParameters": {
             "WFNotificationActionBody": make_token_string("Clipboard sent to {DeviceName}!", {"DeviceName": device_att}),
-            "WFNotificationActionTitle": "AirDrop Bridge"
+            "WFNotificationActionTitle": "Drop Bridge"
         }
     })
 
@@ -664,7 +664,7 @@ def build_shortcut():
         "WFWorkflowActionIdentifier": "is.workflow.actions.notification",
         "WFWorkflowActionParameters": {
             "WFNotificationActionBody": make_token_string("Copied clipboard from {DeviceName}!", {"DeviceName": device_att}),
-            "WFNotificationActionTitle": "AirDrop Bridge"
+            "WFNotificationActionTitle": "Drop Bridge"
         }
     })
 
@@ -711,7 +711,7 @@ def build_shortcut():
                 "Status": action_output(ping_status_uuid, "PingStatus"),
                 "DeviceName": device_att
             }),
-            "WFAlertActionTitle": "AirDrop Bridge Status"
+            "WFAlertActionTitle": "Drop Bridge Status"
         }
     })
 
@@ -734,7 +734,7 @@ def build_shortcut():
     })
 
     shortcut_plist = {
-        "WFWorkflowName": "AirDrop Bridge",
+        "WFWorkflowName": "Drop Bridge",
         "WFQuickActionSurfaces": [],
         "WFWorkflowActions": actions,
         "WFWorkflowClientVersion": "2610",
@@ -763,7 +763,7 @@ def build_shortcut():
 
 if __name__ == "__main__":
     plist_data = build_shortcut()
-    out_path = "resources/shortcut/AirDrop_Bridge.shortcut"
+    out_path = "resources/shortcut/Drop_Bridge.shortcut"
     with open(out_path, "wb") as f:
         plistlib.dump(plist_data, f, fmt=plistlib.FMT_BINARY)
     print(f"Successfully generated {out_path} ({len(plist_data['WFWorkflowActions'])} actions)")

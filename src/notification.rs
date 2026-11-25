@@ -201,7 +201,7 @@ $textNodes = $template.GetElementsByTagName("text")
 $textNodes.Item(0).AppendChild($template.CreateTextNode('{title}')) > $null
 $textNodes.Item(1).AppendChild($template.CreateTextNode('{msg}')) > $null
 $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
-$notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("AirDrop Bridge")
+$notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("DropBridge")
 $notifier.Show($toast)"#,
             title = clean_title,
             msg = full_msg
@@ -214,7 +214,7 @@ $textNodes = $template.GetElementsByTagName("text")
 $textNodes.Item(0).AppendChild($template.CreateTextNode('{title}')) > $null
 $textNodes.Item(1).AppendChild($template.CreateTextNode('{msg}')) > $null
 $toast = [Windows.UI.Notifications.ToastNotification]::new($template)
-$notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("AirDrop Bridge")
+$notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("DropBridge")
 $notifier.Show($toast)"#,
             title = clean_title,
             msg = clean_msg

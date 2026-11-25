@@ -171,11 +171,11 @@ pub mod win_ui {
             local_ip_str: std::sync::RwLock::new(local_ip_str),
         });
 
-        let class_name: Vec<u16> = OsStr::new("AirDropBridgeUIWindow")
+        let class_name: Vec<u16> = OsStr::new("DropBridgeUIWindow")
             .encode_wide()
             .chain(std::iter::once(0))
             .collect();
-        let title_with_ver = format!("AirDrop Bridge v{}", env!("CARGO_PKG_VERSION"));
+        let title_with_ver = format!("Drop Bridge v{}", env!("CARGO_PKG_VERSION"));
         let window_title: Vec<u16> = OsStr::new(&title_with_ver)
             .encode_wide()
             .chain(std::iter::once(0))

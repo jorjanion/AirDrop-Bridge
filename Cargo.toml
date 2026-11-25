@@ -1,11 +1,11 @@
 [package]
-name = "airdrop-bridge"
+name = "drop-bridge"
 version = "1.1.0"
 edition = "2024"
 authors = ["Jorge <jorge.paris.f@gmail.com>"]
-description = "Ultra-lightweight, native, secure AirDrop bridge for Windows and Linux"
+description = "Ultra-lightweight, native, secure DropBridge file transfer for Windows and Linux"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/jorjanion/AirDrop-Bridge"
+repository = "https://github.com/jorjanion/DropBridge"
 
 [dependencies]
 tokio = { version = "1.43", features = ["rt-multi-thread", "macros", "fs", "io-util", "sync", "time"] }

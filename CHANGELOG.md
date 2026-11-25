@@ -1,11 +1,19 @@
 # Changelog
 
-All notable changes to AirDrop Bridge will be documented in this file.
+All notable changes to DropBridge will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Changed
+* Project rebranded to **DropBridge** (`drop-bridge` / `Drop Bridge`):
+  * Renamed repository and all project links to `DropBridge`.
+  * Renamed binary executable to `drop-bridge.exe` (Windows) and `drop-bridge` (Linux).
+  * Renamed Linux packaging artifacts to `drop-bridge.desktop`, `DropBridge-x86_64.AppImage`, and `drop-bridge-linux-x64.tar.gz`.
+  * Updated official Apple Shortcut name to `Drop Bridge` with storage path `DropBridge.json`.
+  * Updated autostart registry entries, window classes (`DropBridgeUIWindow`), and system notifications (`DropBridge`).
 
 ## [1.1.0] - 2026-11-23
 

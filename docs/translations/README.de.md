@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="../../resources/icon.png" width="120" alt="AirDrop Bridge Logo" />
+  <img src="../../resources/icon.png" width="120" alt="Drop Bridge Logo" />
 </p>
 
-<h1 align="center">AirDrop Bridge</h1>
+<h1 align="center">Drop Bridge</h1>
 
 <p align="center">
   <strong>Native, blitzschnelle Dateiübertragungen von iPhone und iPad auf Windows und Linux.</strong><br>
@@ -21,22 +21,22 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jorjanion/AirDrop-Bridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/AirDrop-Bridge?color=38bdf8&style=flat-square" alt="Release" /></a>
-  <a href="https://github.com/jorjanion/AirDrop-Bridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="Lizenz" /></a>
+  <a href="https://github.com/jorjanion/DropBridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/DropBridge?color=38bdf8&style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/jorjanion/DropBridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="Lizenz" /></a>
   <img src="https://img.shields.io/badge/plattform-Windows%20%7C%20Linux-emerald?style=flat-square" alt="Plattform" />
   <img src="https://img.shields.io/badge/sprachen-8%20integriert-purple?style=flat-square" alt="Sprachen" />
   <img src="https://img.shields.io/badge/rust-edition%202024-orange?style=flat-square" alt="Rust" />
 </p>
 
-> ⭐ **Gefällt dir AirDrop Bridge?** Bitte gib dem Projekt einen Stern auf GitHub! Das hilft anderen, dieses kostenlose Open-Source-Projekt zu entdecken, und motiviert uns bei der Weiterentwicklung.
+> ⭐ **Gefällt dir Drop Bridge?** Bitte gib dem Projekt einen Stern auf GitHub! Das hilft anderen, dieses kostenlose Open-Source-Projekt zu entdecken, und motiviert uns bei der Weiterentwicklung.
 
 ---
 
 ## Übersicht
 
-**AirDrop Bridge** ermöglicht es dir, Fotos, 4K-Videos und Dokumente von deinem iPhone oder iPad über dein lokales WLAN-Netzwerk direkt auf deinen Computer zu übertragen.
+**Drop Bridge** ermöglicht es dir, Fotos, 4K-Videos und Dokumente von deinem iPhone oder iPad über dein lokales WLAN-Netzwerk direkt auf deinen Computer zu übertragen.
 
-Anstatt auf Drittanbieter-Apps aus dem App Store angewiesen zu sein oder persönliche Dateien über fremde Cloud-Server zu leiten, verbindet AirDrop Bridge deinen PC direkt mit einem offiziellen Apple-Kurzbefehl. Dieser integriert sich nahtlos in das native Teilen-Menü von iOS, die Aktionstaste oder das Tippen auf die Geräterückseite.
+Anstatt auf Drittanbieter-Apps aus dem App Store angewiesen zu sein oder persönliche Dateien über fremde Cloud-Server zu leiten, verbindet Drop Bridge deinen PC direkt mit einem offiziellen Apple-Kurzbefehl. Dieser integriert sich nahtlos in das native Teilen-Menü von iOS, die Aktionstaste oder das Tippen auf die Geräterückseite.
 
 <p align="center">
   <img src="../../assets/screenshots/pairing-window.png" width="280" alt="Kopplungsfenster auf dem PC" />
@@ -71,7 +71,7 @@ Anstatt auf Drittanbieter-Apps aus dem App Store angewiesen zu sein oder persön
 Die Einrichtung ist in weniger als einer Minute abgeschlossen.
 
 ### 1. Auf dem PC herunterladen und starten
-* Lade `airdrop-bridge-windows-x64.exe` von den [GitHub Releases](https://github.com/jorjanion/AirDrop-Bridge/releases/latest) herunter.
+* Lade `drop-bridge-windows-x64.exe` von den [GitHub Releases](https://github.com/jorjanion/DropBridge/releases/latest) herunter.
 * Mit einem Doppelklick starten. Die Anwendung läuft dezent im Infobereich und öffnet das Kopplungsfenster mit dem QR-Code.
 
 ### 2. Mit der iPhone-Kamera scannen
@@ -79,7 +79,7 @@ Die Einrichtung ist in weniger als einer Minute abgeschlossen.
 * Tippe auf den angezeigten gelben Link, um das Einrichtungsportal in Safari zu öffnen.
 
 ### 3. Den offiziellen Apple-Kurzbefehl installieren
-* Tippe auf der Webseite auf **"1. AirDrop Bridge Kurzbefehl herunterladen & installieren"**.
+* Tippe auf der Webseite auf **"1. Drop Bridge Kurzbefehl herunterladen & installieren"**.
 * Safari fragt nach dem Öffnen in Kurzbefehle. Tippe auf **Öffnen** und anschließend auf **Kurzbefehl hinzufügen**.
 
 ### 4. Den PC koppeln
@@ -90,21 +90,21 @@ Die Einrichtung ist in weniger als einer Minute abgeschlossen.
 
 #### Fotos, Videos und Dateien senden:
 * Öffne die **Fotos**- oder **Dateien**-App auf deinem iPhone.
-* Wähle Fotos, Videos oder Dokumente aus, tippe auf **Teilen** und wähle **AirDrop Bridge**.
-* Deine Datei landet sofort in deinem Downloads-Ordner (`Downloads\AirDropBridge`), begleitet von einem Hinweiston und einer Desktop-Benachrichtigung!
+* Wähle Fotos, Videos oder Dokumente aus, tippe auf **Teilen** und wähle **Drop Bridge**.
+* Deine Datei landet sofort in deinem Downloads-Ordner (`Downloads\DropBridge`), begleitet von einem Hinweiston und einer Desktop-Benachrichtigung!
 
 #### Zwischenablage synchronisieren (bidirektional):
-* Führe den Kurzbefehl **AirDrop Bridge** direkt aus (über die Kurzbefehle-App, ein Startbildschirm-Widget, die Aktionstaste oder Tippen auf die Rückseite).
+* Führe den Kurzbefehl **Drop Bridge** direkt aus (über die Kurzbefehle-App, ein Startbildschirm-Widget, die Aktionstaste oder Tippen auf die Rückseite).
 * Ein Auswahldialog bietet zwei praktische Aktionen:
   * 📤 **Send clipboard**: Überträgt den auf dem iPhone kopierten Text direkt in die Zwischenablage deines PCs.
   * 📥 **Get clipboard**: Holt den aktuell auf dem PC kopierten Text direkt auf dein iPhone.
-* Du kannst auch beliebigen Text auf deinem iPhone markieren (in Safari, Notizen oder Nachrichten), auf **Teilen** tippen und **AirDrop Bridge** wählen, um ihn sofort an den PC zu senden!
+* Du kannst auch beliebigen Text auf deinem iPhone markieren (in Safari, Notizen oder Nachrichten), auf **Teilen** tippen und **Drop Bridge** wählen, um ihn sofort an den PC zu senden!
 
 ---
 
 ## Hinweis zu Windows SmartScreen
 
-Beim ersten Start von AirDrop Bridge zeigt Windows Defender SmartScreen möglicherweise ein blaues Hinweisfenster an:
+Beim ersten Start von Drop Bridge zeigt Windows Defender SmartScreen möglicherweise ein blaues Hinweisfenster an:
 
 > *"Der Computer wurde durch Windows geschützt"*
 
@@ -121,9 +121,9 @@ Der gesamte Quellcode ist zu 100% öffentlich, transparent und direkt in diesem 
 
 ## Einstellungen im Infobereich
 
-Klicke mit der rechten Maustaste auf das AirDrop Bridge-Symbol in der Taskleiste, um auf die Optionen zuzugreifen:
+Klicke mit der rechten Maustaste auf das Drop Bridge-Symbol in der Taskleiste, um auf die Optionen zuzugreifen:
 
-* **AirDrop Bridge öffnen**: Zeigt das QR-Kopplungsfenster jederzeit wieder an.
+* **Drop Bridge öffnen**: Zeigt das QR-Kopplungsfenster jederzeit wieder an.
 * **Downloads öffnen**: Direkter Zugriff auf den Ordner mit den empfangenen Dateien.
 * **Token kopieren**: Kopiert das Sicherheitstoken in die Zwischenablage.
 * **Einstellungen**:
@@ -142,12 +142,12 @@ Klicke mit der rechten Maustaste auf das AirDrop Bridge-Symbol in der Taskleiste
 Voraussetzungen: [Rust](https://www.rust-lang.org/) (Edition 2024 oder neuer).
 
 ```bash
-git clone https://github.com/jorjanion/AirDrop-Bridge.git
-cd airdrop-bridge
+git clone https://github.com/jorjanion/DropBridge.git
+cd DropBridge
 cargo build --release
 ```
 
-Die optimierte Binärdatei befindet sich unter `target/release/airdrop-bridge.exe`.
+Die optimierte Binärdatei befindet sich unter `target/release/drop-bridge.exe`.
 
 ---
 
@@ -157,7 +157,7 @@ Beiträge, Fehlermeldungen und Vorschläge aus der Community sind jederzeit herz
 
 ### Fehler melden oder Wünsche äußern
 Falls du auf ein Problem stößt oder eine Verbesserung vorschlagen möchtest:
-1. Besuche den [Issue Tracker auf GitHub](https://github.com/jorjanion/AirDrop-Bridge/issues).
+1. Besuche den [Issue Tracker auf GitHub](https://github.com/jorjanion/DropBridge/issues).
 2. Prüfe, ob das Thema bereits existiert.
 3. Klicke auf **New Issue** und gib an:
    * Was passiert ist und was du erwartet hast.
@@ -182,7 +182,7 @@ Falls du auf ein Problem stößt oder eine Verbesserung vorschlagen möchtest:
 
 ## Lizenz
 
-AirDrop Bridge ist nach deiner Wahl unter einer der folgenden Lizenzen verfügbar:
+Drop Bridge ist nach deiner Wahl unter einer der folgenden Lizenzen verfügbar:
 
 * Apache License, Version 2.0 ([LICENSE-APACHE](../../LICENSE) oder http://www.apache.org/licenses/LICENSE-2.0)
 * MIT license ([LICENSE-MIT](../../LICENSE) oder http://opensource.org/licenses/MIT)

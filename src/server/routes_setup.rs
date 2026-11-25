@@ -123,7 +123,7 @@ pub async fn setup_page_handler(
     let config_str = shortcut_config.to_string();
     let encoded_config = urlencoding::encode(&config_str);
     let shortcut_deep_link = format!(
-        "shortcuts://run-shortcut?name=AirDrop%20Bridge&input=text&text={}",
+        "shortcuts://run-shortcut?name=Drop%20Bridge&input=text&text={}",
         encoded_config
     );
 
@@ -181,7 +181,7 @@ pub async fn setup_page_handler(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>AirDrop Bridge</title>
+    <title>Drop Bridge</title>
     <style>
         :root {{
             --bg: #0f172a;
@@ -355,7 +355,7 @@ pub async fn setup_page_handler(
         </div>
         <div class="header">
             <div class="badge"><div class="dot"></div> {badge_text} &bull; v{app_version}</div>
-            <h1>AirDrop Bridge</h1>
+            <h1>Drop Bridge</h1>
             <p class="subtitle">{connection_prefix} <strong>{device_name}</strong></p>
         </div>
 
@@ -446,13 +446,13 @@ pub async fn qr_image_handler(State(state): State<AppState>) -> Result<Response,
 }
 
 pub async fn shortcut_download_handler() -> impl IntoResponse {
-    let bytes = include_bytes!("../../resources/shortcut/AirDrop_Bridge.shortcut");
+    let bytes = include_bytes!("../../resources/shortcut/Drop_Bridge.shortcut");
     (
         [
             (header::CONTENT_TYPE, "application/x-apple-shortcut"),
             (
                 header::CONTENT_DISPOSITION,
-                "attachment; filename=\"AirDrop Bridge.shortcut\"",
+                "attachment; filename=\"Drop Bridge.shortcut\"",
             ),
         ],
         bytes.as_slice(),

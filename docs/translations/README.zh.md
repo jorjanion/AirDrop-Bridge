@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="../../resources/icon.png" width="120" alt="AirDrop Bridge Logo" />
+  <img src="../../resources/icon.png" width="120" alt="Drop Bridge Logo" />
 </p>
 
-<h1 align="center">AirDrop Bridge</h1>
+<h1 align="center">Drop Bridge</h1>
 
 <p align="center">
   <strong>从 iPhone 和 iPad 到 Windows 与 Linux 的原生超快文件传输。</strong><br>
@@ -21,22 +21,22 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jorjanion/AirDrop-Bridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/AirDrop-Bridge?color=38bdf8&style=flat-square" alt="Release" /></a>
-  <a href="https://github.com/jorjanion/AirDrop-Bridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="许可证" /></a>
+  <a href="https://github.com/jorjanion/DropBridge/releases"><img src="https://img.shields.io/github/v/release/jorjanion/DropBridge?color=38bdf8&style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/jorjanion/DropBridge/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue?style=flat-square" alt="许可证" /></a>
   <img src="https://img.shields.io/badge/平台-Windows%20%7C%20Linux-emerald?style=flat-square" alt="平台" />
   <img src="https://img.shields.io/badge/语言-内置%208%20种-purple?style=flat-square" alt="语言" />
   <img src="https://img.shields.io/badge/rust-2024%20edition-orange?style=flat-square" alt="Rust" />
 </p>
 
-> ⭐ **喜欢 AirDrop Bridge 吗？** 欢迎在 GitHub 上点亮一颗星！这能让更多人发现这个完全免费的开源工具，也是我们持续维护的最大动力。
+> ⭐ **喜欢 Drop Bridge 吗？** 欢迎在 GitHub 上点亮一颗星！这能让更多人发现这个完全免费的开源工具，也是我们持续维护的最大动力。
 
 ---
 
 ## 概述
 
-**AirDrop Bridge** 让你能够通过局域网 Wi-Fi，将 iPhone 或 iPad 上的照片、4K 视频和文件直接秒传至电脑。
+**Drop Bridge** 让你能够通过局域网 Wi-Fi，将 iPhone 或 iPad 上的照片、4K 视频和文件直接秒传至电脑。
 
-无需在 App Store 下载任何第三方软件，也不必把私密文件上传到外部云端服务器。AirDrop Bridge 将电脑与 Apple 官方快捷指令无缝对接，直接集成在原生 iOS 分享菜单、操作按钮或轻点背面手势中。
+无需在 App Store 下载任何第三方软件，也不必把私密文件上传到外部云端服务器。Drop Bridge 将电脑与 Apple 官方快捷指令无缝对接，直接集成在原生 iOS 分享菜单、操作按钮或轻点背面手势中。
 
 <p align="center">
   <img src="../../assets/screenshots/pairing-window.png" width="280" alt="电脑端配对窗口" />
@@ -71,7 +71,7 @@
 只需不到一分钟即可完成配置。
 
 ### 1. 电脑端下载并启动
-* 在 [GitHub Releases](https://github.com/jorjanion/AirDrop-Bridge/releases/latest) 下载 `airdrop-bridge-windows-x64.exe`。
+* 在 [GitHub Releases](https://github.com/jorjanion/DropBridge/releases/latest) 下载 `drop-bridge-windows-x64.exe`。
 * 双击运行。程序会在系统托盘中静默运行，并弹出配对二维码窗口。
 
 ### 2. 使用 iPhone 相机扫码
@@ -79,7 +79,7 @@
 * 轻点出现的黄色提示条，在 Safari 中打开配置页面。
 
 ### 3. 安装 Apple 官方快捷指令
-* 在网页中轻点 **"1. 下载并安装 AirDrop Bridge 快捷指令"**。
+* 在网页中轻点 **"1. 下载并安装 Drop Bridge 快捷指令"**。
 * Safari 将提示在“快捷指令”中打开，轻点 **打开** 并选择 **添加快捷指令**。
 
 ### 4. 配对电脑
@@ -90,21 +90,21 @@
 
 #### 发送照片、视频与文件：
 * 在 iPhone 上打开 **照片** 或 **文件** App。
-* 选择任意照片、视频或文档，轻点 **分享** 按钮，选中 **AirDrop Bridge**。
-* 文件将瞬间传输至电脑的下载文件夹（`Downloads\AirDropBridge`），并伴有提示音和桌面通知！
+* 选择任意照片、视频或文档，轻点 **分享** 按钮，选中 **Drop Bridge**。
+* 文件将瞬间传输至电脑的下载文件夹（`Downloads\DropBridge`），并伴有提示音和桌面通知！
 
 #### 双向剪贴板同步：
-* 直接轻点运行 **AirDrop Bridge** 快捷指令（可通过快捷指令 App、主屏幕小组件、操作按钮或轻点背面手势触发）。
+* 直接轻点运行 **Drop Bridge** 快捷指令（可通过快捷指令 App、主屏幕小组件、操作按钮或轻点背面手势触发）。
 * 弹出菜单将提供两个实用选项：
   * 📤 **Send clipboard（发送剪贴板）**: 将 iPhone 当前复制的文本秒传至电脑剪贴板。
   * 📥 **Get clipboard（获取剪贴板）**: 将电脑当前剪贴板中的文本直接读取并复制到 iPhone。
-* 您还可以在 iPhone 的 Safari、备忘录或信息中选中任何文字，轻点 **共享** 并选择 **AirDrop Bridge**，直接发送到电脑！
+* 您还可以在 iPhone 的 Safari、备忘录或信息中选中任何文字，轻点 **共享** 并选择 **Drop Bridge**，直接发送到电脑！
 
 ---
 
 ## 关于 Windows SmartScreen 提示
 
-首次在 Windows 上启动 AirDrop Bridge 时，Windows Defender SmartScreen 可能会弹出蓝色提示框：
+首次在 Windows 上启动 Drop Bridge 时，Windows Defender SmartScreen 可能会弹出蓝色提示框：
 
 > *"Windows 已保护你的电脑"*
 
@@ -121,9 +121,9 @@
 
 ## 系统托盘设置说明
 
-右键单击 Windows 任务栏通知区域的 AirDrop Bridge 图标，即可使用各项实用功能：
+右键单击 Windows 任务栏通知区域的 Drop Bridge 图标，即可使用各项实用功能：
 
-* **打开 AirDrop Bridge**: 随时再次唤出二维码配对窗口。
+* **打开 Drop Bridge**: 随时再次唤出二维码配对窗口。
 * **打开下载文件夹**: 一键直达接收文件的本地存储目录。
 * **复制令牌**: 快速复制安全令牌到系统剪贴板。
 * **设置**:
@@ -142,12 +142,12 @@
 环境要求: [Rust](https://www.rust-lang.org/) (2024 edition 或更新版本)。
 
 ```bash
-git clone https://github.com/jorjanion/AirDrop-Bridge.git
-cd airdrop-bridge
+git clone https://github.com/jorjanion/DropBridge.git
+cd DropBridge
 cargo build --release
 ```
 
-编译生成的高性能执行文件位于 `target/release/airdrop-bridge.exe`。
+编译生成的高性能执行文件位于 `target/release/drop-bridge.exe`。
 
 ---
 
@@ -157,7 +157,7 @@ cargo build --release
 
 ### 报告问题或提出建议
 如果您在使用中遇到了异常，或者有更好的功能想法：
-1. 前往项目的 [Issues 页面](https://github.com/jorjanion/AirDrop-Bridge/issues)。
+1. 前往项目的 [Issues 页面](https://github.com/jorjanion/DropBridge/issues)。
 2. 查看是否已有相似主题。
 3. 点击 **New Issue** 并注明：
    * 发生了什么现象以及您预期的效果。
@@ -182,7 +182,7 @@ cargo build --release
 
 ## 开源许可证
 
-AirDrop Bridge 遵循以下双重开源协议，您可任选其一使用：
+Drop Bridge 遵循以下双重开源协议，您可任选其一使用：
 
 * Apache License, Version 2.0 ([LICENSE-APACHE](../../LICENSE) 或 http://www.apache.org/licenses/LICENSE-2.0)
 * MIT license ([LICENSE-MIT](../../LICENSE) 或 http://opensource.org/licenses/MIT)

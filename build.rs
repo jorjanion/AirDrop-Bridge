@@ -5,13 +5,13 @@ fn main() {
         res.set_icon("resources/icon.ico");
         res.set(
             "FileDescription",
-            "AirDrop Bridge - Native Apple Transfer Bridge",
+            "Drop Bridge - Native Apple Transfer Bridge",
         );
-        res.set("ProductName", "AirDrop Bridge");
-        res.set("OriginalFilename", "airdrop-bridge.exe");
+        res.set("ProductName", "Drop Bridge");
+        res.set("OriginalFilename", "drop-bridge.exe");
         res.set(
             "LegalCopyright",
-            "Copyright (c) 2026 AirDrop Bridge Contributors",
+            "Copyright (c) 2026 Drop Bridge Contributors",
         );
         if let Err(e) = res.compile() {
             eprintln!("Warning: Failed to compile Windows resource: {}", e);

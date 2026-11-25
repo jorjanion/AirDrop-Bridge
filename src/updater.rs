@@ -9,8 +9,8 @@ use tokio::sync::RwLock;
 use tracing::{error, info, warn};
 
 const REPO_OWNER: &str = "jorjanion";
-const REPO_NAME: &str = "airdrop-bridge";
-const USER_AGENT: &str = "AirDropBridge-Updater/0.1.0";
+const REPO_NAME: &str = "DropBridge";
+const USER_AGENT: &str = "DropBridge-Updater/0.1.0";
 
 #[derive(Debug, Deserialize)]
 pub struct GitHubRelease {
@@ -52,7 +52,7 @@ impl AutoUpdater {
                 exe_path
                     .file_stem()
                     .and_then(|s| s.to_str())
-                    .unwrap_or("airdrop-bridge")
+                    .unwrap_or("drop-bridge")
             ));
             if old_bin.exists() {
                 let _ = std::fs::remove_file(old_bin);
@@ -168,7 +168,7 @@ impl AutoUpdater {
         };
 
         if !Self::is_newer(current_version, &release.tag_name) {
-            info!("AirDrop Bridge is up to date (version {})", current_version);
+            info!("Drop Bridge is up to date (version {})", current_version);
             if notify_if_latest {
                 NotificationManager::notify_message(
                     strings.ui_title,
@@ -224,7 +224,7 @@ impl AutoUpdater {
             match Self::download_and_apply(&asset.browser_download_url).await {
                 Ok(_) => {
                     info!(
-                        "AirDrop Bridge was silently updated to {} via GitHub",
+                        "Drop Bridge was silently updated to {} via GitHub",
                         release.tag_name
                     );
                     let msg = strings
@@ -283,9 +283,9 @@ impl AutoUpdater {
             .and_then(|s| s.to_str())
             .unwrap_or("");
         let new_temp_name = if ext.is_empty() {
-            "airdrop-bridge.new".to_string()
+            "drop-bridge.new".to_string()
         } else {
-            format!("airdrop-bridge.new.{}", ext)
+            format!("drop-bridge.new.{}", ext)
         };
         let new_exe_temp = parent_dir.join(new_temp_name);
         std::fs::write(&new_exe_temp, &bytes)

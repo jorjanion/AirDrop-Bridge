@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 
 const QUALIFIER: &str = "com";
 const ORGANIZATION: &str = "jorjanion";
-const APPLICATION: &str = "AirDropBridge";
+const APPLICATION: &str = "DropBridge";
 pub const DEFAULT_PORT: u16 = 53317;
 
 fn default_true() -> bool {
@@ -58,13 +58,13 @@ impl AppConfig {
         hex::encode(bytes)
     }
 
-    /// Determines the default download directory: ~/Downloads/AirDropBridge
+    /// Determines the default download directory: ~/Downloads/DropBridge
     pub fn default_download_dir() -> PathBuf {
         if let Some(user_dirs) = directories::UserDirs::new() {
             if let Some(downloads) = user_dirs.download_dir() {
-                return downloads.join("AirDropBridge");
+                return downloads.join("DropBridge");
             }
-            return user_dirs.home_dir().join("Downloads").join("AirDropBridge");
+            return user_dirs.home_dir().join("Downloads").join("DropBridge");
         }
         PathBuf::from("./downloads")
     }
@@ -81,10 +81,10 @@ impl AppConfig {
         {
             return hostname;
         }
-        "AirDrop-Bridge-PC".to_string()
+        "DropBridge-PC".to_string()
     }
 
-    /// Path to the config file in %APPDATA%/AirDropBridge/config.json
+    /// Path to the config file in %APPDATA%/DropBridge/config.json
     pub fn config_file_path() -> Option<PathBuf> {
         ProjectDirs::from(QUALIFIER, ORGANIZATION, APPLICATION)
             .map(|proj| proj.config_dir().join("config.json"))

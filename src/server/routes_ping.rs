@@ -10,7 +10,7 @@ pub async fn ping_handler(State(state): State<AppState>) -> Json<Value> {
 
     Json(json!({
         "status": "ok",
-        "app": "AirDropBridge",
+        "app": "DropBridge",
         "version": env!("CARGO_PKG_VERSION"),
         "device_name": device_name
     }))
