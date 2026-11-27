@@ -7,6 +7,10 @@ description = "Ultra-lightweight, native, secure DropBridge file transfer for Wi
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/jorjanion/DropBridge"
 
+[features]
+default = ["quickshare"]
+quickshare = ["dep:rqs_lib"]
+
 [dependencies]
 tokio = { version = "1.43", features = ["rt-multi-thread", "macros", "fs", "io-util", "sync", "time"] }
 axum = { version = "0.8", features = ["multipart"] }
@@ -47,6 +51,7 @@ windows-sys = { version = "0.59", features = [
 
 [target.'cfg(not(windows))'.dependencies]
 notify-rust = "4.11"
+rqs_lib = { git = "https://github.com/Martichou/rquickshare.git", rev = "378d8ae969941bee4bf60ad34ac9cf8bb7005eb7", optional = true }
 
 [profile.release]
 opt-level = 3
