@@ -5,7 +5,7 @@ use std::sync::Arc;
 use tokio::sync::{RwLock, broadcast};
 use tracing::info;
 
-#[cfg(all(feature = "quickshare", not(windows)))]
+#[cfg(feature = "quickshare")]
 mod native {
     use super::*;
     use crate::clipboard::ClipboardManager;
@@ -140,7 +140,7 @@ mod native {
                         .as_ref()
                         .and_then(|m| m.pin_code.clone())
                         .unwrap_or_else(|| "----".to_string());
-                    prompt_linux_consent(sender_name, pin).await
+                    prompt_user_consent(sender_name, pin).await
                 };
 
                 let action = if accepted {
@@ -210,26 +210,58 @@ mod native {
         }
     }
 
-    async fn prompt_linux_consent(sender_name: String, pin: String) -> bool {
+    async fn prompt_user_consent(sender_name: String, pin: String) -> bool {
         tokio::task::spawn_blocking(move || {
             let prompt = format!(
                 "Accept Quick Share transfer from '{}'?\nPIN: {}",
                 sender_name, pin
             );
-            if let Ok(status) = std::process::Command::new("zenity")
-                .args(["--question", "--title=DropBridge Quick Share", "--text", &prompt])
-                .status()
+
+            #[cfg(windows)]
             {
-                return status.success();
+                use std::ffi::OsStr;
+                use std::os::windows::ffi::OsStrExt;
+                use windows_sys::Win32::UI::WindowsAndMessaging::{
+                    IDYES, MB_ICONQUESTION, MB_SYSTEMMODAL, MB_YESNO, MessageBoxW,
+                };
+
+                let title_wide: Vec<u16> = OsStr::new("DropBridge Quick Share")
+                    .encode_wide()
+                    .chain(std::iter::once(0))
+                    .collect();
+                let text_wide: Vec<u16> = OsStr::new(&prompt)
+                    .encode_wide()
+                    .chain(std::iter::once(0))
+                    .collect();
+
+                let res = unsafe {
+                    MessageBoxW(
+                        std::ptr::null_mut(),
+                        text_wide.as_ptr(),
+                        title_wide.as_ptr(),
+                        MB_YESNO | MB_ICONQUESTION | MB_SYSTEMMODAL,
+                    )
+                };
+                return res == IDYES;
             }
-            if let Ok(status) = std::process::Command::new("kdialog")
-                .args(["--title", "DropBridge Quick Share", "--yesno", &prompt])
-                .status()
+
+            #[cfg(not(windows))]
             {
-                return status.success();
+                if let Ok(status) = std::process::Command::new("zenity")
+                    .args(["--question", "--title=DropBridge Quick Share", "--text", &prompt])
+                    .status()
+                {
+                    return status.success();
+                }
+                if let Ok(status) = std::process::Command::new("kdialog")
+                    .args(["--title", "DropBridge Quick Share", "--yesno", &prompt])
+                    .status()
+                {
+                    return status.success();
+                }
+                warn!("Neither zenity nor kdialog found for Quick Share consent prompt; rejecting transfer");
+                false
             }
-            warn!("Neither zenity nor kdialog found for Quick Share consent prompt; rejecting transfer");
-            false
         })
         .await
         .unwrap_or(false)
@@ -237,7 +269,7 @@ mod native {
 }
 
 pub struct QuickShareManager {
-    #[cfg(all(feature = "quickshare", not(windows)))]
+    #[cfg(feature = "quickshare")]
     inner: native::NativeQuickShare,
 }
 
@@ -246,34 +278,34 @@ impl QuickShareManager {
         config: Arc<RwLock<AppConfig>>,
         event_tx: broadcast::Sender<ServerEvent>,
     ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        #[cfg(all(feature = "quickshare", not(windows)))]
+        #[cfg(feature = "quickshare")]
         {
             let inner = native::NativeQuickShare::start(config, event_tx).await?;
             Ok(Self { inner })
         }
 
-        #[cfg(not(all(feature = "quickshare", not(windows))))]
+        #[cfg(not(feature = "quickshare"))]
         {
             let _ = (config, event_tx);
-            info!("Quick Share native backend is disabled on this target/feature set");
+            info!("Quick Share native backend is disabled (feature 'quickshare' not enabled)");
             Ok(Self {})
         }
     }
 
     pub fn set_visibility(&self, visibility: QuickShareVisibility) {
-        #[cfg(all(feature = "quickshare", not(windows)))]
+        #[cfg(feature = "quickshare")]
         {
             self.inner.set_visibility(visibility);
         }
 
-        #[cfg(not(all(feature = "quickshare", not(windows))))]
+        #[cfg(not(feature = "quickshare"))]
         {
             let _ = visibility;
         }
     }
 
     pub fn is_supported() -> bool {
-        cfg!(all(feature = "quickshare", not(windows)))
+        cfg!(feature = "quickshare")
     }
 }
 
