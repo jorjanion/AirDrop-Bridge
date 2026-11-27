@@ -7,6 +7,7 @@ pub mod i18n;
 pub mod mdns;
 pub mod notification;
 pub mod qr;
+pub mod quickshare;
 pub mod server;
 pub mod tray;
 pub mod ui;
