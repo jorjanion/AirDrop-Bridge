@@ -5,8 +5,8 @@
 <h1 align="center">Drop Bridge</h1>
 
 <p align="center">
-  <strong>Native, blazing-fast file transfers from iPhone and iPad to Windows and Linux.</strong><br>
-  No third-party iOS apps, no cloud accounts, and no subscriptions.
+  <strong>Native, blazing-fast file transfers from iPhone, iPad, and Android to Windows and Linux.</strong><br>
+  No third-party mobile apps, no cloud accounts, and no subscriptions.
 </p>
 
 <p align="center">
@@ -52,7 +52,7 @@ Instead of requiring an App Store download or sending your personal files throug
 
 * **100% Local & Private**: Direct peer-to-peer Wi-Fi streaming. Your photos and files never leave your home network.
 * **Tailscale & VPN Ready**: Works seamlessly across subnets, mobile data, and planet-wide via Tailscale CGNAT (`100.64.0.0/10`) or custom VPN tunnels.
-* **Zero Third-Party Apps on iOS**: Uses an official Apple Shortcut signed by iOS.
+* **Zero Third-Party Apps**: Uses an official Apple Shortcut on iOS/iPadOS and native **Quick Share (Nearby Share)** on Android.
 * **Blazing Fast**: Uses chunked disk streaming with constant memory usage (under 15 MB RAM on PC). Transfer gigabyte-sized videos without buffering or RAM spikes.
 * **Zero-Config Discovery**: Automatic local detection via mDNS and LAN fallback.
 * **Secure by Default**: Cryptographic Bearer token authorization blocks unwanted transfers on shared Wi-Fi networks.
@@ -102,6 +102,12 @@ Setting up Drop Bridge takes less than a minute.
   * 📥 **Get clipboard**: Pulls the text currently on your PC clipboard directly into your iPhone.
 * You can also select any text on your iPhone (in Safari, Notes, or Messages), tap **Share**, and pick **Drop Bridge** to copy it instantly to your PC!
 
+### Android Quick Share (Nearby Share)
+* Make sure your Android phone and PC are on the same local Wi-Fi network (or within Bluetooth range).
+* On Android, open any photo, file, or text, tap **Share → Quick Share**, and select your PC (`device_name`).
+* Confirm the PIN prompt on your PC (or set `"quickshare_auto_accept": true` in `config.json` for trusted networks).
+* Received files are saved to `Downloads\DropBridge` and shared text/URLs are copied to your PC clipboard when **Sync Clipboard** is enabled.
+
 ---
 
 ## Windows SmartScreen Notice
@@ -134,6 +140,7 @@ Right-click the Drop Bridge icon in the Windows taskbar tray to access quick set
   * **Sound on Receive**: Play a subtle audio chime when a file arrives.
   * **Open Folder on Receive**: Automatically pop open the destination folder.
   * **Sync Clipboard**: Keep clipboard synchronization active.
+  * **Quick Share (Android)**: Toggle Android Quick Share visibility (`Visible` / `Invisible`) at runtime.
   * **Network Interface**: Select active adapter (Auto / LAN vs detected Tailscale or VPN IP).
   * **Automatic Updates**: Check and update silently in the background.
   * **Language**: Switch instantly between English, Spanish, Chinese, Portuguese, French, German, Italian, or Japanese.
@@ -142,7 +149,9 @@ Right-click the Drop Bridge icon in the Windows taskbar tray to access quick set
 
 ## Building from Source
 
-Requirements: [Rust](https://www.rust-lang.org/) (2024 edition or newer).
+Requirements:
+* [Rust](https://www.rust-lang.org/) (2024 edition or newer)
+* [Protocol Buffers compiler (`protoc`)](https://protobuf.dev/installation/) — required by the default `quickshare` feature
 
 ```bash
 git clone https://github.com/jorjanion/DropBridge.git
@@ -150,7 +159,13 @@ cd DropBridge
 cargo build --release
 ```
 
-The optimized executable will be generated at `target/release/drop-bridge.exe`.
+To build the ultra-lightweight HTTP-only variant without Quick Share (no `protoc` required):
+
+```bash
+cargo build --release --no-default-features
+```
+
+The optimized executable will be generated at `target/release/drop-bridge.exe` (or `target/release/drop-bridge` on Linux).
 
 ---
 
@@ -191,3 +206,5 @@ Drop Bridge is licensed under either of:
 * MIT license ([LICENSE-MIT](LICENSE) or http://opensource.org/licenses/MIT)
 
 at your option.
+
+> **Note on Quick Share (`--features quickshare`, enabled by default):** When built with the `quickshare` feature, Drop Bridge links `rqs_lib` (GPL-3.0). Building with `--no-default-features` excludes `rqs_lib` and produces an MIT / Apache-2.0 binary.

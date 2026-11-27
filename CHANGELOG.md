@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-27
+
+### Added
+* **Native Android Quick Share (Nearby Share) support** (resolves GitHub Issue #1):
+  * Integrated `rqs_lib` behind the `quickshare` Cargo feature (enabled by default; opt-out via `--no-default-features`).
+  * Added `QuickShareManager` (`src/quickshare/mod.rs`) bridging incoming Quick Share file and text/URL transfers into DropBridge's `ServerEvent`, `NotificationManager`, and `ClipboardManager` pipelines.
+  * Added native consent prompts with sender name & PIN verification (`MessageBoxW` on Windows, `zenity`/`kdialog` on Linux), plus optional `quickshare_auto_accept` in `AppConfig`.
+  * Added `quickshare_enabled`, `quickshare_visibility`, and `quickshare_auto_accept` backwards-compatible settings to `AppConfig`.
+  * Added **Quick Share (Android)** visibility toggle in the System Tray menu (`src/tray.rs`) and localized labels across all 8 languages (`src/i18n.rs`).
+  * Added cross-platform `crates/sys_metrics` hostname shim so `rqs_lib` compiles natively on both Windows and Linux/macOS.
+  * Updated `.github/workflows/release.yml` to install `protoc` on Windows and Linux release runners.
+
 ### Changed
 * Project rebranded to **DropBridge** (`drop-bridge` / `Drop Bridge`):
   * Renamed repository and all project links to `DropBridge`.
