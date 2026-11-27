@@ -1317,12 +1317,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "glob"
-version = "0.3.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4eba85ea1d0a966a983acd07deee566e67395d2d96b6fb39e62b5a833f1eb0b"
-
-[[package]]
 name = "gobject-sys"
 version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1741,16 +1735,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "io-kit-sys"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9b2d4429acc1deff0fbdece0325b4997bdb02b2c245ab7023fd5deca0f6348de"
-dependencies = [
- "core-foundation-sys",
- "mach2",
-]
-
-[[package]]
 name = "ipnet"
 version = "2.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1983,24 +1967,6 @@ name = "macaddr"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baee0bbc17ce759db233beb01648088061bf678383130602a298e6998eedb2d8"
-
-[[package]]
-name = "mach"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b823e83b2affd8f40a9ee8c29dbc56404c1e34cd2710921f2801e2cf29527afa"
-dependencies = [
- "libc",
-]
-
-[[package]]
-name = "mach2"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d640282b302c0bb0a2a8e0233ead9035e3bed871f0b7e81fe4a1ec829765db44"
-dependencies = [
- "libc",
-]
 
 [[package]]
 name = "matchers"
@@ -3000,7 +2966,7 @@ dependencies = [
 [[package]]
 name = "rqs_lib"
 version = "0.11.5"
-source = "git+https://github.com/Martichou/rquickshare.git?rev=378d8ae969941bee4bf60ad34ac9cf8bb7005eb7#378d8ae969941bee4bf60ad34ac9cf8bb7005eb7"
+source = "git+https://github.com/edithatogo/rquickshare.git?rev=c8dd2ac7fe0d549bb398f47edb290e1b799fbace#c8dd2ac7fe0d549bb398f47edb290e1b799fbace"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
@@ -3482,16 +3448,6 @@ dependencies = [
 [[package]]
 name = "sys_metrics"
 version = "0.2.7"
-source = "git+https://github.com/Martichou/sys_metrics#e5b324a17d1724bd97923a173c3535cc06a44b0c"
-dependencies = [
- "core-foundation-sys",
- "glob",
- "io-kit-sys",
- "lazy_static",
- "libc",
- "mach",
- "serde",
-]
 
 [[package]]
 name = "system-deps"

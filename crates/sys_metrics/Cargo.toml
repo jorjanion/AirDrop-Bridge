@@ -1,0 +1,6 @@
+[package]
+name = "sys_metrics"
+version = "0.2.7"
+edition = "2021"
+description = "Cross-platform hostname shim for rqs_lib on Windows and Unix"
+license = "MIT OR Apache-2.0"

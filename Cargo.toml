@@ -35,6 +35,7 @@ directories = "6.0"
 sanitize-filename = "0.6"
 tray-icon = "0.26"
 muda = "0.21"
+rqs_lib = { git = "https://github.com/edithatogo/rquickshare.git", rev = "c8dd2ac7fe0d549bb398f47edb290e1b799fbace", optional = true }
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = [
@@ -51,7 +52,9 @@ windows-sys = { version = "0.59", features = [
 
 [target.'cfg(not(windows))'.dependencies]
 notify-rust = "4.11"
-rqs_lib = { git = "https://github.com/Martichou/rquickshare.git", rev = "378d8ae969941bee4bf60ad34ac9cf8bb7005eb7", optional = true }
+
+[patch."https://github.com/Martichou/sys_metrics"]
+sys_metrics = { path = "crates/sys_metrics" }
 
 [profile.release]
 opt-level = 3
