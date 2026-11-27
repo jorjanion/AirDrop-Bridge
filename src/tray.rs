@@ -3,6 +3,7 @@ use crate::clipboard::ClipboardManager;
 use crate::config::AppConfig;
 use crate::i18n::{Language, t};
 use crate::notification::NotificationManager;
+use crate::quickshare::QuickShareManager;
 use crate::ui::win_ui;
 use muda::{CheckMenuItem, Menu, MenuEvent, MenuItem, PredefinedMenuItem, Submenu};
 use std::sync::Arc;
@@ -15,6 +16,7 @@ pub enum TrayCommand {
     OpenDownloads,
     CopyToken,
     ToggleAutostart,
+    ToggleQuickShare(bool),
     CheckUpdate,
     Exit,
 }
@@ -62,6 +64,7 @@ fn run_tray_loop(
     let is_sound = conf.play_sound;
     let is_open_folder = conf.open_folder_on_receive;
     let is_clipboard = conf.clipboard_sync;
+    let is_quickshare = conf.quickshare_enabled;
     let is_auto_update = conf.auto_update;
     let current_custom_host = conf.custom_host.clone();
     let mut current_lang = conf.language;
@@ -91,6 +94,13 @@ fn run_tray_loop(
         CheckMenuItem::new(strings.tray_open_folder, true, is_open_folder, None);
     let clipboard_item =
         CheckMenuItem::new(strings.tray_clipboard, true, is_clipboard, None);
+    let quickshare_supported = QuickShareManager::is_supported();
+    let quickshare_item = CheckMenuItem::new(
+        strings.tray_quickshare,
+        quickshare_supported,
+        quickshare_supported && is_quickshare,
+        None,
+    );
     let auto_update_item =
         CheckMenuItem::new(strings.tray_auto_update, true, is_auto_update, None);
 
@@ -132,6 +142,7 @@ fn run_tray_loop(
         &sound_item,
         &open_folder_item,
         &clipboard_item,
+        &quickshare_item,
         &auto_update_item,
         &network_submenu,
         &lang_submenu,
@@ -152,6 +163,7 @@ fn run_tray_loop(
     let sound_id = sound_item.id().clone();
     let open_folder_id = open_folder_item.id().clone();
     let clipboard_id = clipboard_item.id().clone();
+    let quickshare_id = quickshare_item.id().clone();
     let auto_update_id = auto_update_item.id().clone();
 
     let update_id = update_item.id().clone();
@@ -255,6 +267,20 @@ fn run_tray_loop(
                 conf.clipboard_sync = !conf.clipboard_sync;
                 clipboard_item.set_checked(conf.clipboard_sync);
                 let _ = conf.save();
+            } else if event.id == quickshare_id {
+                let new_state = {
+                    let mut conf = config.blocking_write();
+                    conf.quickshare_enabled = !conf.quickshare_enabled;
+                    conf.quickshare_visibility = if conf.quickshare_enabled {
+                        crate::config::QuickShareVisibility::Visible
+                    } else {
+                        crate::config::QuickShareVisibility::Invisible
+                    };
+                    quickshare_item.set_checked(conf.quickshare_enabled);
+                    let _ = conf.save();
+                    conf.quickshare_enabled
+                };
+                let _ = cmd_tx.blocking_send(TrayCommand::ToggleQuickShare(new_state));
             } else if event.id == auto_update_id {
                 let mut conf = config.blocking_write();
                 conf.auto_update = !conf.auto_update;
@@ -285,6 +311,7 @@ fn run_tray_loop(
                     sound_item.set_text(new_strings.tray_sound);
                     open_folder_item.set_text(new_strings.tray_open_folder);
                     clipboard_item.set_text(new_strings.tray_clipboard);
+                    quickshare_item.set_text(new_strings.tray_quickshare);
                     auto_update_item.set_text(new_strings.tray_auto_update);
                     lang_submenu.set_text(new_strings.tray_language);
                     update_item.set_text(new_strings.tray_check_updates);

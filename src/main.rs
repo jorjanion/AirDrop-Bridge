@@ -15,10 +15,11 @@ pub mod updater;
 
 use autostart::AutostartManager;
 use clipboard::ClipboardManager;
-use config::AppConfig;
+use config::{AppConfig, QuickShareVisibility};
 use mdns::MdnsResponder;
 use notification::NotificationManager;
 use qr::QrManager;
+use quickshare::QuickShareManager;
 use server::{AppState, ServerEvent, create_router};
 use std::net::SocketAddr;
 use tokio::sync::mpsc;
@@ -122,6 +123,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Start auto-updater background checker
     AutoUpdater::spawn_background_checker(state.config.clone());
 
+    // Start Android Quick Share (Nearby Share) backend if enabled and supported
+    let mut quickshare_mgr = if config.quickshare_enabled && QuickShareManager::is_supported() {
+        match QuickShareManager::start(state.config.clone(), state.event_tx.clone()).await {
+            Ok(mgr) => Some(mgr),
+            Err(e) => {
+                error!("Failed to start Quick Share backend: {}", e);
+                None
+            }
+        }
+    } else {
+        None
+    };
+
     let config_arc = state.config.clone();
 
     // Start Native UI Window thread (starts visible, minimizes to tray on close)
@@ -163,6 +177,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                     let mut conf = config_arc.write().await;
                     conf.autostart = !is_enabled;
                     let _ = conf.save();
+                }
+            }
+            TrayCommand::ToggleQuickShare(enabled) => {
+                if enabled {
+                    if let Some(mgr) = &quickshare_mgr {
+                        mgr.set_visibility(QuickShareVisibility::Visible);
+                    } else if QuickShareManager::is_supported() {
+                        match QuickShareManager::start(config_arc.clone(), state.event_tx.clone()).await {
+                            Ok(mgr) => quickshare_mgr = Some(mgr),
+                            Err(e) => error!("Failed to start Quick Share backend: {}", e),
+                        }
+                    }
+                } else if let Some(mgr) = &quickshare_mgr {
+                    mgr.set_visibility(QuickShareVisibility::Invisible);
                 }
             }
             TrayCommand::CheckUpdate => {
