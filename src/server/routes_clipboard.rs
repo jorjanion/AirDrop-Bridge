@@ -189,6 +189,9 @@ mod tests {
             clipboard_sync: true,
             language: Language::En,
             custom_host: None,
+            quickshare_enabled: true,
+            quickshare_visibility: crate::config::QuickShareVisibility::Visible,
+            quickshare_auto_accept: false,
         };
         let (state, mut rx) = AppState::new(config);
         let router = create_router(state);

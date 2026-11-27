@@ -18,6 +18,14 @@ fn default_false() -> bool {
     false
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[serde(rename_all = "snake_case")]
+pub enum QuickShareVisibility {
+    #[default]
+    Visible,
+    Invisible,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub device_name: String,
@@ -40,6 +48,12 @@ pub struct AppConfig {
     pub language: Language,
     #[serde(default)]
     pub custom_host: Option<String>,
+    #[serde(default = "default_true")]
+    pub quickshare_enabled: bool,
+    #[serde(default)]
+    pub quickshare_visibility: QuickShareVisibility,
+    #[serde(default = "default_false")]
+    pub quickshare_auto_accept: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -116,6 +130,9 @@ impl AppConfig {
                 clipboard_sync: true,
                 language: Language::En,
                 custom_host: None,
+                quickshare_enabled: true,
+                quickshare_visibility: QuickShareVisibility::Visible,
+                quickshare_auto_accept: false,
             };
 
             config.save_to_path(&path)?;
@@ -138,6 +155,9 @@ impl AppConfig {
             clipboard_sync: true,
             language: Language::En,
             custom_host: None,
+            quickshare_enabled: true,
+            quickshare_visibility: QuickShareVisibility::Visible,
+            quickshare_auto_accept: false,
         };
         fallback.ensure_directories()?;
         Ok(fallback)
@@ -235,6 +255,9 @@ mod tests {
             clipboard_sync: true,
             language: Language::Es,
             custom_host: Some("100.115.92.10".to_string()),
+            quickshare_enabled: true,
+            quickshare_visibility: QuickShareVisibility::Visible,
+            quickshare_auto_accept: false,
         };
 
         let serialized = serde_json::to_string(&config).unwrap();
@@ -249,6 +272,25 @@ mod tests {
         assert_eq!(config.clipboard_sync, deserialized.clipboard_sync);
         assert_eq!(config.language, deserialized.language);
         assert_eq!(config.custom_host, deserialized.custom_host);
+        assert_eq!(config.quickshare_enabled, deserialized.quickshare_enabled);
+        assert_eq!(config.quickshare_visibility, deserialized.quickshare_visibility);
+        assert_eq!(config.quickshare_auto_accept, deserialized.quickshare_auto_accept);
+    }
+
+    #[test]
+    fn test_config_backwards_compatibility() {
+        let legacy_json = r#"{
+            "device_name": "LegacyPC",
+            "port": 53317,
+            "token": "abc",
+            "download_dir": "./downloads",
+            "auto_update": true,
+            "autostart": false
+        }"#;
+        let deserialized: AppConfig = serde_json::from_str(legacy_json).unwrap();
+        assert!(deserialized.quickshare_enabled);
+        assert_eq!(deserialized.quickshare_visibility, QuickShareVisibility::Visible);
+        assert!(!deserialized.quickshare_auto_accept);
     }
 
     #[test]
@@ -267,6 +309,9 @@ mod tests {
             clipboard_sync: true,
             language: Language::En,
             custom_host: Some("my-pc.tailnet-xyz.ts.net".to_string()),
+            quickshare_enabled: true,
+            quickshare_visibility: QuickShareVisibility::Visible,
+            quickshare_auto_accept: false,
         };
 
         assert_eq!(config.resolve_primary_host(), "my-pc.tailnet-xyz.ts.net");
