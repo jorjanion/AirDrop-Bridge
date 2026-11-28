@@ -48,6 +48,9 @@ fn run_tray_loop(
     config: Arc<RwLock<AppConfig>>,
     cmd_tx: mpsc::Sender<TrayCommand>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    #[cfg(target_os = "linux")]
+    gtk::init().map_err(|e| format!("Failed to initialize GTK for system tray: {}", e))?;
+
     let icon = match load_tray_icon() {
         Ok(i) => i,
         Err(e) => {
@@ -216,7 +219,15 @@ fn run_tray_loop(
             MsgWaitForMultipleObjectsEx(0, std::ptr::null(), 20, QS_ALLINPUT, 0);
         }
 
-        #[cfg(not(windows))]
+        #[cfg(target_os = "linux")]
+        {
+            while gtk::events_pending() {
+                gtk::main_iteration_do(false);
+            }
+            std::thread::sleep(std::time::Duration::from_millis(20));
+        }
+
+        #[cfg(all(not(windows), not(target_os = "linux")))]
         std::thread::sleep(std::time::Duration::from_millis(20));
 
         // Handle menu clicks

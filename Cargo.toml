@@ -53,6 +53,9 @@ windows-sys = { version = "0.59", features = [
 [target.'cfg(not(windows))'.dependencies]
 notify-rust = "4.11"
 
+[target.'cfg(target_os = "linux")'.dependencies]
+gtk = "0.18"
+
 [patch."https://github.com/Martichou/sys_metrics"]
 sys_metrics = { path = "crates/sys_metrics" }
 
