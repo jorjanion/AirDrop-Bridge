@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-11-28
+
+### Fixed
+* Fixed immediate startup panic on Linux (including X11 / AppImage) when initializing the system tray menu (`GTK has not been initialized. Call gtk::init first.`) by calling `gtk::init()` on the tray thread and pumping the GTK event loop in `src/tray.rs` (resolves GitHub Issue #4).
+
 ## [1.2.0] - 2026-11-27
 
 ### Added
